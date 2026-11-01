@@ -1,0 +1,742 @@
+<title>Top Maçı Simülatörü</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: broadcast control room — the 9:16 stage on the left, a settings + prediction rack on the right; stacks on phones. Single dark look by choice. */
+:root{
+  --bg:#0d1016; --panel:#151a23; --line:#262d3a; --fg:#e9edf3; --muted:#8d97a8;
+  --accent:#3fd0b2; --warn:#f2b84b; --win:#3fd0b2; --draw:#8d97a8; --loss:#ef6b6b;
+  --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);font-size:15px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 32px}
+.wrap{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.stage{display:flex;flex-direction:column;gap:12px;align-items:center;position:sticky;top:12px}
+@media (max-width:860px){.stage{position:static}}
+canvas{display:block;height:min(80vh,880px);aspect-ratio:9/16;max-width:100%;border-radius:14px;background:#000;box-shadow:0 0 0 1px var(--line)}
+@media (max-width:860px){canvas{width:100%;height:auto}}
+.btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+button{font:600 15px var(--body);border-radius:10px;padding:10px 18px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#06261f}
+button.rec{border-color:#e5484d;color:#ff8a8d}
+button.small{padding:6px 12px;font-size:13px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.status{font-size:13px;color:var(--muted);text-align:center;min-height:1.4em;max-width:420px}
+.panel{display:flex;flex-direction:column;gap:16px;min-width:0}
+h1{font:800 34px/1 var(--display);letter-spacing:.01em;text-transform:uppercase;margin:0}
+.lede{color:var(--muted);margin:6px 0 0;max-width:62ch}
+.teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.teams{grid-template-columns:minmax(0,1fr)}}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:14px;margin:0;display:flex;flex-direction:column;gap:10px;background:var(--panel);min-width:0}
+legend{font:800 13px var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 6px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+label.inline{flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:14px}
+input[type=text],select{font:500 15px var(--body);background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;box-sizing:border-box;min-width:0}
+.colors{display:flex;gap:10px}
+input[type=color]{width:100%;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:2px}
+input[type=file]{font-size:12px;color:var(--muted);max-width:100%}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=radio],input[type=checkbox]{accent-color:var(--accent)}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.row{grid-template-columns:minmax(0,1fr)}}
+.val{color:var(--fg);font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted);border-left:2px solid var(--warn);padding-left:10px;margin:0}
+.modes{display:flex;flex-wrap:wrap;gap:16px}
+
+/* prediction card */
+.pred{border-color:#2f4a47;background:linear-gradient(180deg,#132322,var(--panel) 60%)}
+.pred[hidden]{display:none!important}
+.bar{display:flex;height:30px;border-radius:8px;overflow:hidden;font:800 15px var(--display);letter-spacing:.03em}
+.bar span{display:flex;align-items:center;justify-content:center;min-width:0;white-space:nowrap;overflow:hidden;color:#0b0f14;transition:flex-basis .4s}
+.barlbl{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);gap:8px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.stat b{display:block;font:800 22px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-size:12px}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:480px){.form,.stats{grid-template-columns:minmax(0,1fr)}}
+.form h3{margin:0 0 6px;font:800 14px var(--display);letter-spacing:.08em;text-transform:uppercase}
+.chips{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.chip{display:flex;gap:8px;align-items:baseline;min-width:0}
+.chip i{font-style:normal;font:800 12px var(--display);width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:#0b0f14;flex:none}
+.chip i.W{background:var(--win)}.chip i.D{background:var(--draw)}.chip i.L{background:var(--loss)}
+.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.chip em{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto;flex:none}
+.h2h{font-size:13px;color:var(--muted);margin:0}
+.scenario{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.scenario strong{font:800 24px var(--display);font-variant-numeric:tabular-nums;min-width:3.5ch}
+.src{font-size:12px;color:var(--muted);margin:0}
+</style>
+
+<div class="wrap">
+  <section class="stage">
+    <canvas id="cv" width="1080" height="1920"></canvas>
+    <div class="btns">
+      <button class="primary" id="startBtn">Maçı başlat</button>
+      <button id="resetBtn">Sıfırla</button>
+      <button class="rec" id="recBtn">● Kaydet (tam maç)</button>
+    </div>
+    <div class="status" id="status">1080×1920 dikey format. Başlata bas, maç 90. dakikaya kadar kendi kendine oynanır.</div>
+  </section>
+
+  <section class="panel">
+    <div>
+      <h1>Top Maçı Simülatörü</h1>
+      <p class="lede">Şampiyonlar Ligi 2026-27 fikstüründen bir maç seç. Sonuç, 2011'den bu yana oynanan Avrupa kupası maçlarından hesaplanan takım güçlerine göre belirlenir; toplar o skora doğal bir maçla ulaşır.</p>
+    </div>
+
+    <fieldset>
+      <legend>Maç</legend>
+      <label>Fikstür<select id="fixture"></select></label>
+      <div class="modes" role="radiogroup" aria-label="Sonuç modu">
+        <label class="inline"><input type="radio" name="mode" id="modeData" value="data" checked> Gerçek veriye göre</label>
+        <label class="inline"><input type="radio" name="mode" id="modeFree" value="free"> Tamamen rastgele</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="pred" id="pred">
+      <legend>Veri tahmini</legend>
+      <div>
+        <div class="bar" id="bar"><span id="pH"></span><span id="pD"></span><span id="pA"></span></div>
+        <div class="barlbl"><span id="lH"></span><span>Beraberlik</span><span id="lA"></span></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>Beklenen gol</small><b id="xg">–</b></div>
+        <div class="stat"><small>En olası skor</small><b id="ml">–</b></div>
+        <div class="stat"><small>Güç puanı (Elo)</small><b id="elo">–</b></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>Beklenen sarı kart</small><b id="yc">–</b></div>
+        <div class="stat"><small>Penaltı olma ihtimali</small><b id="pp">–</b></div>
+        <div class="stat"><small>Kırmızı kart ihtimali</small><b id="rc">–</b></div>
+      </div>
+      <div class="form">
+        <div><h3 id="fH"></h3><div class="chips" id="cH"></div></div>
+        <div><h3 id="fA"></h3><div class="chips" id="cA"></div></div>
+      </div>
+      <p class="h2h" id="h2h"></p>
+      <div class="row">
+        <label>Senaryo<select id="scen"><option value="sample">Olasılığa göre çek (her video farklı)</option><option value="likely">Her zaman en olası skor</option></select></label>
+        <label class="inline" style="align-self:end"><input type="checkbox" id="showBar" checked> Videoda kazanma ihtimalini göster</label>
+      </div>
+      <div class="scenario">
+        <span style="color:var(--muted);font-size:13px">Bu çekimin skoru</span>
+        <strong id="scenScore">? - ?</strong><span id="scenEv" style="color:var(--muted);font-size:13px"></span>
+        <button class="small" id="reveal" type="button">Göster</button>
+        <button class="small" id="redraw" type="button">Yeni skor çek</button>
+      </div>
+      <p class="src">Kaynak: openfootball açık veri (Şampiyonlar Ligi, Avrupa Ligi, Konferans Ligi ve elemeleri, 2011-12 → 2025-26) ve UEFA 2026-27 lig aşaması 1.–3. hafta sonuçları. Yalnızca Avrupa maçları sayılıyor, lig maçları dahil değil. Kart ve penaltılar takıma özel veri değil: Şampiyonlar Ligi genel ortalamaları (maç başına yaklaşık 3,7 sarı kart, 0,1 kırmızı kart, 0,27 penaltı, penaltıların ~%78'i gol), iki takımın güç farkına göre ayarlanıyor. Güncelleme: 1 Kasım 2026.</p>
+    </fieldset>
+
+    <div class="teams">
+      <fieldset>
+        <legend>Ev sahibi</legend>
+        <label>Topun üstündeki ad<input type="text" id="s0" maxlength="4"></label>
+        <div class="colors">
+          <label>Renk 1<input type="color" id="a0"></label>
+          <label>Renk 2<input type="color" id="b0"></label>
+        </div>
+        <label>Logo (isteğe bağlı)<input type="file" id="l0" accept="image/*"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Deplasman</legend>
+        <label>Topun üstündeki ad<input type="text" id="s1" maxlength="4"></label>
+        <div class="colors">
+          <label>Renk 1<input type="color" id="a1"></label>
+          <label>Renk 2<input type="color" id="b1"></label>
+        </div>
+        <label>Logo (isteğe bağlı)<input type="file" id="l1" accept="image/*"></label>
+      </fieldset>
+    </div>
+
+    <fieldset id="custom" hidden>
+      <legend>Özel eşleşme</legend>
+      <div class="row">
+        <label>Ev sahibi<select id="t0"></select></label>
+        <label>Deplasman<select id="t1"></select></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Video ayarları</legend>
+      <div class="row">
+        <label>Video süresi: <span class="val" id="durV">60 sn</span><input type="range" id="dur" min="30" max="150" step="5" value="60"></label>
+        <label>Top hızı: <span class="val" id="spdV">850</span><input type="range" id="spd" min="450" max="1500" step="25" value="850"></label>
+        <label>Kale genişliği: <span class="val" id="gwV">orta</span><input type="range" id="gw" min="0.20" max="0.45" step="0.01" value="0.30"></label>
+        <label>Saha dönüş hızı: <span class="val" id="rotV">0.60</span><input type="range" id="rot" min="0" max="1.6" step="0.05" value="0.6"></label>
+      </div>
+      <div class="row">
+        <label>Kanal adı (filigran)<input type="text" id="handle" value="@kanaladi"></label>
+        <label>Kale düzeni<select id="goalsSel"><option value="2">Çift kale (her takımın kendi kalesi)</option><option value="1">Tek kale</option></select></label>
+      </div>
+      <div class="row">
+        <label>Kaleci forması (tek kalede)<input type="color" id="kc" value="#c6ff3d"></label>
+        <label>Müzik<select id="music"><option value="hype">Heyecanlı maç müziği (özgün, telifsiz)</option><option value="epic">Marş havası (özgün, telifsiz)</option><option value="own">Kendi müzik dosyam</option><option value="none">Müzik yok</option></select></label>
+      </div>
+      <div class="row">
+        <label id="mfileWrap" hidden>Müzik dosyası (MP3, M4A, WAV)<input type="file" id="mfile" accept="audio/*"></label>
+        <label>Rakiple çarpışma: <span class="val" id="aggV">yüksek</span><input type="range" id="agg" min="0" max="1" step="0.05" value="0.65"></label>
+        <label>Müzik sesi: <span class="val" id="mvolV">%45</span><input type="range" id="mvol" min="0" max="1" step="0.05" value="0.45"></label>
+      </div>
+    </fieldset>
+
+    <p class="note">Kaydet, maçı baştan başlatır ve bitince videoyu indirmeni ister. Tarayıcın video kaydını desteklemiyorsa telefonun ekran kaydı da aynı sonucu verir.</p>
+  </section>
+</div>
+
+<script>
+const DATA={"model":{"a":0.3505896334624133,"b":1.0059811155463136,"hfa":55},"teams":{"Arsenal":{"elo":1759,"n":112,"last":[["W",1,0,"Atlético de Madrid","2025-26"],["D",1,1,"Paris Saint-Germain","2025-26"],["W",1,0,"Napoli","2026-27"],["W",3,0,"Lille","2026-27"],["D",2,2,"Bayern München","2026-27"]]},"Aston Villa":{"elo":1619,"n":27,"last":[["L",1,3,"Paris Saint-Germain","2024-25"],["W",3,2,"Paris Saint-Germain","2024-25"],["W",3,2,"Club Brugge","2026-27"],["W",6,0,"Fenerbahçe","2026-27"],["W",3,1,"Viking","2026-27"]]},"AEK Athens":{"elo":1447,"n":31,"last":[["D",1,1,"RSC Anderlecht","2025-26"],["W",2,0,"RSC Anderlecht","2025-26"],["W",1,0,"LASK","2026-27"],["L",1,3,"Shakhtar Donetsk","2026-27"],["L",1,5,"Manchester City","2026-27"]]},"Atlético de Madrid":{"elo":1621,"n":134,"last":[["D",1,1,"Arsenal","2025-26"],["L",0,1,"Arsenal","2025-26"],["L",1,2,"Liverpool","2026-27"],["W",2,0,"Manchester United","2026-27"],["D",1,1,"Stuttgart","2026-27"]]},"Barcelona":{"elo":1655,"n":165,"last":[["L",0,2,"Atlético de Madrid","2025-26"],["W",2,1,"Atlético de Madrid","2025-26"],["W",5,1,"Feyenoord","2026-27"],["W",4,1,"Galatasaray","2026-27"],["L",2,4,"Paris Saint-Germain","2026-27"]]},"Bayern München":{"elo":1727,"n":176,"last":[["L",4,5,"Paris Saint-Germain","2025-26"],["D",1,1,"Paris Saint-Germain","2025-26"],["W",5,0,"Bodø/Glimt","2026-27"],["D",3,3,"Viking","2026-27"],["D",2,2,"Arsenal","2026-27"]]},"Bodø/Glimt":{"elo":1527,"n":67,"last":[["W",3,0,"Sporting CP","2025-26"],["L",0,5,"Sporting CP","2025-26"],["L",0,5,"Bayern München","2026-27"],["W",1,0,"Borussia Dortmund","2026-27"],["L",3,4,"Napoli","2026-27"]]},"Borussia Dortmund":{"elo":1569,"n":135,"last":[["W",2,0,"Atalanta BC","2025-26"],["L",1,4,"Atalanta BC","2025-26"],["W",3,2,"Villarreal","2026-27"],["L",0,1,"Bodø/Glimt","2026-27"],["W",2,1,"Sabah","2026-27"]]},"Club Brugge":{"elo":1555,"n":81,"last":[["D",3,3,"Atlético de Madrid","2025-26"],["L",1,4,"Atlético de Madrid","2025-26"],["L",2,3,"Aston Villa","2026-27"],["W",4,3,"Inter","2026-27"],["W",3,0,"Lens","2026-27"]]},"Como":{"elo":1539,"n":3,"last":[["W",4,1,"Leipzig","2026-27"],["L",2,3,"Feyenoord","2026-27"],["W",4,1,"Manchester United","2026-27"]]},"Fenerbahçe":{"elo":1468,"n":49,"last":[["D",0,0,"SL Benfica","2025-26"],["L",0,1,"SL Benfica","2025-26"],["D",1,1,"Roma","2026-27"],["L",0,6,"Aston Villa","2026-27"],["D",2,2,"Slavia Praha","2026-27"]]},"Feyenoord":{"elo":1481,"n":60,"last":[["W",2,1,"Fenerbahçe","2025-26"],["L",2,5,"Fenerbahçe","2025-26"],["L",1,5,"Barcelona","2026-27"],["W",3,2,"Como","2026-27"],["L",0,1,"Real Betis","2026-27"]]},"Galatasaray":{"elo":1484,"n":85,"last":[["W",1,0,"Liverpool","2025-26"],["L",0,4,"Liverpool","2025-26"],["L",1,3,"Sporting CP","2026-27"],["L",1,4,"Barcelona","2026-27"],["W",4,2,"Lille","2026-27"]]},"Inter":{"elo":1571,"n":83,"last":[["L",1,3,"Bodø/Glimt","2025-26"],["L",1,2,"Bodø/Glimt","2025-26"],["L",1,2,"Real Madrid","2026-27"],["L",3,4,"Club Brugge","2026-27"],["W",1,0,"Shakhtar Donetsk","2026-27"]]},"Lens":{"elo":1424,"n":13,"last":[["W",2,1,"Panathinaikos","2024-25"],["L",0,2,"Panathinaikos","2024-25"],["W",3,2,"Slavia Praha","2026-27"],["L",0,2,"Sporting CP","2026-27"],["L",0,3,"Club Brugge","2026-27"]]},"Leipzig":{"elo":1458,"n":63,"last":[["W",2,1,"Sporting CP","2024-25"],["L",0,1,"SK Sturm Graz","2024-25"],["L",1,4,"Como","2026-27"],["W",1,0,"PSV Eindhoven","2026-27"],["L",1,4,"Real Madrid","2026-27"]]},"LASK":{"elo":1407,"n":31,"last":[["L",0,7,"ACF Fiorentina","2024-25"],["D",1,1,"Víkingur Reykjavík","2024-25"],["L",0,1,"AEK Athens","2026-27"],["L",3,6,"Liverpool","2026-27"],["W",3,2,"Sporting CP","2026-27"]]},"Lille":{"elo":1503,"n":61,"last":[["D",1,1,"Borussia Dortmund","2024-25"],["L",1,2,"Borussia Dortmund","2024-25"],["L",2,3,"Real Betis","2026-27"],["L",0,3,"Arsenal","2026-27"],["L",2,4,"Galatasaray","2026-27"]]},"Liverpool":{"elo":1655,"n":106,"last":[["L",0,2,"Paris Saint-Germain","2025-26"],["L",0,2,"Paris Saint-Germain","2025-26"],["W",2,1,"Atlético de Madrid","2026-27"],["W",6,3,"LASK","2026-27"],["W",4,3,"Villarreal","2026-27"]]},"Manchester City":{"elo":1601,"n":148,"last":[["L",0,3,"Real Madrid","2025-26"],["L",1,2,"Real Madrid","2025-26"],["W",2,0,"Porto","2026-27"],["L",2,4,"Paris Saint-Germain","2026-27"],["W",5,1,"AEK Athens","2026-27"]]},"Manchester United":{"elo":1569,"n":107,"last":[["W",4,1,"Athletic Club","2024-25"],["L",0,1,"Tottenham Hotspur","2024-25"],["W",4,0,"Sabah","2026-27"],["L",0,2,"Atlético de Madrid","2026-27"],["L",1,4,"Como","2026-27"]]},"Napoli":{"elo":1489,"n":87,"last":[["D",1,1,"FC København","2025-26"],["L",2,3,"Chelsea FC","2025-26"],["L",0,1,"Arsenal","2026-27"],["L",1,3,"Villarreal","2026-27"],["W",4,3,"Bodø/Glimt","2026-27"]]},"Paris Saint-Germain":{"elo":1777,"n":152,"last":[["D",1,1,"Bayern München","2025-26"],["D",1,1,"Arsenal","2025-26"],["W",6,1,"Slovan Bratislava","2026-27"],["W",4,2,"Manchester City","2026-27"],["W",4,2,"Barcelona","2026-27"]]},"Porto":{"elo":1471,"n":111,"last":[["D",1,1,"Roma","2024-25"],["L",2,3,"Roma","2024-25"],["L",0,2,"Manchester City","2026-27"],["L",2,3,"Real Betis","2026-27"],["L",0,1,"PSV Eindhoven","2026-27"]]},"PSV Eindhoven":{"elo":1516,"n":79,"last":[["L",0,3,"Newcastle United FC","2025-26"],["L",1,2,"Bayern München","2025-26"],["D",1,1,"Shakhtar Donetsk","2026-27"],["L",0,1,"Leipzig","2026-27"],["W",1,0,"Porto","2026-27"]]},"Real Betis":{"elo":1568,"n":46,"last":[["D",2,2,"ACF Fiorentina","2024-25"],["L",1,4,"Chelsea FC","2024-25"],["W",3,2,"Lille","2026-27"],["W",3,2,"Porto","2026-27"],["W",1,0,"Feyenoord","2026-27"]]},"Real Madrid":{"elo":1681,"n":185,"last":[["L",1,2,"Bayern München","2025-26"],["L",3,4,"Bayern München","2025-26"],["W",2,1,"Inter","2026-27"],["W",4,3,"Roma","2026-27"],["W",4,1,"Leipzig","2026-27"]]},"Roma":{"elo":1549,"n":105,"last":[["W",2,1,"Athletic Club","2024-25"],["L",1,3,"Athletic Club","2024-25"],["D",1,1,"Fenerbahçe","2026-27"],["L",3,4,"Real Madrid","2026-27"],["W",4,0,"Slovan Bratislava","2026-27"]]},"Sabah":{"elo":1353,"n":13,"last":[["L",2,3,"NK Celje","2025-26"],["D",3,3,"NK Celje","2025-26"],["L",0,4,"Manchester United","2026-27"],["W",2,0,"Slavia Praha","2026-27"],["L",1,2,"Borussia Dortmund","2026-27"]]},"Shakhtar Donetsk":{"elo":1493,"n":107,"last":[["D",0,0,"Panathinaikos","2025-26"],["D",0,0,"Panathinaikos","2025-26"],["D",1,1,"PSV Eindhoven","2026-27"],["W",3,1,"AEK Athens","2026-27"],["L",0,1,"Inter","2026-27"]]},"Slavia Praha":{"elo":1373,"n":67,"last":[["L",2,4,"Barcelona","2025-26"],["L",1,4,"Paphos FC","2025-26"],["L",2,3,"Lens","2026-27"],["L",0,2,"Sabah","2026-27"],["D",2,2,"Fenerbahçe","2026-27"]]},"Slovan Bratislava":{"elo":1356,"n":47,"last":[["L",0,1,"BSC Young Boys","2025-26"],["L",2,3,"BSC Young Boys","2025-26"],["L",1,6,"Paris Saint-Germain","2026-27"],["L",0,3,"Stuttgart","2026-27"],["L",0,4,"Roma","2026-27"]]},"Sporting CP":{"elo":1573,"n":73,"last":[["L",0,1,"Arsenal","2025-26"],["D",0,0,"Arsenal","2025-26"],["W",3,1,"Galatasaray","2026-27"],["W",2,0,"Lens","2026-27"],["L",2,3,"LASK","2026-27"]]},"Stuttgart":{"elo":1501,"n":11,"last":[["W",3,1,"Slovan Bratislava","2024-25"],["L",1,4,"Paris Saint-Germain","2024-25"],["W",3,1,"Viking","2026-27"],["W",3,0,"Slovan Bratislava","2026-27"],["D",1,1,"Atlético de Madrid","2026-27"]]},"Villarreal":{"elo":1443,"n":60,"last":[["L",1,2,"AFC Ajax","2025-26"],["L",0,3,"Bayer 04 Leverkusen","2025-26"],["L",2,3,"Borussia Dortmund","2026-27"],["W",3,1,"Napoli","2026-27"],["L",3,4,"Liverpool","2026-27"]]},"Viking":{"elo":1402,"n":7,"last":[["L",1,3,"İstanbul Başakşehir","2025-26"],["D",1,1,"İstanbul Başakşehir","2025-26"],["L",1,3,"Stuttgart","2026-27"],["D",3,3,"Bayern München","2026-27"],["L",1,3,"Aston Villa","2026-27"]]}},"h2h":[["Manchester City","Napoli",1,1,"2011-12"],["Villarreal","Bayern München",0,2,"2011-12"],["Bayern München","Manchester City",2,0,"2011-12"],["Napoli","Villarreal",2,0,"2011-12"],["Manchester City","Villarreal",2,1,"2011-12"],["Napoli","Bayern München",1,1,"2011-12"],["Bayern München","Napoli",3,2,"2011-12"],["Villarreal","Manchester City",0,3,"2011-12"],["Bayern München","Villarreal",3,1,"2011-12"],["Napoli","Manchester City",2,1,"2011-12"],["Manchester City","Bayern München",2,0,"2011-12"],["Villarreal","Napoli",0,2,"2011-12"],["Lille","Inter",0,1,"2011-12"],["Inter","Lille",2,1,"2011-12"],["Borussia Dortmund","Arsenal",1,1,"2011-12"],["Arsenal","Borussia Dortmund",2,1,"2011-12"],["Porto","Shakhtar Donetsk",2,1,"2011-12"],["Shakhtar Donetsk","Porto",0,2,"2011-12"],["Bayern München","Real Madrid",2,1,"2011-12"],["Real Madrid","Bayern München",2,1,"2011-12"],["Porto","Paris Saint-Germain",1,0,"2012-13"],["Paris Saint-Germain","Porto",2,1,"2012-13"],["Real Madrid","Manchester City",3,2,"2012-13"],["Manchester City","Borussia Dortmund",1,1,"2012-13"],["Borussia Dortmund","Real Madrid",2,1,"2012-13"],["Real Madrid","Borussia Dortmund",2,2,"2012-13"],["Manchester City","Real Madrid",1,1,"2012-13"],["Borussia Dortmund","Manchester City",1,0,"2012-13"],["Lille","Bayern München",0,1,"2012-13"],["Bayern München","Lille",6,1,"2012-13"],["Manchester United","Galatasaray",1,0,"2012-13"],["Galatasaray","Manchester United",1,0,"2012-13"],["Shakhtar Donetsk","Borussia Dortmund",2,2,"2012-13"],["Real Madrid","Manchester United",1,1,"2012-13"],["Arsenal","Bayern München",1,3,"2012-13"],["Borussia Dortmund","Shakhtar Donetsk",3,0,"2012-13"],["Manchester United","Real Madrid",1,2,"2012-13"],["Bayern München","Arsenal",0,2,"2012-13"],["Paris Saint-Germain","Barcelona",2,2,"2012-13"],["Real Madrid","Galatasaray",3,0,"2012-13"],["Galatasaray","Real Madrid",3,2,"2012-13"],["Barcelona","Paris Saint-Germain",1,1,"2012-13"],["Bayern München","Barcelona",4,0,"2012-13"],["Borussia Dortmund","Real Madrid",4,1,"2012-13"],["Real Madrid","Borussia Dortmund",2,0,"2012-13"],["Barcelona","Bayern München",0,3,"2012-13"],["Borussia Dortmund","Bayern München",1,2,"2012-13"],["Shakhtar Donetsk","Manchester United",1,1,"2013-14"],["Manchester United","Shakhtar Donetsk",1,0,"2013-14"],["Galatasaray","Real Madrid",1,6,"2013-14"],["Real Madrid","Galatasaray",4,1,"2013-14"],["Manchester City","Bayern München",1,3,"2013-14"],["Bayern München","Manchester City",2,3,"2013-14"],["Napoli","Borussia Dortmund",2,1,"2013-14"],["Arsenal","Napoli",2,0,"2013-14"],["Arsenal","Borussia Dortmund",1,2,"2013-14"],["Borussia Dortmund","Arsenal",0,1,"2013-14"],["Borussia Dortmund","Napoli",3,1,"2013-14"],["Napoli","Arsenal",2,0,"2013-14"],["Porto","Atlético de Madrid",1,2,"2013-14"],["Atlético de Madrid","Porto",2,0,"2013-14"],["Manchester City","Barcelona",0,2,"2013-14"],["Arsenal","Bayern München",0,2,"2013-14"],["Bayern München","Arsenal",1,1,"2013-14"],["Barcelona","Manchester City",2,1,"2013-14"],["Barcelona","Atlético de Madrid",1,1,"2013-14"],["Manchester United","Bayern München",1,1,"2013-14"],["Real Madrid","Borussia Dortmund",3,0,"2013-14"],["Borussia Dortmund","Real Madrid",2,0,"2013-14"],["Atlético de Madrid","Barcelona",1,0,"2013-14"],["Bayern München","Manchester United",3,1,"2013-14"],["Real Madrid","Bayern München",1,0,"2013-14"],["Bayern München","Real Madrid",0,4,"2013-14"],["Real Madrid","Atlético de Madrid",4,1,"2013-14"],["Liverpool","Real Madrid",0,3,"2014-15"],["Real Madrid","Liverpool",1,0,"2014-15"],["Borussia Dortmund","Arsenal",2,0,"2014-15"],["Arsenal","Galatasaray",4,1,"2014-15"],["Galatasaray","Borussia Dortmund",0,4,"2014-15"],["Borussia Dortmund","Galatasaray",4,1,"2014-15"],["Arsenal","Borussia Dortmund",2,0,"2014-15"],["Galatasaray","Arsenal",1,4,"2014-15"],["Bayern München","Manchester City",1,0,"2014-15"],["Manchester City","Roma",1,1,"2014-15"],["Roma","Bayern München",1,7,"2014-15"],["Bayern München","Roma",2,0,"2014-15"],["Manchester City","Bayern München",3,2,"2014-15"],["Roma","Manchester City",0,2,"2014-15"],["Paris Saint-Germain","Barcelona",3,2,"2014-15"],["Barcelona","Paris Saint-Germain",3,1,"2014-15"],["Shakhtar Donetsk","Porto",2,2,"2014-15"],["Porto","Shakhtar Donetsk",1,1,"2014-15"],["Shakhtar Donetsk","Bayern München",0,0,"2014-15"],["Manchester City","Barcelona",1,2,"2014-15"],["Bayern München","Shakhtar Donetsk",7,0,"2014-15"],["Barcelona","Manchester City",1,0,"2014-15"],["Atlético de Madrid","Real Madrid",0,0,"2014-15"],["Paris Saint-Germain","Barcelona",1,3,"2014-15"],["Porto","Bayern München",3,1,"2014-15"],["Barcelona","Paris Saint-Germain",2,0,"2014-15"],["Bayern München","Porto",6,1,"2014-15"],["Real Madrid","Atlético de Madrid",1,0,"2014-15"],["Barcelona","Bayern München",3,0,"2014-15"],["Bayern München","Barcelona",3,2,"2014-15"],["Real Madrid","Shakhtar Donetsk",4,0,"2015-16"],["Shakhtar Donetsk","Paris Saint-Germain",0,3,"2015-16"],["Paris Saint-Germain","Real Madrid",0,0,"2015-16"],["Real Madrid","Paris Saint-Germain",1,0,"2015-16"],["Shakhtar Donetsk","Real Madrid",3,4,"2015-16"],["Paris Saint-Germain","Shakhtar Donetsk",2,0,"2015-16"],["PSV Eindhoven","Manchester United",2,1,"2015-16"],["Manchester United","PSV Eindhoven",0,0,"2015-16"],["Galatasaray","Atlético de Madrid",0,2,"2015-16"],["Atlético de Madrid","Galatasaray",2,0,"2015-16"],["Roma","Barcelona",1,1,"2015-16"],["Barcelona","Roma",6,1,"2015-16"],["Arsenal","Bayern München",2,0,"2015-16"],["Bayern München","Arsenal",5,1,"2015-16"],["Roma","Real Madrid",0,2,"2015-16"],["Arsenal","Barcelona",0,2,"2015-16"],["PSV Eindhoven","Atlético de Madrid",0,0,"2015-16"],["Real Madrid","Roma",2,0,"2015-16"],["Atlético de Madrid","PSV Eindhoven",0,0,"2015-16"],["Barcelona","Arsenal",3,1,"2015-16"],["Barcelona","Atlético de Madrid",2,1,"2015-16"],["Paris Saint-Germain","Manchester City",2,2,"2015-16"],["Manchester City","Paris Saint-Germain",1,0,"2015-16"],["Atlético de Madrid","Barcelona",2,0,"2015-16"],["Manchester City","Real Madrid",0,0,"2015-16"],["Atlético de Madrid","Bayern München",1,0,"2015-16"],["Bayern München","Atlético de Madrid",2,1,"2015-16"],["Real Madrid","Manchester City",1,0,"2015-16"],["Real Madrid","Atlético de Madrid",1,1,"2015-16"],["Paris Saint-Germain","Arsenal",1,1,"2016-17"],["Arsenal","Paris Saint-Germain",2,2,"2016-17"],["Barcelona","Manchester City",4,0,"2016-17"],["Manchester City","Barcelona",3,1,"2016-17"],["PSV Eindhoven","Atlético de Madrid",0,1,"2016-17"],["Atlético de Madrid","Bayern München",1,0,"2016-17"],["Bayern München","PSV Eindhoven",4,1,"2016-17"],["PSV Eindhoven","Bayern München",1,2,"2016-17"],["Atlético de Madrid","PSV Eindhoven",2,0,"2016-17"],["Bayern München","Atlético de Madrid",1,0,"2016-17"],["Real Madrid","Sporting CP",2,1,"2016-17"],["Borussia Dortmund","Real Madrid",2,2,"2016-17"],["Sporting CP","Borussia Dortmund",1,2,"2016-17"],["Borussia Dortmund","Sporting CP",1,0,"2016-17"],["Sporting CP","Real Madrid",1,2,"2016-17"],["Real Madrid","Borussia Dortmund",2,2,"2016-17"],["Club Brugge","Porto",1,2,"2016-17"],["Porto","Club Brugge",1,0,"2016-17"],["Paris Saint-Germain","Barcelona",4,0,"2016-17"],["Real Madrid","Napoli",3,1,"2016-17"],["Bayern München","Arsenal",5,1,"2016-17"],["Napoli","Real Madrid",1,3,"2016-17"],["Arsenal","Bayern München",1,5,"2016-17"],["Barcelona","Paris Saint-Germain",6,1,"2016-17"],["Bayern München","Real Madrid",1,2,"2016-17"],["Real Madrid","Bayern München",4,2,"2016-17"],["Real Madrid","Atlético de Madrid",3,0,"2016-17"],["Atlético de Madrid","Real Madrid",2,1,"2016-17"],["Paris Saint-Germain","Bayern München",3,0,"2017-18"],["Bayern München","Paris Saint-Germain",3,1,"2017-18"],["Roma","Atlético de Madrid",0,0,"2017-18"],["Atlético de Madrid","Roma",2,0,"2017-18"],["Sporting CP","Barcelona",0,1,"2017-18"],["Barcelona","Sporting CP",2,0,"2017-18"],["Shakhtar Donetsk","Napoli",2,1,"2017-18"],["Feyenoord","Manchester City",0,4,"2017-18"],["Manchester City","Shakhtar Donetsk",2,0,"2017-18"],["Napoli","Feyenoord",3,1,"2017-18"],["Manchester City","Napoli",2,1,"2017-18"],["Feyenoord","Shakhtar Donetsk",1,2,"2017-18"],["Napoli","Manchester City",2,4,"2017-18"],["Shakhtar Donetsk","Feyenoord",3,1,"2017-18"],["Napoli","Shakhtar Donetsk",3,0,"2017-18"],["Manchester City","Feyenoord",1,0,"2017-18"],["Shakhtar Donetsk","Manchester City",2,1,"2017-18"],["Feyenoord","Napoli",2,1,"2017-18"],["Leipzig","Porto",3,2,"2017-18"],["Porto","Leipzig",3,1,"2017-18"],["Borussia Dortmund","Real Madrid",1,3,"2017-18"],["Real Madrid","Borussia Dortmund",3,2,"2017-18"],["Porto","Liverpool",0,5,"2017-18"],["Real Madrid","Paris Saint-Germain",3,1,"2017-18"],["Shakhtar Donetsk","Roma",2,1,"2017-18"],["Liverpool","Porto",0,0,"2017-18"],["Paris Saint-Germain","Real Madrid",1,2,"2017-18"],["Roma","Shakhtar Donetsk",1,0,"2017-18"],["Barcelona","Roma",4,1,"2017-18"],["Liverpool","Manchester City",3,0,"2017-18"],["Roma","Barcelona",3,0,"2017-18"],["Manchester City","Liverpool",1,2,"2017-18"],["Liverpool","Roma",5,2,"2017-18"],["Bayern München","Real Madrid",1,2,"2017-18"],["Real Madrid","Bayern München",2,2,"2017-18"],["Roma","Liverpool",4,2,"2017-18"],["Real Madrid","Liverpool",3,1,"2017-18"],["Club Brugge","Borussia Dortmund",0,1,"2018-19"],["Atlético de Madrid","Club Brugge",3,1,"2018-19"],["Borussia Dortmund","Atlético de Madrid",4,0,"2018-19"],["Atlético de Madrid","Borussia Dortmund",2,0,"2018-19"],["Borussia Dortmund","Club Brugge",0,0,"2018-19"],["Club Brugge","Atlético de Madrid",0,0,"2018-19"],["Barcelona","PSV Eindhoven",4,0,"2018-19"],["PSV Eindhoven","Inter",1,2,"2018-19"],["Barcelona","Inter",2,0,"2018-19"],["Inter","Barcelona",1,1,"2018-19"],["PSV Eindhoven","Barcelona",1,2,"2018-19"],["Inter","PSV Eindhoven",1,1,"2018-19"],["Liverpool","Paris Saint-Germain",3,2,"2018-19"],["Napoli","Liverpool",1,0,"2018-19"],["Paris Saint-Germain","Napoli",2,2,"2018-19"],["Napoli","Paris Saint-Germain",1,1,"2018-19"],["Paris Saint-Germain","Liverpool",2,1,"2018-19"],["Liverpool","Napoli",1,0,"2018-19"],["Porto","Galatasaray",1,0,"2018-19"],["Galatasaray","Porto",2,3,"2018-19"],["AEK Athens","Bayern München",0,2,"2018-19"],["Bayern München","AEK Athens",2,0,"2018-19"],["Shakhtar Donetsk","Manchester City",0,3,"2018-19"],["Manchester City","Shakhtar Donetsk",6,0,"2018-19"],["Real Madrid","Roma",3,0,"2018-19"],["Roma","Real Madrid",0,2,"2018-19"],["Manchester United","Paris Saint-Germain",0,2,"2018-19"],["Roma","Porto",2,1,"2018-19"],["Liverpool","Bayern München",0,0,"2018-19"],["Paris Saint-Germain","Manchester United",1,3,"2018-19"],["Porto","Roma",3,1,"2018-19"],["Bayern München","Liverpool",1,3,"2018-19"],["Liverpool","Porto",2,0,"2018-19"],["Manchester United","Barcelona",0,1,"2018-19"],["Barcelona","Manchester United",3,0,"2018-19"],["Porto","Liverpool",1,4,"2018-19"],["Barcelona","Liverpool",3,0,"2018-19"],["Liverpool","Barcelona",4,0,"2018-19"],["Club Brugge","Galatasaray",0,0,"2019-20"],["Paris Saint-Germain","Real Madrid",3,0,"2019-20"],["Real Madrid","Club Brugge",2,2,"2019-20"],["Galatasaray","Paris Saint-Germain",0,1,"2019-20"],["Club Brugge","Paris Saint-Germain",0,5,"2019-20"],["Galatasaray","Real Madrid",0,1,"2019-20"],["Paris Saint-Germain","Club Brugge",1,0,"2019-20"],["Real Madrid","Galatasaray",6,0,"2019-20"],["Galatasaray","Club Brugge",1,1,"2019-20"],["Real Madrid","Paris Saint-Germain",2,2,"2019-20"],["Paris Saint-Germain","Galatasaray",5,0,"2019-20"],["Club Brugge","Real Madrid",1,3,"2019-20"],["Shakhtar Donetsk","Manchester City",0,3,"2019-20"],["Manchester City","Shakhtar Donetsk",1,1,"2019-20"],["Napoli","Liverpool",2,0,"2019-20"],["Liverpool","Napoli",1,1,"2019-20"],["Inter","Slavia Praha",1,1,"2019-20"],["Borussia Dortmund","Barcelona",0,0,"2019-20"],["Slavia Praha","Borussia Dortmund",0,2,"2019-20"],["Barcelona","Inter",2,1,"2019-20"],["Inter","Borussia Dortmund",2,0,"2019-20"],["Slavia Praha","Barcelona",1,2,"2019-20"],["Barcelona","Slavia Praha",0,0,"2019-20"],["Borussia Dortmund","Inter",3,2,"2019-20"],["Barcelona","Borussia Dortmund",3,1,"2019-20"],["Slavia Praha","Inter",1,3,"2019-20"],["Borussia Dortmund","Slavia Praha",2,1,"2019-20"],["Inter","Barcelona",1,2,"2019-20"],["Borussia Dortmund","Paris Saint-Germain",2,1,"2019-20"],["Atlético de Madrid","Liverpool",1,0,"2019-20"],["Napoli","Barcelona",1,1,"2019-20"],["Real Madrid","Manchester City",1,2,"2019-20"],["Paris Saint-Germain","Borussia Dortmund",2,0,"2019-20"],["Liverpool","Atlético de Madrid",2,3,"2019-20"],["Manchester City","Real Madrid",2,1,"2019-20"],["Barcelona","Napoli",3,1,"2019-20"],["Leipzig","Atlético de Madrid",2,1,"2019-20"],["Barcelona","Bayern München",2,8,"2019-20"],["Leipzig","Paris Saint-Germain",0,3,"2019-20"],["Paris Saint-Germain","Bayern München",0,1,"2019-20"],["Bayern München","Atlético de Madrid",4,0,"2020-21"],["Atlético de Madrid","Bayern München",1,1,"2020-21"],["Real Madrid","Shakhtar Donetsk",2,3,"2020-21"],["Shakhtar Donetsk","Inter",0,0,"2020-21"],["Real Madrid","Inter",3,2,"2020-21"],["Inter","Real Madrid",0,2,"2020-21"],["Shakhtar Donetsk","Real Madrid",2,0,"2020-21"],["Inter","Shakhtar Donetsk",0,0,"2020-21"],["Manchester City","Porto",3,1,"2020-21"],["Porto","Manchester City",0,0,"2020-21"],["Club Brugge","Borussia Dortmund",0,3,"2020-21"],["Borussia Dortmund","Club Brugge",3,0,"2020-21"],["Paris Saint-Germain","Manchester United",1,2,"2020-21"],["Manchester United","Leipzig",5,0,"2020-21"],["Leipzig","Paris Saint-Germain",2,1,"2020-21"],["Paris Saint-Germain","Leipzig",1,0,"2020-21"],["Manchester United","Paris Saint-Germain",1,3,"2020-21"],["Leipzig","Manchester United",3,2,"2020-21"],["Leipzig","Liverpool",0,2,"2020-21"],["Barcelona","Paris Saint-Germain",1,4,"2020-21"],["Liverpool","Leipzig",2,0,"2020-21"],["Paris Saint-Germain","Barcelona",1,1,"2020-21"],["Manchester City","Borussia Dortmund",2,1,"2020-21"],["Real Madrid","Liverpool",3,1,"2020-21"],["Bayern München","Paris Saint-Germain",2,3,"2020-21"],["Paris Saint-Germain","Bayern München",0,1,"2020-21"],["Borussia Dortmund","Manchester City",1,2,"2020-21"],["Liverpool","Real Madrid",0,0,"2020-21"],["Paris Saint-Germain","Manchester City",1,2,"2020-21"],["Manchester City","Paris Saint-Germain",2,0,"2020-21"],["Roma","Shakhtar Donetsk",3,0,"2020-21"],["Shakhtar Donetsk","Roma",1,2,"2020-21"],["Arsenal","Slavia Praha",1,1,"2020-21"],["Slavia Praha","Arsenal",0,4,"2020-21"],["Manchester United","Roma",6,2,"2020-21"],["Villarreal","Arsenal",2,1,"2020-21"],["Roma","Manchester United",3,2,"2020-21"],["Arsenal","Villarreal",0,0,"2020-21"],["Villarreal","Manchester United",1,1,"2020-21"],["Manchester City","Leipzig",6,3,"2021-22"],["Club Brugge","Paris Saint-Germain",1,1,"2021-22"],["Paris Saint-Germain","Manchester City",2,0,"2021-22"],["Leipzig","Club Brugge",1,2,"2021-22"],["Club Brugge","Manchester City",1,5,"2021-22"],["Paris Saint-Germain","Leipzig",3,2,"2021-22"],["Leipzig","Paris Saint-Germain",2,2,"2021-22"],["Manchester City","Club Brugge",4,1,"2021-22"],["Manchester City","Paris Saint-Germain",2,1,"2021-22"],["Club Brugge","Leipzig",0,5,"2021-22"],["Leipzig","Manchester City",2,1,"2021-22"],["Paris Saint-Germain","Club Brugge",4,1,"2021-22"],["Atlético de Madrid","Porto",0,0,"2021-22"],["Porto","Liverpool",1,5,"2021-22"],["Atlético de Madrid","Liverpool",2,3,"2021-22"],["Liverpool","Atlético de Madrid",2,0,"2021-22"],["Liverpool","Porto",2,0,"2021-22"],["Porto","Atlético de Madrid",1,3,"2021-22"],["Borussia Dortmund","Sporting CP",1,0,"2021-22"],["Sporting CP","Borussia Dortmund",3,1,"2021-22"],["Inter","Real Madrid",0,1,"2021-22"],["Shakhtar Donetsk","Inter",0,0,"2021-22"],["Shakhtar Donetsk","Real Madrid",0,5,"2021-22"],["Real Madrid","Shakhtar Donetsk",2,1,"2021-22"],["Inter","Shakhtar Donetsk",2,0,"2021-22"],["Real Madrid","Inter",2,0,"2021-22"],["Barcelona","Bayern München",0,3,"2021-22"],["Bayern München","Barcelona",3,0,"2021-22"],["Manchester United","Villarreal",2,1,"2021-22"],["Villarreal","Manchester United",0,2,"2021-22"],["Sporting CP","Manchester City",0,5,"2021-22"],["Paris Saint-Germain","Real Madrid",1,0,"2021-22"],["Inter","Liverpool",0,2,"2021-22"],["Atlético de Madrid","Manchester United",1,1,"2021-22"],["Liverpool","Inter",0,1,"2021-22"],["Manchester City","Sporting CP",0,0,"2021-22"],["Real Madrid","Paris Saint-Germain",3,1,"2021-22"],["Manchester United","Atlético de Madrid",0,1,"2021-22"],["Manchester City","Atlético de Madrid",1,0,"2021-22"],["Villarreal","Bayern München",1,0,"2021-22"],["Bayern München","Villarreal",1,1,"2021-22"],["Atlético de Madrid","Manchester City",0,0,"2021-22"],["Manchester City","Real Madrid",4,3,"2021-22"],["Liverpool","Villarreal",2,0,"2021-22"],["Villarreal","Liverpool",2,3,"2021-22"],["Real Madrid","Manchester City",3,1,"2021-22"],["Liverpool","Real Madrid",0,1,"2021-22"],["Bodø/Glimt","Roma",6,1,"2021-22"],["Roma","Bodø/Glimt",2,2,"2021-22"],["Feyenoord","Slavia Praha",2,1,"2021-22"],["Slavia Praha","Feyenoord",2,2,"2021-22"],["Fenerbahçe","Slavia Praha",2,3,"2021-22"],["Slavia Praha","Fenerbahçe",3,2,"2021-22"],["Slavia Praha","LASK",4,1,"2021-22"],["LASK","Slavia Praha",4,3,"2021-22"],["Feyenoord","Slavia Praha",3,3,"2021-22"],["Bodø/Glimt","Roma",2,1,"2021-22"],["Roma","Bodø/Glimt",4,0,"2021-22"],["Slavia Praha","Feyenoord",1,3,"2021-22"],["Roma","Feyenoord",1,0,"2021-22"],["Barcelona","Napoli",1,1,"2021-22"],["Napoli","Barcelona",2,4,"2021-22"],["Barcelona","Galatasaray",0,0,"2021-22"],["Galatasaray","Barcelona",1,2,"2021-22"],["Napoli","Liverpool",4,1,"2022-23"],["Liverpool","Napoli",2,0,"2022-23"],["Atlético de Madrid","Porto",2,1,"2022-23"],["Porto","Club Brugge",0,4,"2022-23"],["Club Brugge","Atlético de Madrid",2,0,"2022-23"],["Atlético de Madrid","Club Brugge",0,0,"2022-23"],["Club Brugge","Porto",0,4,"2022-23"],["Porto","Atlético de Madrid",2,1,"2022-23"],["Inter","Bayern München",0,2,"2022-23"],["Bayern München","Barcelona",2,0,"2022-23"],["Inter","Barcelona",1,0,"2022-23"],["Barcelona","Inter",3,3,"2022-23"],["Barcelona","Bayern München",0,3,"2022-23"],["Bayern München","Inter",2,0,"2022-23"],["Leipzig","Shakhtar Donetsk",1,4,"2022-23"],["Real Madrid","Leipzig",2,0,"2022-23"],["Real Madrid","Shakhtar Donetsk",2,1,"2022-23"],["Shakhtar Donetsk","Real Madrid",1,1,"2022-23"],["Leipzig","Real Madrid",3,2,"2022-23"],["Shakhtar Donetsk","Leipzig",0,4,"2022-23"],["Manchester City","Borussia Dortmund",2,1,"2022-23"],["Borussia Dortmund","Manchester City",0,0,"2022-23"],["Paris Saint-Germain","Bayern München",0,1,"2022-23"],["Liverpool","Real Madrid",2,5,"2022-23"],["Leipzig","Manchester City",1,1,"2022-23"],["Inter","Porto",1,0,"2022-23"],["Bayern München","Paris Saint-Germain",2,0,"2022-23"],["Manchester City","Leipzig",7,0,"2022-23"],["Porto","Inter",0,0,"2022-23"],["Real Madrid","Liverpool",1,0,"2022-23"],["Manchester City","Bayern München",3,0,"2022-23"],["Bayern München","Manchester City",1,1,"2022-23"],["Real Madrid","Manchester City",1,1,"2022-23"],["Manchester City","Real Madrid",4,0,"2022-23"],["Manchester City","Inter",1,0,"2022-23"],["PSV Eindhoven","Bodø/Glimt",1,1,"2022-23"],["Arsenal","Bodø/Glimt",3,0,"2022-23"],["Bodø/Glimt","Arsenal",0,1,"2022-23"],["Arsenal","PSV Eindhoven",1,0,"2022-23"],["PSV Eindhoven","Arsenal",2,0,"2022-23"],["Bodø/Glimt","PSV Eindhoven",1,2,"2022-23"],["Roma","Real Betis",1,2,"2022-23"],["Real Betis","Roma",1,1,"2022-23"],["Barcelona","Manchester United",2,2,"2022-23"],["Manchester United","Barcelona",2,1,"2022-23"],["Sporting CP","Arsenal",2,2,"2022-23"],["Manchester United","Real Betis",4,1,"2022-23"],["Shakhtar Donetsk","Feyenoord",1,1,"2022-23"],["Real Betis","Manchester United",0,1,"2022-23"],["Feyenoord","Shakhtar Donetsk",7,1,"2022-23"],["Arsenal","Sporting CP",1,1,"2022-23"],["Feyenoord","Roma",1,0,"2022-23"],["Roma","Feyenoord",4,1,"2022-23"],["Paris Saint-Germain","Borussia Dortmund",2,0,"2023-24"],["Shakhtar Donetsk","Porto",1,3,"2023-24"],["Bayern München","Manchester United",4,3,"2023-24"],["Arsenal","PSV Eindhoven",4,0,"2023-24"],["Napoli","Real Madrid",2,3,"2023-24"],["Manchester United","Galatasaray",2,3,"2023-24"],["Lens","Arsenal",2,1,"2023-24"],["Atlético de Madrid","Feyenoord",3,2,"2023-24"],["Leipzig","Manchester City",1,3,"2023-24"],["Porto","Barcelona",0,1,"2023-24"],["Galatasaray","Bayern München",1,3,"2023-24"],["Lens","PSV Eindhoven",1,1,"2023-24"],["Barcelona","Shakhtar Donetsk",2,1,"2023-24"],["Shakhtar Donetsk","Barcelona",1,0,"2023-24"],["Bayern München","Galatasaray",2,1,"2023-24"],["PSV Eindhoven","Lens",1,0,"2023-24"],["Feyenoord","Atlético de Madrid",1,3,"2023-24"],["Manchester City","Leipzig",3,2,"2023-24"],["Barcelona","Porto",2,1,"2023-24"],["Galatasaray","Manchester United",3,3,"2023-24"],["Real Madrid","Napoli",4,2,"2023-24"],["Arsenal","Lens",6,0,"2023-24"],["PSV Eindhoven","Arsenal",1,1,"2023-24"],["Manchester United","Bayern München",0,1,"2023-24"],["Borussia Dortmund","Paris Saint-Germain",1,1,"2023-24"],["Porto","Shakhtar Donetsk",5,3,"2023-24"],["Leipzig","Real Madrid",0,1,"2023-24"],["Inter","Atlético de Madrid",1,0,"2023-24"],["PSV Eindhoven","Borussia Dortmund",1,1,"2023-24"],["Porto","Arsenal",1,0,"2023-24"],["Napoli","Barcelona",1,1,"2023-24"],["Real Madrid","Leipzig",1,1,"2023-24"],["Arsenal","Porto",1,0,"2023-24"],["Barcelona","Napoli",3,1,"2023-24"],["Atlético de Madrid","Inter",2,1,"2023-24"],["Borussia Dortmund","PSV Eindhoven",2,0,"2023-24"],["Arsenal","Bayern München",2,2,"2023-24"],["Real Madrid","Manchester City",3,3,"2023-24"],["Atlético de Madrid","Borussia Dortmund",2,1,"2023-24"],["Paris Saint-Germain","Barcelona",2,3,"2023-24"],["Borussia Dortmund","Atlético de Madrid",4,2,"2023-24"],["Barcelona","Paris Saint-Germain",1,4,"2023-24"],["Bayern München","Arsenal",1,0,"2023-24"],["Manchester City","Real Madrid",1,1,"2023-24"],["Bayern München","Real Madrid",2,2,"2023-24"],["Borussia Dortmund","Paris Saint-Germain",1,0,"2023-24"],["Paris Saint-Germain","Borussia Dortmund",0,1,"2023-24"],["Real Madrid","Bayern München",2,1,"2023-24"],["Borussia Dortmund","Real Madrid",0,2,"2023-24"],["Lille","Slovan Bratislava",2,1,"2023-24"],["Slovan Bratislava","Lille",1,1,"2023-24"],["Bodø/Glimt","Club Brugge",0,1,"2023-24"],["Club Brugge","Bodø/Glimt",3,1,"2023-24"],["Aston Villa","Lille",2,1,"2023-24"],["Lille","Aston Villa",2,1,"2023-24"],["LASK","Liverpool",1,3,"2023-24"],["Liverpool","LASK",4,0,"2023-24"],["Roma","Slavia Praha",2,0,"2023-24"],["Slavia Praha","Roma",2,0,"2023-24"],["Feyenoord","Roma",1,1,"2023-24"],["Roma","Feyenoord",1,1,"2023-24"],["Lille","Fenerbahçe",2,1,"2024-25"],["Fenerbahçe","Lille",1,1,"2024-25"],["Lille","Slavia Praha",2,0,"2024-25"],["Slavia Praha","Lille",2,1,"2024-25"],["Sporting CP","Lille",2,0,"2024-25"],["Real Madrid","Stuttgart",3,1,"2024-25"],["Manchester City","Inter",0,0,"2024-25"],["Club Brugge","Borussia Dortmund",0,3,"2024-25"],["Atlético de Madrid","Leipzig",2,1,"2024-25"],["Slovan Bratislava","Manchester City",0,4,"2024-25"],["Arsenal","Paris Saint-Germain",2,0,"2024-25"],["PSV Eindhoven","Sporting CP",1,1,"2024-25"],["Aston Villa","Bayern München",1,0,"2024-25"],["Lille","Real Madrid",1,0,"2024-25"],["Paris Saint-Germain","PSV Eindhoven",1,1,"2024-25"],["Real Madrid","Borussia Dortmund",5,2,"2024-25"],["Arsenal","Shakhtar Donetsk",1,0,"2024-25"],["Barcelona","Bayern München",4,1,"2024-25"],["Leipzig","Liverpool",0,1,"2024-25"],["Atlético de Madrid","Lille",1,3,"2024-25"],["Sporting CP","Manchester City",4,1,"2024-25"],["Club Brugge","Aston Villa",1,0,"2024-25"],["Inter","Arsenal",1,0,"2024-25"],["Paris Saint-Germain","Atlético de Madrid",1,2,"2024-25"],["Sporting CP","Arsenal",1,5,"2024-25"],["Bayern München","Paris Saint-Germain",1,0,"2024-25"],["Inter","Leipzig",1,0,"2024-25"],["Manchester City","Feyenoord",3,3,"2024-25"],["Liverpool","Real Madrid",2,0,"2024-25"],["PSV Eindhoven","Shakhtar Donetsk",3,2,"2024-25"],["Leipzig","Aston Villa",2,3,"2024-25"],["Club Brugge","Sporting CP",2,1,"2024-25"],["Shakhtar Donetsk","Bayern München",1,5,"2024-25"],["Atlético de Madrid","Slovan Bratislava",3,1,"2024-25"],["Borussia Dortmund","Barcelona",2,3,"2024-25"],["Slovan Bratislava","Stuttgart",1,3,"2024-25"],["Liverpool","Lille",2,1,"2024-25"],["Leipzig","Sporting CP",2,1,"2024-25"],["Paris Saint-Germain","Manchester City",4,2,"2024-25"],["Feyenoord","Bayern München",3,0,"2024-25"],["Stuttgart","Paris Saint-Germain",1,4,"2024-25"],["Bayern München","Slovan Bratislava",3,1,"2024-25"],["Borussia Dortmund","Shakhtar Donetsk",3,1,"2024-25"],["Manchester City","Club Brugge",3,1,"2024-25"],["Lille","Feyenoord",6,1,"2024-25"],["PSV Eindhoven","Liverpool",3,2,"2024-25"],["Manchester City","Real Madrid",2,3,"2024-25"],["Sporting CP","Borussia Dortmund",0,3,"2024-25"],["Borussia Dortmund","Sporting CP",0,0,"2024-25"],["Real Madrid","Manchester City",3,1,"2024-25"],["Club Brugge","Aston Villa",1,3,"2024-25"],["Real Madrid","Atlético de Madrid",2,1,"2024-25"],["PSV Eindhoven","Arsenal",1,7,"2024-25"],["Borussia Dortmund","Lille",1,1,"2024-25"],["Feyenoord","Inter",0,2,"2024-25"],["Paris Saint-Germain","Liverpool",0,1,"2024-25"],["Liverpool","Paris Saint-Germain",0,1,"2024-25"],["Inter","Feyenoord",2,1,"2024-25"],["Lille","Borussia Dortmund",1,2,"2024-25"],["Aston Villa","Club Brugge",3,0,"2024-25"],["Atlético de Madrid","Real Madrid",1,0,"2024-25"],["Arsenal","PSV Eindhoven",2,2,"2024-25"],["Arsenal","Real Madrid",3,0,"2024-25"],["Bayern München","Inter",1,2,"2024-25"],["Paris Saint-Germain","Aston Villa",3,1,"2024-25"],["Barcelona","Borussia Dortmund",4,0,"2024-25"],["Aston Villa","Paris Saint-Germain",3,2,"2024-25"],["Borussia Dortmund","Barcelona",3,1,"2024-25"],["Real Madrid","Arsenal",1,2,"2024-25"],["Inter","Bayern München",2,2,"2024-25"],["Arsenal","Paris Saint-Germain",0,1,"2024-25"],["Barcelona","Inter",3,3,"2024-25"],["Inter","Barcelona",4,3,"2024-25"],["Paris Saint-Germain","Arsenal",2,1,"2024-25"],["Paris Saint-Germain","Inter",5,0,"2024-25"],["Bodø/Glimt","Porto",3,2,"2024-25"],["Porto","Manchester United",3,3,"2024-25"],["Fenerbahçe","Manchester United",1,1,"2024-25"],["Slavia Praha","Fenerbahçe",1,2,"2024-25"],["Manchester United","Bodø/Glimt",3,2,"2024-25"],["Porto","Roma",1,1,"2024-25"],["Roma","Porto",3,2,"2024-25"],["Feyenoord","Fenerbahçe",2,1,"2025-26"],["Fenerbahçe","Feyenoord",5,2,"2025-26"],["Slavia Praha","Bodø/Glimt",2,2,"2025-26"],["Liverpool","Atlético de Madrid",3,2,"2025-26"],["Manchester City","Napoli",2,0,"2025-26"],["Galatasaray","Liverpool",1,0,"2025-26"],["Inter","Slavia Praha",3,0,"2025-26"],["Barcelona","Paris Saint-Germain",1,2,"2025-26"],["Napoli","Sporting CP",2,1,"2025-26"],["Villarreal","Manchester City",0,2,"2025-26"],["Arsenal","Atlético de Madrid",4,0,"2025-26"],["PSV Eindhoven","Napoli",6,2,"2025-26"],["Galatasaray","Bodø/Glimt",3,1,"2025-26"],["Bayern München","Club Brugge",4,0,"2025-26"],["Slavia Praha","Arsenal",0,3,"2025-26"],["Paris Saint-Germain","Bayern München",1,2,"2025-26"],["Liverpool","Real Madrid",1,0,"2025-26"],["Manchester City","Borussia Dortmund",4,1,"2025-26"],["Club Brugge","Barcelona",3,3,"2025-26"],["Borussia Dortmund","Villarreal",4,0,"2025-26"],["Liverpool","PSV Eindhoven",1,4,"2025-26"],["Sporting CP","Club Brugge",3,0,"2025-26"],["Arsenal","Bayern München",3,1,"2025-26"],["Atlético de Madrid","Inter",2,1,"2025-26"],["Bayern München","Sporting CP",3,1,"2025-26"],["PSV Eindhoven","Atlético de Madrid",2,3,"2025-26"],["Inter","Liverpool",0,1,"2025-26"],["Borussia Dortmund","Bodø/Glimt",2,2,"2025-26"],["Club Brugge","Arsenal",0,3,"2025-26"],["Real Madrid","Manchester City",1,2,"2025-26"],["Bodø/Glimt","Manchester City",3,1,"2025-26"],["Sporting CP","Paris Saint-Germain",2,1,"2025-26"],["Inter","Arsenal",1,3,"2025-26"],["Galatasaray","Atlético de Madrid",1,1,"2025-26"],["Slavia Praha","Barcelona",2,4,"2025-26"],["Manchester City","Galatasaray",2,0,"2025-26"],["Atlético de Madrid","Bodø/Glimt",1,2,"2025-26"],["PSV Eindhoven","Bayern München",1,2,"2025-26"],["Borussia Dortmund","Inter",0,2,"2025-26"],["Club Brugge","Atlético de Madrid",3,3,"2025-26"],["Bodø/Glimt","Inter",3,1,"2025-26"],["Atlético de Madrid","Club Brugge",4,1,"2025-26"],["Inter","Bodø/Glimt",1,2,"2025-26"],["Galatasaray","Liverpool",1,0,"2025-26"],["Real Madrid","Manchester City",3,0,"2025-26"],["Bodø/Glimt","Sporting CP",3,0,"2025-26"],["Sporting CP","Bodø/Glimt",5,0,"2025-26"],["Manchester City","Real Madrid",1,2,"2025-26"],["Liverpool","Galatasaray",4,0,"2025-26"],["Real Madrid","Bayern München",1,2,"2025-26"],["Sporting CP","Arsenal",0,1,"2025-26"],["Paris Saint-Germain","Liverpool",2,0,"2025-26"],["Barcelona","Atlético de Madrid",0,2,"2025-26"],["Liverpool","Paris Saint-Germain",0,2,"2025-26"],["Atlético de Madrid","Barcelona",1,2,"2025-26"],["Bayern München","Real Madrid",4,3,"2025-26"],["Arsenal","Sporting CP",0,0,"2025-26"],["Paris Saint-Germain","Bayern München",5,4,"2025-26"],["Atlético de Madrid","Arsenal",1,1,"2025-26"],["Arsenal","Atlético de Madrid",1,0,"2025-26"],["Bayern München","Paris Saint-Germain",1,1,"2025-26"],["Paris Saint-Germain","Arsenal",1,1,"2025-26"],["AEK Athens","LASK",1,0,"2026-27"],["Club Brugge","Aston Villa",2,3,"2026-27"],["Borussia Dortmund","Villarreal",3,2,"2026-27"],["Porto","Manchester City",0,2,"2026-27"],["Lille","Real Betis",2,3,"2026-27"],["Real Madrid","Inter",2,1,"2026-27"],["Barcelona","Feyenoord",5,1,"2026-27"],["Stuttgart","Viking",3,1,"2026-27"],["Liverpool","Atlético de Madrid",2,1,"2026-27"],["Paris Saint-Germain","Slovan Bratislava",6,1,"2026-27"],["Sporting CP","Galatasaray",3,1,"2026-27"],["Napoli","Arsenal",0,1,"2026-27"],["Fenerbahçe","Roma",1,1,"2026-27"],["PSV Eindhoven","Shakhtar Donetsk",1,1,"2026-27"],["Como","Leipzig",4,1,"2026-27"],["Bayern München","Bodø/Glimt",5,0,"2026-27"],["Manchester United","Sabah",4,0,"2026-27"],["Slavia Praha","Lens",2,3,"2026-27"],["Lens","Sporting CP",0,2,"2026-27"],["Sabah","Slavia Praha",2,0,"2026-27"],["Arsenal","Lille",3,0,"2026-27"],["Atlético de Madrid","Manchester United",2,0,"2026-27"],["Inter","Club Brugge",3,4,"2026-27"],["Galatasaray","Barcelona",1,4,"2026-27"],["Leipzig","PSV Eindhoven",1,0,"2026-27"],["Viking","Bayern München",3,3,"2026-27"],["Villarreal","Napoli",3,1,"2026-27"],["Feyenoord","Como",3,2,"2026-27"],["LASK","Liverpool",3,6,"2026-27"],["Roma","Real Madrid",3,4,"2026-27"],["Aston Villa","Fenerbahçe",6,0,"2026-27"],["Shakhtar Donetsk","AEK Athens",3,1,"2026-27"],["Bodø/Glimt","Borussia Dortmund",1,0,"2026-27"],["Manchester City","Paris Saint-Germain",2,4,"2026-27"],["Real Betis","Porto",3,2,"2026-27"],["Slovan Bratislava","Stuttgart",0,3,"2026-27"],["Fenerbahçe","Slavia Praha",2,2,"2026-27"],["Sabah","Borussia Dortmund",1,2,"2026-27"],["Roma","Slovan Bratislava",4,0,"2026-27"],["Porto","PSV Eindhoven",0,1,"2026-27"],["Liverpool","Villarreal",4,3,"2026-27"],["Manchester City","AEK Athens",5,1,"2026-27"],["Paris Saint-Germain","Barcelona",4,2,"2026-27"],["Napoli","Bodø/Glimt",4,3,"2026-27"],["Stuttgart","Atlético de Madrid",1,1,"2026-27"],["Como","Manchester United",4,1,"2026-27"],["Lille","Galatasaray",2,4,"2026-27"],["Aston Villa","Viking",3,1,"2026-27"],["Club Brugge","Lens",3,0,"2026-27"],["Bayern München","Arsenal",2,2,"2026-27"],["Inter","Shakhtar Donetsk",1,0,"2026-27"],["Real Madrid","Leipzig",4,1,"2026-27"],["Real Betis","Feyenoord",1,0,"2026-27"],["Sporting CP","LASK",2,3,"2026-27"]],"updated":"2026-11-01"};
+const TEAMS={
+"Arsenal":["ARS","#EF0107","#ffffff"],"Aston Villa":["AVL","#670E36","#95BFE5"],"AEK Athens":["AEK","#FFD200","#111111"],
+"Atlético de Madrid":["ATM","#CB3524","#1C2C5B"],"Barcelona":["BAR","#A50044","#004D98"],"Bayern München":["FCB","#DC052D","#ffffff"],
+"Bodø/Glimt":["BOD","#FFE600","#111111"],"Borussia Dortmund":["BVB","#FDE100","#111111"],"Club Brugge":["BRU","#0067CE","#111111"],
+"Como":["COM","#1B3F8F","#ffffff"],"Fenerbahçe":["FB","#FFED00","#002D72"],"Feyenoord":["FEY","#E30613","#ffffff"],
+"Galatasaray":["GS","#F6B40E","#A90432"],"Inter":["INT","#0068A8","#111111"],"Lens":["RCL","#FFD100","#E30613"],
+"Leipzig":["RBL","#DD0741","#ffffff"],"LASK":["LASK","#111111","#ffffff"],"Lille":["LIL","#E01E13","#1A2B5B"],
+"Liverpool":["LIV","#C8102E","#00B2A9"],"Manchester City":["MCI","#6CABDD","#1C2C5B"],"Manchester United":["MUN","#DA291C","#FBE122"],
+"Napoli":["NAP","#12A0D7","#ffffff"],"Paris Saint-Germain":["PSG","#004170","#DA291C"],"Porto":["POR","#00428C","#ffffff"],
+"PSV Eindhoven":["PSV","#ED1C24","#ffffff"],"Real Betis":["BET","#00954C","#ffffff"],"Real Madrid":["RMA","#ffffff","#FEBE10"],
+"Roma":["ROM","#8E1F2F","#F0BC42"],"Sabah":["SAB","#E31E24","#ffffff"],"Shakhtar Donetsk":["SHA","#F26522","#111111"],
+"Slavia Praha":["SLA","#E4002B","#ffffff"],"Slovan Bratislava":["SLO","#2E7CC4","#ffffff"],"Sporting CP":["SCP","#008057","#ffffff"],
+"Stuttgart":["VFB","#E32219","#ffffff"],"Villarreal":["VIL","#FFE667","#005187"],"Viking":["VIK","#1C3F94","#ffffff"]};
+const FIXTURES=[
+["4. hafta · 3 Kasım",[["Shakhtar Donetsk","Sporting CP"],["Galatasaray","Stuttgart"],["Atlético de Madrid","Bayern München"],["Barcelona","Aston Villa"],["Feyenoord","Inter"],["Bodø/Glimt","Lille"],["LASK","Slovan Bratislava"],["Manchester United","Roma"],["Villarreal","Paris Saint-Germain"]]],
+["4. hafta · 4 Kasım",[["AEK Athens","Real Madrid"],["Fenerbahçe","Liverpool"],["Borussia Dortmund","Real Betis"],["Porto","Napoli"],["PSV Eindhoven","Club Brugge"],["Leipzig","Manchester City"],["Lens","Como"],["Slavia Praha","Arsenal"],["Viking","Sabah"]]],
+["5. hafta · 24 Kasım",[["Bodø/Glimt","LASK"],["Galatasaray","Aston Villa"],["Arsenal","Borussia Dortmund"],["Como","AEK Athens"],["Feyenoord","Porto"],["Manchester City","Napoli"],["Leipzig","Lens"],["Real Madrid","PSV Eindhoven"],["Slovan Bratislava","Real Betis"]]],
+["5. hafta · 25 Kasım",[["Sabah","Barcelona"],["Slavia Praha","Villarreal"],["Atlético de Madrid","Viking"],["Club Brugge","Liverpool"],["Inter","Stuttgart"],["Shakhtar Donetsk","Fenerbahçe"],["Lille","Bayern München"],["Paris Saint-Germain","Roma"],["Sporting CP","Manchester United"]]],
+["6. hafta · 8 Aralık",[["Viking","Feyenoord"],["Villarreal","Sabah"],["AEK Athens","Galatasaray"],["Roma","Sporting CP"],["Aston Villa","Paris Saint-Germain"],["Barcelona","Manchester City"],["Bayern München","Slavia Praha"],["Manchester United","Leipzig"],["Napoli","Club Brugge"]]],
+["6. hafta · 9 Aralık",[["Real Betis","Como"],["Slovan Bratislava","Shakhtar Donetsk"],["Arsenal","Real Madrid"],["Borussia Dortmund","Inter"],["LASK","Fenerbahçe"],["Liverpool","Porto"],["Lens","Bodø/Glimt"],["PSV Eindhoven","Atlético de Madrid"],["Stuttgart","Lille"]]],
+["7. hafta · 19 Ocak",[["Bodø/Glimt","Atlético de Madrid"],["Galatasaray","Feyenoord"],["AEK Athens","Roma"],["Aston Villa","Borussia Dortmund"],["Inter","Liverpool"],["Porto","Slavia Praha"],["Lille","Slovan Bratislava"],["Real Madrid","LASK"],["Stuttgart","Club Brugge"]]],
+["7. hafta · 20 Ocak",[["Fenerbahçe","Villarreal"],["Sabah","Napoli"],["Como","Paris Saint-Germain"],["Manchester United","Bayern München"],["Leipzig","Shakhtar Donetsk"],["Lens","Manchester City"],["Real Betis","Arsenal"],["Sporting CP","Barcelona"],["Viking","PSV Eindhoven"]]],
+["8. hafta · 27 Ocak",[["Arsenal","Sabah"],["Roma","Lille"],["Atlético de Madrid","Fenerbahçe"],["Borussia Dortmund","AEK Athens"],["Club Brugge","Bodø/Glimt"],["Bayern München","Real Betis"],["Barcelona","Como"],["Shakhtar Donetsk","Real Madrid"],["Feyenoord","Leipzig"],["LASK","Porto"],["Liverpool","Lens"],["Manchester City","Sporting CP"],["Paris Saint-Germain","Galatasaray"],["PSV Eindhoven","Stuttgart"],["Slavia Praha","Aston Villa"],["Napoli","Viking"],["Villarreal","Manchester United"],["Slovan Bratislava","Inter"]]]];
+
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=1080,H=1920,C={x:540,y:1110},R=440,BR=52;
+const $=id=>document.getElementById(id);
+const statusEl=$('status');
+const NAMES=Object.keys(TEAMS).sort((a,b)=>a.localeCompare(b,'tr'));
+
+// ---------- fixture & team selects ----------
+(function fillSelects(){
+  const fx=$('fixture');
+  FIXTURES.forEach((g,gi)=>{const og=document.createElement('optgroup');og.label=g[0];
+    g[1].forEach((m,mi)=>{const o=document.createElement('option');o.value=gi+':'+mi;o.textContent=m[0]+' – '+m[1];og.appendChild(o);});fx.appendChild(og);});
+  const oc=document.createElement('option');oc.value='custom';oc.textContent='Özel eşleşme (iki takımı kendin seç)';fx.appendChild(oc);
+  fx.value='0:1';
+  [0,1].forEach(i=>{const s=$('t'+i);NAMES.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;s.appendChild(o);});});
+  $('t0').value='Galatasaray';$('t1').value='Stuttgart';
+})();
+
+const teams=[0,1].map(()=>({name:'',short:'',c1:'#fff',c2:'#000',logo:null}));
+function currentPair(){const v=$('fixture').value;if(v==='custom')return[$('t0').value,$('t1').value];const[g,m]=v.split(':').map(Number);return FIXTURES[g][1][m];}
+function applyPair(){
+  const p=currentPair();$('custom').hidden=$('fixture').value!=='custom';
+  [0,1].forEach(i=>{const d=TEAMS[p[i]];teams[i].name=p[i];$('s'+i).value=d[0];$('a'+i).value=d[1];$('b'+i).value=d[2];teams[i].logo=null;$('l'+i).value='';});
+  readTeams();updatePrediction();drawScenario();
+}
+function readTeams(){[0,1].forEach(i=>{const t=teams[i];t.short=($('s'+i).value.trim()||t.name.slice(0,3)).toUpperCase();t.c1=$('a'+i).value;t.c2=$('b'+i).value;});}
+[0,1].forEach(i=>{$('l'+i).addEventListener('change',e=>{const f=e.target.files[0];if(!f){teams[i].logo=null;return;}const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{teams[i].logo=img;draw();};img.src=rd.result;};rd.readAsDataURL(f);});});
+
+const cfg={dur:60,spd:850,gw:0.30,rot:0.6,handle:'@kanaladi',mode:'data',showBar:true};
+function readCfg(){cfg.dur=+$('dur').value;cfg.spd=+$('spd').value;cfg.gw=+$('gw').value;cfg.rot=+$('rot').value;cfg.handle=$('handle').value.trim();
+  cfg.mode=$('modeData').checked?'data':'free';cfg.kc=$('kc').value;cfg.goals=+$('goalsSel').value;cfg.music=$('music').value;cfg.mvol=+$('mvol').value;cfg.agg=+$('agg').value;$('aggV').textContent=cfg.agg<0.15?'kapalı':cfg.agg<0.4?'düşük':cfg.agg<0.75?'yüksek':'çok yüksek';$('mvolV').textContent='%'+Math.round(cfg.mvol*100);$('mfileWrap').hidden=cfg.music!=='own';if(typeof musicGain!=='undefined'&&musicGain&&!musicDuck)musicGain.gain.setTargetAtTime(cfg.mvol,AC.currentTime,0.1);cfg.showBar=$('showBar').checked;
+  $('durV').textContent=cfg.dur+' sn';$('spdV').textContent=cfg.spd;$('rotV').textContent=cfg.rot.toFixed(2);
+  $('gwV').textContent=cfg.gw<0.26?'dar':cfg.gw<0.36?'orta':'geniş';$('pred').hidden=cfg.mode!=='data';}
+
+// ---------- prediction model ----------
+let P=null; // {lh,la,pH,pD,pA,grid,ml}
+function pois(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p;}
+function updatePrediction(){
+  const [h,a]=[teams[0].name,teams[1].name];const th=DATA.teams[h],ta=DATA.teams[a],m=DATA.model;
+  const dr=th.elo-ta.elo+m.hfa;const lh=Math.exp(m.a+m.b*dr/400),la=Math.exp(m.a-m.b*dr/400);
+  let pH=0,pD=0,pA=0,best=[0,0,0];const grid=[];
+  for(let i=0;i<=9;i++)for(let j=0;j<=9;j++){const p=pois(lh,i)*pois(la,j);grid.push([i,j,p]);if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;if(p>best[2])best=[i,j,p];}
+  const s=pH+pD+pA;P={lh,la,pH:pH/s,pD:pD/s,pA:pA/s,grid,ml:best};
+  const pc=x=>Math.round(x*100);
+  const setSeg=(el,v,col,txt)=>{el.style.flex=`0 0 ${v*100}%`;el.style.background=col;el.textContent=v>0.09?txt+' %'+pc(v):'';};
+  setSeg($('pH'),P.pH,teams[0].c1,teams[0].short);setSeg($('pD'),P.pD,'#8d97a8','X');setSeg($('pA'),P.pA,teams[1].c1,teams[1].short);
+  [$('pH'),$('pA')].forEach((el,i)=>{el.style.color=lum(teams[i].c1)>0.55?'#0b0f14':'#ffffff';});
+  $('lH').textContent=h;$('lA').textContent=a;
+  $('xg').textContent=lh.toFixed(2)+' – '+la.toFixed(2);
+  $('ml').textContent=`${best[0]}-${best[1]}`;$('ml').title='Olasılık %'+(best[2]*100).toFixed(1);
+  const rank=n=>1+Object.values(DATA.teams).filter(t=>t.elo>DATA.teams[n].elo).length;
+  $('elo').textContent=`${th.elo} – ${ta.elo}`;$('elo').title=`${h}: 36 takım içinde ${rank(h)}. · ${a}: ${rank(a)}.`;
+  [[h,'fH','cH'],[a,'fA','cA']].forEach(([n,hid,cid])=>{$(hid).textContent=n+' · son 5 Avrupa maçı';const box=$(cid);box.textContent='';
+    const last=DATA.teams[n].last;if(!last.length){box.innerHTML='<span style="color:var(--muted)">Avrupa kupası geçmişi yok; güç puanı lig ortalamasından tahmin edildi.</span>';return;}
+    last.slice().reverse().forEach(r=>{const d=document.createElement('div');d.className='chip';const i=document.createElement('i');i.className=r[0];i.textContent={W:'G',D:'B',L:'M'}[r[0]];
+      const sp=document.createElement('span');sp.textContent=r[3];const em=document.createElement('em');em.textContent=`${r[1]}-${r[2]} · ${r[4]}`;d.append(i,sp,em);box.appendChild(d);});});
+  const hh=DATA.h2h.filter(x=>(x[0]===h&&x[1]===a)||(x[0]===a&&x[1]===h));
+  const d0=Math.max(-2,Math.min(2,(th.elo-ta.elo)/200));
+  P.ev={y:[1.75*(1-0.12*d0),1.95*(1+0.12*d0)],r:[0.05*(1-0.2*d0),0.055*(1+0.2*d0)],pen:[0.14*(1+0.25*d0),0.12*(1-0.25*d0)]};
+  $('yc').textContent=P.ev.y[0].toFixed(1)+' – '+P.ev.y[1].toFixed(1);
+  $('pp').textContent='%'+Math.round((1-Math.exp(-(P.ev.pen[0]+P.ev.pen[1])))*100);
+  $('rc').textContent='%'+Math.round((1-(1-P.ev.r[0])*(1-P.ev.r[1]))*100);
+  $('h2h').textContent=hh.length?'Avrupa\'daki karşılaşmalar: '+hh.map(x=>`${x[0]} ${x[2]}-${x[3]} ${x[1]} (${x[4]})`).join(' · '):'Bu iki takım 2011\'den bu yana Avrupa kupalarında hiç karşılaşmadı.';
+}
+// live win probability: current score + Poisson goals over the remaining time
+function liveTarget(){
+  if(!P)return null;const m=Math.min(90,S.t/cfg.dur*90);const f=S.phase==='end'?0:Math.max(0,1-m/90);
+  const lh=P.lh*f,la=P.la*f;let h=0,d=0,a=0;
+  for(let i=0;i<=9;i++)for(let j=0;j<=9;j++){const p=pois(lh,i)*pois(la,j);const fh=S.score[0]+i,fa=S.score[1]+j;if(fh>fa)h+=p;else if(fh===fa)d+=p;else a+=p;}
+  const s=h+d+a;return[h/s,d/s,a/s];
+}
+function updateLive(dt){const t=liveTarget();if(!t)return;if(!S.liveP||!S.running){S.liveP=t;return;}const k=Math.min(1,dt*3);S.liveP=S.liveP.map((v,i)=>v+(t[i]-v)*k);}
+function lum(hex){const n=parseInt(hex.slice(1),16);return(0.299*(n>>16)+0.587*(n>>8&255)+0.114*(n&255))/255;}
+let scenario=null,revealed=false;
+let scenEv=null;
+function samplePois(l){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=Math.random();}while(p>L);return k-1;}
+function drawScenario(){
+  if(!P)return;
+  const likely=$('scen').value==='likely';
+  if(likely){scenario=[P.ml[0],P.ml[1]];}
+  else{let r=Math.random(),acc=0;scenario=[P.ml[0],P.ml[1]];for(const g of P.grid){acc+=g[2];if(r<=acc){scenario=[g[0],g[1]];break;}}}
+  const E=P.ev,ev={pens:[],y:[0,0],r:[0,0]};
+  for(const tm of[0,1]){
+    if(likely){ev.y[tm]=Math.round(E.y[tm]);continue;}
+    const n=samplePois(E.pen[tm]);for(let k=0;k<n;k++)ev.pens.push({team:tm,scored:Math.random()<0.78});
+    ev.y[tm]=Math.min(6,samplePois(E.y[tm]));ev.r[tm]=Math.random()<E.r[tm]?1:0;}
+  for(const tm of[0,1]){const sc=ev.pens.filter(x=>x.team===tm&&x.scored);while(sc.length>scenario[tm])sc.pop().scored=false;}
+  scenEv=ev;
+  showScen();if(!S.running){resetMatch();draw();}
+}
+function showScen(){$('scenScore').textContent=revealed&&scenario?`${scenario[0]} - ${scenario[1]}`:'? - ?';
+  const e=scenEv;if(revealed&&e){const ps=e.pens.length,pg=e.pens.filter(x=>x.scored).length;$('scenEv').textContent=`${ps?ps+' penaltı ('+pg+' gol)':'penaltı yok'} · ${e.y[0]+e.y[1]} sarı · ${e.r[0]+e.r[1]} kırmızı`;}else $('scenEv').textContent='';$('reveal').textContent=revealed?'Gizle':'Göster';}
+$('reveal').onclick=()=>{revealed=!revealed;showScen();};
+$('redraw').onclick=()=>drawScenario();
+$('scen').onchange=()=>drawScenario();
+$('fixture').onchange=applyPair;$('t0').onchange=applyPair;$('t1').onchange=applyPair;
+document.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{readTeams();readCfg();if(['s0','s1','a0','a1','b0','b1'].includes(el.id))updatePrediction();if(!S.running)draw();}));
+
+// ---------- state ----------
+const S={running:false,phase:'idle',t:0,score:[0,0],theta:-Math.PI/2,balls:[],hold:0,msg:null,halfDone:false,flash:null,parts:[],endHold:0,plan:[],save:null,saveCd:0};
+function rand(a,b){return a+Math.random()*(b-a)}
+function kickoff(){S.balls=[0,1].map(i=>{const side=i?1:-1;const dir=rand(0,Math.PI*2);return{team:i,x:C.x+side*170,y:C.y+rand(-60,60),vx:Math.cos(dir)*cfg.spd,vy:Math.sin(dir)*cfg.spd,esc:false,hist:[]};});}
+function buildPlan(){
+  S.plan=[];S.events=[];if(cfg.mode!=='data'||!scenario)return;
+  const ev=scenEv||{pens:[],y:[0,0],r:[0,0]};
+  const penGoals=[0,1].map(tm=>ev.pens.filter(x=>x.team===tm&&x.scored).length);
+  const goals=[];for(const tm of[0,1])for(let k=0;k<scenario[tm]-penGoals[tm];k++)goals.push(tm);
+  const n=goals.length;for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[goals[i],goals[j]]=[goals[j],goals[i]];}
+  const mins=goals.map(()=>rand(4,86)).sort((x,y)=>x-y);
+  for(let i=1;i<mins.length;i++)if(mins[i]-mins[i-1]<5)mins[i]=Math.min(88,mins[i-1]+5);
+  const T=m=>m/90*cfg.dur;
+  S.plan=goals.map((tm,i)=>({team:tm,t:T(mins[i])}));
+  for(const x of ev.pens)S.events.push({type:'pen',team:x.team,scored:x.scored,t:T(rand(8,84))});
+  for(const tm of[0,1]){for(let k=0;k<ev.y[tm];k++)S.events.push({type:'yellow',team:tm,t:T(Math.random()<0.65?rand(46,89):rand(8,45))});
+    if(ev.r[tm])S.events.push({type:'red',team:tm,t:T(rand(25,86))});}
+  S.events.sort((a,b)=>a.t-b.t);
+}
+// ---------- cards & penalties ----------
+function checkEvents(){
+  if(cfg.mode!=='data')return;
+  while(S.events.length&&S.t>=S.events[0].t&&S.phase==='play'){
+    const e=S.events.shift();
+    if(e.type==='yellow'){S.cards[e.team][0]++;S.cardFlash[e.team][0]=1;S.banner={type:'yellow',team:e.team,t:1.8};tone(1800,0.12,'sine',0.1);}
+    else if(e.type==='red'){S.cards[e.team][1]++;S.cardFlash[e.team][1]=1;S.banner={type:'red',team:e.team,t:2.4};whistle(0.5);}
+    else startPen(e);
+  }
+}
+function startPen(e){
+  whistle(0.6);S.phase='pen';S.save=null;
+  const gs=goals();let gi=0;for(let i=0;i<gs.length;i++)if(canScore(gs[i],e.team)){gi=i;break;}
+  const a=S.theta+gs[gi].off;
+  const pn={team:e.team,scored:e.scored,gi,a,t:0,side:Math.random()<0.5?-1:1,shot:false,done:false,hold:0};
+  pn.sx=C.x+Math.cos(a)*(R-210);pn.sy=C.y+Math.sin(a)*(R-210);S.pen=pn;
+  const b=S.balls[e.team],o=S.balls[1-e.team];b.esc=false;b.hist=[];o.hist=[];
+  b.x=pn.sx;b.y=pn.sy;o.x=C.x-Math.cos(a)*130;o.y=C.y-Math.sin(a)*130;
+  S.keepers[gi].s=0;S.keepers[gi].vs=0;
+  S.msg={big:'PENALTY!',small:teams[e.team].name,team:e.team};
+}
+function updatePen(dt){
+  const p=S.pen;if(!p)return;p.t+=dt;const b=S.balls[p.team];
+  const u={x:Math.cos(p.a),y:Math.sin(p.a)},v={x:-u.y,y:u.x};const hl=R*Math.sin(cfg.gw);const lim=Math.max(0,hl-KH);
+  if(p.t<1.6){b.x=p.sx;b.y=p.sy;return;}
+  if(!p.shot){p.shot=true;S.msg=null;tone(240,0.12,'triangle',0.25);noise(0.15,0.3);}
+  const k=Math.min(1,(p.t-1.6)/0.5);
+  const kTarget=(p.scored?-p.side:p.side)*lim;const kk=S.keepers[p.gi];const dv=Math.min(1,Math.max(0,(p.t-1.65)/0.32));
+  const ns=kTarget*dv;kk.vs=dt>0?(ns-kk.s)/dt:0;kk.s=ns;
+  if(p.scored){
+    const tx=C.x+u.x*(R+70)+v.x*p.side*hl*0.62,ty=C.y+u.y*(R+70)+v.y*p.side*hl*0.62;
+    b.x=p.sx+(tx-p.sx)*k;b.y=p.sy+(ty-p.sy)*k;
+    if(k>=1&&!p.done){p.done=true;S.pen=null;scoreGoal(b,true);}
+  }else{
+    const sv=0.8,tx=C.x+u.x*(R-KD-48)+v.x*kTarget,ty=C.y+u.y*(R-KD-48)+v.y*kTarget;
+    if(k<sv&&!p.done){const q=k/sv;b.x=p.sx+(tx-p.sx)*q;b.y=p.sy+(ty-p.sy)*q;}
+    else if(!p.done){p.done=true;p.hold=1.6;S.save={x:C.x+u.x*(R-270),y:C.y+u.y*(R-270),t:1.2};tone(160,0.2,'sawtooth',0.14);noise(0.3,0.25);
+      S.msg={big:'SAVED!',small:'Penalty missed · '+teams[p.team].name,team:1-p.team};}
+    else{p.hold-=dt;b.x-=u.x*320*dt;b.y-=u.y*320*dt;if(p.hold<=0){S.pen=null;S.msg=null;kickoff();S.phase='play';whistle(0.25);}}
+  }
+}
+function resetMatch(){S.t=0;S.score=[0,0];S.phase='idle';S.hold=0;S.msg=null;S.halfDone=false;S.flash=null;S.parts=[];S.endHold=0;S.theta=-Math.PI/2;S.save=null;S.saveCd=0;S.keepers=[{s:0,vs:0},{s:0,vs:0}];S.liveP=null;S.cards=[[0,0],[0,0]];S.cardFlash=[[0,0],[0,0]];S.banner=null;S.pen=null;buildPlan();kickoff();}
+// ---------- goals & goalkeepers ----------
+const KD=30,KH=46,KR=26;
+function goals(){return cfg.goals===2?[{off:0,def:1},{off:Math.PI,def:0}]:[{off:0,def:-1}];}
+function canScore(g,team){return g.def===-1||g.def!==team;}
+function gk(g,i){const a=S.theta+g.off;const u={x:Math.cos(a),y:Math.sin(a)},v={x:-u.y,y:u.x};const ks=S.keepers[i].s;return{u,v,kx:C.x+u.x*(R-KD)+v.x*ks,ky:C.y+u.y*(R-KD)+v.y*ks};}
+function keeperMax(){return(cfg.mode==='data'?1.1:0.5)*cfg.spd;}
+function scoreTarget(team){const gs=goals();for(const g of gs)if(canScore(g,team))return S.theta+g.off;return S.theta;}
+function updateKeepers(dt,due){
+  goals().forEach((g,i)=>{const k=S.keepers[i];const {u,v}=gk(g,i);const lim=Math.max(0,R*Math.sin(cfg.gw)-KH);
+    let best=null,bd=1e9;
+    for(const b of S.balls){if(b.esc||!canScore(g,b.team))continue;const along=(b.x-C.x)*u.x+(b.y-C.y)*u.y;const app=b.vx*u.x+b.vy*u.y;const sc=(R-along)-(app>0?200:0);if(sc<bd){bd=sc;best=b;}}
+    let target=0;
+    if(best){const sb=(best.x-C.x)*v.x+(best.y-C.y)*v.y;target=Math.max(-lim,Math.min(lim,sb));if(due===best.team)target=(sb>=0?-1:1)*lim;}
+    const mv=keeperMax()*dt;const ds=Math.max(-mv,Math.min(mv,target-k.s));
+    k.s=Math.max(-lim,Math.min(lim,k.s+ds));k.vs=dt>0?ds/dt:0;});
+}
+function keeperHit(b,due){
+  if(b.esc)return;
+  goals().forEach((g,i)=>{
+    const att=canScore(g,b.team);if(att&&due===b.team)return;
+    const {u,v,kx,ky}=gk(g,i);
+    const t=Math.max(-KH,Math.min(KH,(b.x-kx)*v.x+(b.y-ky)*v.y));const px=kx+v.x*t,py=ky+v.y*t;
+    const dx=b.x-px,dy=b.y-py,d=Math.hypot(dx,dy);
+    if(d>0&&d<BR+KR){const nx=dx/d,ny=dy/d,vn=b.vx*nx+b.vy*ny;
+      if(vn<0){b.vx-=2*vn*nx;b.vy-=2*vn*ny;setSpeed(b,0.2);
+        if(att&&S.saveCd<=0){S.save={x:kx-u.x*150,y:ky-u.y*150,t:0.9};S.saveCd=3;tone(160,0.18,'sawtooth',0.12);noise(0.25,0.2);}else tone(300,0.08,'triangle',0.14);}
+      const o=BR+KR-d;b.x+=nx*o;b.y+=ny*o;}
+  });
+}
+
+// ---------- audio ----------
+let AC=null,dest=null,master=null,OFF=null;
+const NOW=()=>OFF?OFF.t:AC.currentTime;
+function initAudio(){if(AC)return;AC=OFF?new OfflineAudioContext(2,Math.ceil(OFF.sec*48000),48000):new (window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=0.5;master.connect(AC.destination);if(!OFF){dest=AC.createMediaStreamDestination();master.connect(dest);}}
+function tone(f,d,type='square',v=0.15,at=0){if(!AC)return;const t0=NOW()+at,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);g.gain.setValueAtTime(v,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+d);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+d);}
+function noise(d,v=0.3){if(!AC)return;const b=AC.createBuffer(1,AC.sampleRate*d,AC.sampleRate),ch=b.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);const s=AC.createBufferSource();s.buffer=b;const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=900;f.Q.value=0.6;const g=AC.createGain();g.gain.value=v;s.connect(f);f.connect(g);g.connect(master);s.start(NOW());}
+// ---------- music ----------
+let musicGain=null,musicTimer=null,musicEl=null,ownURL=null,nextBar=0,barIdx=0,musicDuck=false;
+const BEAT=60/76,BAR=BEAT*4;
+// original progression in D: D – Bm – G – A, then G – D/F# – Em – A
+const PROG=[[50,62,66,69],[47,62,66,71],[43,62,67,71],[45,61,64,69],[43,59,62,67],[42,62,66,69],[40,59,64,67],[45,61,64,73]];
+const MEL=[[74,73,71,69],[71,73,74,76],[74,71,67,71],[73,69,76,73],[71,74,79,78],[78,76,74,73],[71,67,71,74],[76,73,69,73]];
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+function env(g,t,a,peak,end,rel){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);g.gain.setValueAtTime(peak,Math.max(t+a,end-rel));g.gain.exponentialRampToValueAtTime(0.0001,end);}
+function voice(type,f,t,dur,peak,a,rel,cut){const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;let n=o;if(cut){const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=cut;o.connect(lp);n=lp;}n.connect(g);g.connect(musicGain);env(g,t,a,peak,t+dur,rel);o.start(t);o.stop(t+dur+0.05);return o;}
+function timp(t,m,peak){const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(mtof(m)*1.5,t);o.frequency.exponentialRampToValueAtTime(mtof(m),t+0.08);o.connect(g);g.connect(musicGain);g.gain.setValueAtTime(peak,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.9);o.start(t);o.stop(t+1);}
+function playBar(i,t){
+  const ch=PROG[i%8],mel=MEL[i%8];
+  // strings / choir pad
+  for(const m of ch.slice(1))for(const d of[-6,6]){const o=voice('sawtooth',mtof(m),t,BAR+0.15,0.035,0.5,0.4,1600);o.detune.value=d;}
+  voice('triangle',mtof(ch[0]),t,BAR,0.16,0.05,0.3);voice('sawtooth',mtof(ch[0]-12),t,BAR,0.05,0.05,0.3,400);
+  // brass melody, one note per beat
+  mel.forEach((m,k)=>{voice('square',mtof(m),t+k*BEAT,BEAT*0.92,0.045,0.04,0.18,2400);voice('triangle',mtof(m+12),t+k*BEAT,BEAT*0.5,0.03,0.01,0.3);});
+  // timpani
+  timp(t,ch[0]-12,0.5);timp(t+BEAT*2,ch[0]-12,0.3);
+  if(i%4===3)for(let r=0;r<6;r++)timp(t+BEAT*3+r*BEAT/6,ch[0]-12,0.12+r*0.04);
+}
+// ---- heyecanlı parça: 128 BPM, D minor, Dm – Bb – F – C ----
+const HB=60/128,HBAR=HB*4;
+const HPROG=[[38,[62,65,69]],[34,[58,62,65]],[41,[60,65,69]],[36,[60,64,67]]];
+const HOOK=[[74,74,72,69,72,null,69,72],[70,70,69,65,69,null,65,67],[72,72,69,65,77,76,74,72],[76,null,74,72,67,null,72,74]];
+let NB=null;
+function nbuf(){if(!NB){NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const c=NB.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=Math.random()*2-1;}return NB;}
+function nz(t,dur,type,freq,peak){const s=AC.createBufferSource();s.buffer=nbuf();const f=AC.createBiquadFilter();f.type=type;f.frequency.value=freq;const g=AC.createGain();s.connect(f);f.connect(g);g.connect(musicGain);g.gain.setValueAtTime(peak,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.start(t,Math.random()*0.5);s.stop(t+dur+0.02);}
+function kick(t,p=0.9){const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(160,t);o.frequency.exponentialRampToValueAtTime(42,t+0.13);o.connect(g);g.connect(musicGain);g.gain.setValueAtTime(p,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.32);o.start(t);o.stop(t+0.35);}
+function snare(t,p=0.35){nz(t,0.17,'highpass',1400,p);voice('triangle',190,t,0.09,p*0.5,0.002,0.08);}
+function hat(t,open){nz(t,open?0.22:0.045,'highpass',7500,open?0.07:0.06);}
+function crash(t){nz(t,1.4,'highpass',4500,0.12);}
+function playBarHype(i,t){
+  const [root,ch]=HPROG[i%4];const sec=Math.floor(i/4)%4; // 0 intro, 1-3 full
+  const late=S.running&&S.t>cfg.dur*0.78;const full=sec>0||i>=4;
+  if(i%8===0||(late&&i%4===0))crash(t);
+  for(let b=0;b<4;b++){const tb=t+b*HB;
+    kick(tb);if(b%2===1)snare(tb);
+    hat(tb+HB/2,true);hat(tb,false);if(late||full){hat(tb+HB/4,false);hat(tb+HB*3/4,false);}}
+  if(late||i%4===3){for(let k=0;k<4;k++)snare(t+HB*3+k*HB/4,0.16+k*0.05);}
+  // pumping bass, eighth notes
+  for(let k=0;k<8;k++){const m=root+(k%2?12:0);voice('sawtooth',mtof(m),t+k*HB/2,HB*0.42,0.11,0.005,0.08,750);}
+  // string ostinato, sixteenths
+  const arp=[ch[0],ch[1],ch[2],ch[1]+12];
+  for(let k=0;k<16;k++){voice('sawtooth',mtof(arp[k%4]),t+k*HB/4,HB*0.22,full?0.03:0.02,0.003,0.05,2600);}
+  // pad
+  for(const m of ch)voice('sawtooth',mtof(m-12),t,HBAR,0.016,0.2,0.2,1200);
+  // brass stabs
+  if(full)for(const off of[0,HB*1.5,HB*3])for(const m of ch)voice('sawtooth',mtof(m),t+off,0.22,0.035,0.01,0.12,3200);
+  // hook on the second half of each 8-bar cycle, or always in the closing minutes
+  if(full&&(i%8>=4||late)){HOOK[i%4].forEach((m,k)=>{if(m==null)return;voice('square',mtof(m),t+k*HB/2,HB*0.45,0.05,0.01,0.1,3000);voice('triangle',mtof(m+12),t+k*HB/2,HB*0.4,0.03,0.005,0.15);});}
+}
+function schedule(){const hype=cfg.music==='hype';const len=hype?HBAR:BAR;while(nextBar<NOW()+0.5){(hype?playBarHype:playBar)(barIdx,nextBar);barIdx++;nextBar+=len;}}
+function startMusic(){
+  stopMusic();if(!AC||cfg.music==='none')return;
+  musicGain=AC.createGain();musicGain.gain.value=cfg.mvol;musicGain.connect(master);musicDuck=false;
+  if(cfg.music==='own'||(OFF&&cfg.music!=='hype'&&cfg.music!=='epic')){if(!ownURL||OFF){statusEl.textContent='Müzik dosyası seçilmedi; maç müziksiz oynanıyor.';return;}
+    musicEl=new Audio(ownURL);musicEl.loop=true;try{AC.createMediaElementSource(musicEl).connect(musicGain);}catch(e){}musicEl.play().catch(()=>{});}
+  else{nextBar=NOW()+0.05;barIdx=0;schedule();if(!OFF)musicTimer=setInterval(schedule,120);}
+}
+function stopMusic(){if(musicTimer){clearInterval(musicTimer);musicTimer=null;}if(musicEl){musicEl.pause();musicEl=null;}if(musicGain){const g=musicGain;musicGain=null;try{g.gain.cancelScheduledValues(NOW());g.gain.setTargetAtTime(0,NOW(),0.05);setTimeout(()=>g.disconnect(),400);}catch(e){}}}
+function fadeMusic(){if(!musicGain)return;const g=musicGain;g.gain.cancelScheduledValues(NOW());g.gain.setValueAtTime(g.gain.value,NOW());g.gain.linearRampToValueAtTime(0.0001,NOW()+2.6);if(!OFF)setTimeout(()=>{if(musicGain===g)stopMusic();},2700);}
+function duckMusic(){if(!musicGain)return;const g=musicGain,t=NOW();musicDuck=true;g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(g.gain.value,t);g.gain.linearRampToValueAtTime(cfg.mvol*0.3,t+0.15);g.gain.setValueAtTime(cfg.mvol*0.3,t+1.6);g.gain.linearRampToValueAtTime(cfg.mvol,t+3);setTimeout(()=>{musicDuck=false;},3000);}
+let lastBlip=0;
+function blip(){const n=OFF?OFF.t*1000:performance.now();if(n-lastBlip<40)return;lastBlip=n;tone(rand(380,620),0.07,'square',0.07);}
+function whistle(len=0.5){if(!AC)return;for(let k=0;k<(len>0.6?3:1);k++)tone(2900,len>0.6?0.28:len,'sine',0.12,k*0.32);}
+function goalSound(){noise(1.6,0.45);[523,659,784,1047].forEach((f,i)=>tone(f,0.22,'triangle',0.16,i*0.09));}
+
+// ---------- physics ----------
+function norm(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a}
+function setSpeed(b,jit){let ang=Math.atan2(b.vy,b.vx)+(jit?rand(-jit,jit):0);b.vx=Math.cos(ang)*cfg.spd;b.vy=Math.sin(ang)*cfg.spd;}
+function dueTeam(){if(cfg.mode!=='data')return -2;const g=S.plan[0];if(!g)return -1;return S.t>=g.t?g.team:-1;}
+function step(dt){
+  S.theta+=cfg.rot*dt;
+  const passHalf=cfg.gw-Math.asin(BR/R)*0.95;
+  const due=dueTeam();
+  // steer the ball that is due to score toward the goal mouth
+  if(due>=0){const b=S.balls[due];if(!b.esc){const late=S.t-S.plan[0].t;
+      const ta=scoreTarget(due);const tx=C.x+Math.cos(ta)*R,ty=C.y+Math.sin(ta)*R;
+      const want=Math.atan2(ty-b.y,tx-b.x),cur=Math.atan2(b.vy,b.vx);const diff=norm(want-cur);
+      const w=(1.4+late/(cfg.dur*0.03)*2.2)*dt;const na=cur+Math.max(-w,Math.min(w,diff));
+      b.vx=Math.cos(na)*cfg.spd;b.vy=Math.sin(na)*cfg.spd;}}
+  // balls hunt each other: each one curves toward the rival, then backs off briefly after a hit
+  for(const b of S.balls){if(b.esc||b.team===due)continue;b.cool=(b.cool||0)-dt;if(b.cool>0||!cfg.agg)continue;
+    const o=S.balls[1-b.team];if(o.esc)continue;
+    const want=Math.atan2(o.y-b.y,o.x-b.x),cur=Math.atan2(b.vy,b.vx),diff=norm(want-cur);
+    const w=cfg.agg*3.4*dt;const na=cur+Math.max(-w,Math.min(w,diff));b.vx=Math.cos(na)*cfg.spd;b.vy=Math.sin(na)*cfg.spd;}
+  updateKeepers(dt,due);
+  for(const b of S.balls){
+    b.x+=b.vx*dt;b.y+=b.vy*dt;
+    keeperHit(b,due);
+    const dx=b.x-C.x,dy=b.y-C.y,d=Math.hypot(dx,dy);
+    if(b.esc){if(d>R+BR*1.3){scoreGoal(b);return;}continue;}
+    if(d>R-BR){
+      const ang=Math.atan2(dy,dx);let esc=false;
+      for(const g of goals()){if(Math.abs(norm(ang-S.theta-g.off))<passHalf&&canScore(g,b.team)&&(due===-2||due===b.team)){esc=true;break;}}
+      if(esc){b.esc=true;continue;}
+      const nx=dx/d,ny=dy/d,vn=b.vx*nx+b.vy*ny;
+      if(vn>0){b.vx-=2*vn*nx;b.vy-=2*vn*ny;b.vx+=-ny*cfg.rot*R*0.5;b.vy+=nx*cfg.rot*R*0.5;setSpeed(b,0.14);blip();}
+      b.x=C.x+nx*(R-BR);b.y=C.y+ny*(R-BR);
+    }
+  }
+  const [p,q]=S.balls;const dx=q.x-p.x,dy=q.y-p.y,d=Math.hypot(dx,dy);
+  if(d<BR*2&&d>0){const nx=dx/d,ny=dy/d,rv=(q.vx-p.vx)*nx+(q.vy-p.vy)*ny;
+    if(rv<0){p.vx+=rv*nx;p.vy+=rv*ny;q.vx-=rv*nx;q.vy-=rv*ny;setSpeed(p,0.35);setSpeed(q,0.35);p.cool=0.35+Math.random()*0.35;q.cool=0.35+Math.random()*0.35;
+      tone(220,0.09,'triangle',0.2);noise(0.08,0.25);
+      const mx=(p.x+q.x)/2,my=(p.y+q.y)/2;for(let i=0;i<16;i++){const a=rand(0,Math.PI*2),s=rand(250,700);S.parts.push({x:mx,y:my,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(0.25,0.5),c:i%2?'#ffffff':'#ffd34d',r:rand(5,9)});}}
+    const o=(BR*2-d)/2;p.x-=nx*o;p.y-=ny*o;q.x+=nx*o;q.y+=ny*o;}
+}
+function scoreGoal(b,pen){
+  S.score[b.team]++;if(cfg.mode==='data'&&!pen)S.plan.shift();
+  S.phase='goal';S.hold=1.9;S.msg={big:'GOAL!',small:(pen?'Penalty · ':'')+teams[b.team].name,team:b.team};S.flash={team:b.team,t:1};
+  for(let i=0;i<90;i++){const a=rand(0,Math.PI*2),s=rand(200,900);S.parts.push({x:b.x,y:b.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(0.8,1.6),c:i%2?teams[b.team].c1:teams[b.team].c2,r:rand(6,14)});}
+  goalSound();duckMusic();
+}
+
+// ---------- loop ----------
+let last=0;
+function frame(ts){
+  const dt=Math.min(0.033,(ts-last)/1000||0);last=ts;
+  if(!OFF){tick(dt);draw();}requestAnimationFrame(frame);
+}
+function tick(dt){
+  if(S.running){
+    if(S.phase==='play'){
+      const sub=4;for(let i=0;i<sub&&S.phase==='play';i++)step(dt/sub);
+      if(S.phase==='play'){S.t+=dt;S.saveCd-=dt;
+        checkEvents();
+        const pending=cfg.mode==='data'&&(S.plan.length>0||S.events.some(e=>e.type==='pen'));
+        if(S.phase!=='play'){}else         if(!S.halfDone&&S.t>=cfg.dur/2){S.halfDone=true;S.phase='half';S.hold=1.8;S.msg={big:'HALF TIME',small:S.score.join(' - ')};whistle(0.9);}
+        else if(S.t>=cfg.dur&&!pending){S.phase='end';S.msg={big:'FULL TIME',small:''};whistle(0.9);fadeMusic();S.endHold=2.8;}}
+    }else if(S.phase==='pen'){updatePen(dt);
+    }else if(S.phase==='goal'||S.phase==='half'){
+      S.theta+=cfg.rot*dt;S.hold-=dt;
+      if(S.hold<=0){S.msg=null;kickoff();S.phase='play';whistle(0.25);}
+    }else if(S.phase==='end'){S.theta+=cfg.rot*dt*0.4;S.endHold-=dt;if(S.endHold<=0&&rec){stopRec();}}
+    for(const b of S.balls){b.hist.push({x:b.x,y:b.y});if(b.hist.length>9)b.hist.shift();}
+  }
+  for(const p of S.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=0.97;p.vy=p.vy*0.97+600*dt;p.life-=dt;}
+  S.parts=S.parts.filter(p=>p.life>0);
+  if(S.flash){S.flash.t-=dt;if(S.flash.t<=0)S.flash=null;}
+  if(S.save){S.save.t-=dt;if(S.save.t<=0)S.save=null;}
+  if(S.banner){S.banner.t-=dt;if(S.banner.t<=0)S.banner=null;}
+  if(S.cardFlash)for(const r of S.cardFlash)for(let k=0;k<2;k++)r[k]=Math.max(0,r[k]-dt*1.2);
+  updateLive(dt);
+}
+
+// ---------- drawing ----------
+const F='"Barlow Condensed","Arial Narrow",Impact,sans-serif';
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+function drawBadge(t,x,y,r){
+  ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.clip();
+  if(t.logo){ctx.fillStyle='#fff';ctx.fillRect(x-r,y-r,r*2,r*2);const s=Math.max(r*2/t.logo.width,r*2/t.logo.height)*0.86;ctx.drawImage(t.logo,x-t.logo.width*s/2,y-t.logo.height*s/2,t.logo.width*s,t.logo.height*s);}
+  else{ctx.fillStyle=t.c1;ctx.fillRect(x-r,y-r,r*2,r*2);ctx.fillStyle=t.c2;ctx.beginPath();ctx.moveTo(x+r*0.1,y-r);ctx.lineTo(x+r,y-r);ctx.lineTo(x+r,y+r);ctx.lineTo(x-r*0.6,y+r);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#fff';ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=r*0.13;ctx.font=`800 ${r*(t.short.length>3?0.62:0.78)}px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.strokeText(t.short,x,y+r*0.04);ctx.fillText(t.short,x,y+r*0.04);}
+  ctx.restore();
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.lineWidth=r*0.1;ctx.strokeStyle='rgba(255,255,255,.95)';ctx.stroke();
+}
+function draw(){
+  const t0=teams[0],t1=teams[1];
+  const glowTeam=S.flash?teams[S.flash.team]:null;
+  const g=ctx.createRadialGradient(C.x,C.y,100,C.x,C.y,1150);
+  g.addColorStop(0,glowTeam?glowTeam.c1:'#1f3a8a');g.addColorStop(0.55,'#0e1a45');g.addColorStop(1,'#050816');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  // star field (UCL night)
+  ctx.fillStyle='rgba(255,255,255,.18)';for(let i=0;i<60;i++){const sx=(i*197)%W,sy=(i*421)%H;ctx.fillRect(sx,sy,3,3);}
+
+  ctx.save();ctx.translate(C.x,C.y);ctx.rotate(S.theta+Math.PI/2);
+  ctx.beginPath();ctx.arc(0,0,R,0,Math.PI*2);ctx.clip();
+  const sq=125;for(let i=-4;i<4;i++)for(let j=-4;j<4;j++){ctx.fillStyle=(i+j)&1?'#22301f':'#1b2619';ctx.fillRect(i*sq,j*sq,sq,sq);}
+  ctx.strokeStyle='rgba(220,230,220,.45)';ctx.lineWidth=5;
+  ctx.beginPath();ctx.moveTo(-R,0);ctx.lineTo(R,0);ctx.stroke();
+  ctx.beginPath();ctx.arc(0,0,110,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(0,0,R-30,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='rgba(220,230,220,.6)';ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+
+  const rimCol=S.flash?teams[S.flash.team].c1:'#7fb2ff';
+  ctx.save();ctx.shadowColor=rimCol;ctx.shadowBlur=40;ctx.strokeStyle=rimCol;ctx.lineWidth=24;ctx.lineCap='round';
+  const gs=goals();const span=Math.PI*2/gs.length;ctx.beginPath();for(const g of gs){const a0=S.theta+g.off+cfg.gw;ctx.moveTo(C.x+Math.cos(a0)*(R+12),C.y+Math.sin(a0)*(R+12));ctx.arc(C.x,C.y,R+12,a0,S.theta+g.off+span-cfg.gw);}ctx.stroke();ctx.restore();
+
+  for(const g of gs){const ga=S.theta+g.off;
+  ctx.save();ctx.translate(C.x+Math.cos(ga)*(R+4),C.y+Math.sin(ga)*(R+4));ctx.rotate(ga);
+  const hl=R*Math.sin(cfg.gw),depth=80;
+  ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(0,-hl,depth,hl*2);
+  ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;
+  for(let x=0;x<=depth;x+=16){ctx.beginPath();ctx.moveTo(x,-hl);ctx.lineTo(x,hl);ctx.stroke();}
+  for(let y=-hl;y<=hl;y+=16){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(depth,y);ctx.stroke();}
+  ctx.strokeStyle='#fff';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(0,-hl);ctx.lineTo(depth,-hl);ctx.lineTo(depth,hl);ctx.lineTo(0,hl);ctx.stroke();
+  ctx.restore();}
+  drawKeepers();
+
+  for(const b of S.balls){
+    const h=b.hist[0];
+    if(h&&S.phase==='play'){const dx=b.x-h.x,dy=b.y-h.y,d=Math.hypot(dx,dy);
+      if(d>8){const px=-dy/d,py=dx/d,tx=b.x-dx/d*Math.min(d*1.6,260),ty=b.y-dy/d*Math.min(d*1.6,260);
+        const tg=ctx.createLinearGradient(b.x,b.y,tx,ty);tg.addColorStop(0,'rgba(255,255,255,.85)');tg.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=tg;ctx.beginPath();ctx.moveTo(b.x+px*BR*0.85,b.y+py*BR*0.85);ctx.lineTo(tx,ty);ctx.lineTo(b.x-px*BR*0.85,b.y-py*BR*0.85);ctx.closePath();ctx.fill();}}
+    ctx.save();ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=18;ctx.shadowOffsetY=6;ctx.beginPath();ctx.arc(b.x,b.y,BR,0,Math.PI*2);ctx.fillStyle='#000';ctx.fill();ctx.restore();
+    drawBadge(teams[b.team],b.x,b.y,BR);
+  }
+  for(const p of S.parts){ctx.globalAlpha=Math.min(1,p.life);ctx.fillStyle=p.c;ctx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r*0.6);}ctx.globalAlpha=1;
+  if(S.save){ctx.save();ctx.globalAlpha=Math.min(1,S.save.t*2);ctx.font=`800 64px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=8;ctx.strokeStyle='#000';ctx.fillStyle='#ffd34d';ctx.strokeText('SAVE!',S.save.x,S.save.y);ctx.fillText('SAVE!',S.save.x,S.save.y);ctx.restore();}
+
+  // scoreboard
+  ctx.fillStyle='rgba(8,14,40,.75)';rr(150,150,780,170,26);ctx.fill();
+  drawBadge(t0,265,235,62);drawBadge(t1,815,235,62);
+  ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font=`800 130px ${F}`;ctx.fillText(S.score[0],440,240);ctx.fillText(S.score[1],640,240);ctx.fillText(':',540,232);
+  let minute=Math.floor(S.t/cfg.dur*90),mtxt;
+  if(minute>=90&&S.phase!=='end'&&cfg.mode==='data'&&S.plan.length){mtxt="90+"+Math.max(1,minute-89)+"'";}else mtxt=Math.min(90,minute)+"'";
+  ctx.fillStyle='rgba(8,14,40,.75)';rr(430,335,220,110,22);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font=`800 ${mtxt.length>4?78:96}px ${F}`;ctx.fillText(mtxt,540,392);
+  ctx.font=`600 52px ${F}`;ctx.fillText(fit(t0.name,320,52),262,392);ctx.fillText(fit(t1.name,320,52),818,392);
+  for(const tm of[0,1]){const n=(S.cards&&S.cards[tm][1])||0;for(let k=0;k<n;k++){ctx.fillStyle='#e5322d';rr((tm?818:262)-10+k*28,428,20,30,4);ctx.fill();}}
+
+  // win-probability strip
+  if(cfg.mode==='data'&&cfg.showBar&&P){
+    const x0=150,w=780,y=478,h=40;ctx.save();rr(x0,y,w,h,12);ctx.clip();
+    const L=S.liveP||[P.pH,P.pD,P.pA];
+    const segs=[[L[0],t0.c1,t0.short],[L[1],'#8d97a8','DRAW'],[L[2],t1.c1,t1.short]];let x=x0;
+    ctx.font=`800 30px ${F}`;ctx.textBaseline='middle';
+    for(const [v,col,lab] of segs){const sw=v*w;ctx.fillStyle=col;ctx.fillRect(x,y,sw,h);
+      if(sw>110){ctx.fillStyle=lum(col)>0.55?'#0b0f14':'#fff';ctx.textAlign='center';ctx.fillText(`${lab} %${Math.round(v*100)}`,x+sw/2,y+h/2+2);}x+=sw;}
+    ctx.restore();ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=`600 30px ${F}`;ctx.textAlign='center';ctx.fillText(S.t>0?(S.phase==='end'?'FINAL RESULT':'LIVE WIN PROBABILITY'):'WIN PROBABILITY · DATA MODEL',540,548);
+  }
+
+  if(S.banner){const bn=S.banner,tm=teams[bn.team];ctx.save();ctx.globalAlpha=Math.min(1,bn.t*3);
+    const y=612;ctx.fillStyle='rgba(8,14,40,.88)';rr(230,y-40,620,80,18);ctx.fill();
+    ctx.fillStyle=bn.type==='red'?'#e5322d':'#ffd21f';ctx.save();ctx.translate(285,y);ctx.rotate(-0.18);rr(-21,-30,42,60,6);ctx.fill();ctx.restore();
+    ctx.fillStyle='#fff';ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=`800 42px ${F}`;ctx.fillText(fit((bn.type==='red'?'RED CARD · ':'YELLOW CARD · ')+tm.name,500,42),330,y+2);ctx.restore();ctx.textAlign='center';}
+  if(S.msg){
+    const big=S.msg.big;ctx.save();ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,C.y-170,W,340);
+    ctx.font=`800 ${big.length>6?150:210}px ${F}`;ctx.fillStyle=S.msg.team!=null?teams[S.msg.team].c1:'#fff';ctx.strokeStyle='#000';ctx.lineWidth=10;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.strokeText(big,540,C.y-30);ctx.fillText(big,540,C.y-30);
+    let small=S.msg.small;if(S.phase==='end')small=`${t0.name} ${S.score[0]} - ${S.score[1]} ${t1.name}`;
+    ctx.font=`600 64px ${F}`;ctx.fillStyle='#fff';ctx.fillText(fit(small,980,64),540,C.y+95);ctx.restore();
+  }
+
+  drawCardStats();
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.font=`800 60px ${F}`;ctx.fillText(fit(`${t0.name} vs ${t1.name}`,960,60),540,1818);
+  if(cfg.handle){ctx.font=`600 46px ${F}`;ctx.fillStyle='rgba(255,255,255,.8)';ctx.fillText(cfg.handle,540,1876);}
+}
+function drawKeepers(){
+  goals().forEach((g,i)=>{
+  const k=S.keepers[i];const kc=g.def>=0?teams[g.def].c1:(cfg.kc||'#c6ff3d');const trim=g.def>=0?teams[g.def].c2:'#1d2433';
+  ctx.save();ctx.translate(C.x,C.y);ctx.rotate(S.theta+g.off);ctx.translate(R-KD,k.s);
+  const lean=Math.max(-1,Math.min(1,k.vs/keeperMax()))*0.35;ctx.rotate(-lean);
+  ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=14;ctx.shadowOffsetX=-4;
+  ctx.strokeStyle=kc;ctx.lineCap='round';ctx.lineWidth=KR*1.1;ctx.beginPath();ctx.moveTo(-2,-KH);ctx.lineTo(-2,KH);ctx.stroke();
+  ctx.fillStyle=kc;ctx.beginPath();ctx.ellipse(6,0,25,36,0,0,Math.PI*2);ctx.fill();
+  ctx.shadowColor='transparent';
+  ctx.strokeStyle=trim;ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(6,0,25,36,0,0,Math.PI*2);ctx.stroke();
+  for(const gy of[-KH,KH]){ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(-8,gy,17,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#1d2433';ctx.lineWidth=4;ctx.stroke();}
+  ctx.fillStyle='#e7b48c';ctx.beginPath();ctx.arc(-2,0,18,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#2a1d14';ctx.beginPath();ctx.arc(-2,0,18,-Math.PI/2,Math.PI/2);ctx.fill();
+  ctx.restore();});
+}
+function drawCardStats(){
+  if(cfg.mode!=='data'||!S.cards)return;
+  const x0=90,w=900,y0=1646,rh=58;
+  ctx.fillStyle='rgba(8,14,40,.78)';rr(x0,y0,w,rh*2+14,20);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0+30,y0+7+rh);ctx.lineTo(x0+w-30,y0+7+rh);ctx.stroke();
+  [['YELLOW CARDS','#ffd21f',0],['RED CARDS','#e5322d',1]].forEach(([lab,col,kind],r)=>{
+    const y=y0+7+rh*r+rh/2;
+    ctx.fillStyle=col;rr(x0+118-12,y-17,24,34,4);ctx.fill();rr(x0+w-118-12,y-17,24,34,4);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.85)';ctx.font=`600 34px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lab,540,y+2);
+    for(const tm of[0,1]){const v=S.cards[tm][kind],fl=S.cardFlash?S.cardFlash[tm][kind]:0;
+      const x=tm?x0+w-48:x0+48;
+      if(fl>0){ctx.save();ctx.globalAlpha=fl*0.5;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,30+fl*14,0,Math.PI*2);ctx.fill();ctx.restore();}
+      ctx.font=`800 ${Math.round(50*(1+fl*0.55))}px ${F}`;ctx.fillStyle=fl>0.15?col:'#ffffff';ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=5;ctx.strokeText(v,x,y+3);ctx.fillText(v,x,y+3);}
+  });
+}
+function fit(s,maxW,size){ctx.font=ctx.font.replace(/\d+px/,size+'px');if(ctx.measureText(s).width<=maxW)return s;while(s.length>3&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return s+'…';}
+
+// ---------- controls ----------
+function start(){initAudio();if(!OFF&&AC.resume)AC.resume();readTeams();readCfg();if(S.phase==='end'||S.phase==='idle'){resetMatch();}S.running=true;S.phase='play';startMusic();whistle(0.4);$('startBtn').textContent='Duraklat';}
+$('startBtn').onclick=()=>{if(S.running&&S.phase!=='end'){S.running=false;stopMusic();$('startBtn').textContent='Devam et';return;}
+  if(!S.running&&S.phase!=='idle'&&S.phase!=='end'){S.running=true;startMusic();$('startBtn').textContent='Duraklat';return;}
+  if(S.phase==='end'&&$('scen').value==='sample'&&cfg.mode==='data')drawScenario();start();};
+$('resetBtn').onclick=()=>{if(rec)stopRec(true);stopMusic();S.running=false;readTeams();readCfg();resetMatch();$('startBtn').textContent='Maçı başlat';statusEl.textContent='Sıfırlandı.';};
+$('music').addEventListener('change',()=>{readCfg();if(S.running)startMusic();});
+$('mfile').addEventListener('change',e=>{const f=e.target.files[0];if(ownURL)URL.revokeObjectURL(ownURL);ownURL=f?URL.createObjectURL(f):null;if(f)statusEl.textContent='Müzik yüklendi: '+f.name;});
+$('goalsSel').addEventListener('change',()=>{readCfg();if(!S.running){resetMatch();draw();}});
+document.querySelectorAll('input[name=mode]').forEach(r=>r.addEventListener('change',()=>{readCfg();if(!S.running){resetMatch();}}));
+
+let rec=null,chunks=[],recMime='';
+$('recBtn').onclick=()=>{
+  if(rec){stopRec();return;}
+  if(!window.MediaRecorder||!cv.captureStream){statusEl.textContent='Bu tarayıcı kaydı desteklemiyor. Telefonun ekran kaydını kullan.';return;}
+  initAudio();AC.resume&&AC.resume();
+  const stream=cv.captureStream(60);dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+  recMime=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m))||'';
+  try{rec=new MediaRecorder(stream,recMime?{mimeType:recMime,videoBitsPerSecond:12e6}:{});}catch(e){statusEl.textContent='Kayıt başlatılamadı: '+e.message;rec=null;return;}
+  chunks=[];rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  rec.onstop=async()=>{const blob=new Blob(chunks,{type:recMime||'video/webm'});const ext=(recMime||'').includes('mp4')?'mp4':'webm';const fname=`${teams[0].short}-vs-${teams[1].short}.${ext}`;
+    $('recBtn').textContent='● Kaydet (tam maç)';
+    let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;}catch(e){dl=null;}
+    if(dl){try{await dl.save({filename:fname,data:blob});statusEl.textContent=`Video kaydedildi: ${fname}`;}catch(e){statusEl.textContent=e&&e.code==='declined'?'Kaydetme iptal edildi.':'Video kaydedilemedi ('+(e&&e.code||'hata')+'). Telefonun ekran kaydını kullanabilirsin.';}return;}
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();a.remove();
+    statusEl.textContent=`Video hazır (${ext.toUpperCase()}).`;};
+  if($('scen').value==='sample'&&cfg.mode==='data')drawScenario();
+  S.phase='idle';start();rec.start(250);$('recBtn').textContent='■ Kaydı bitir';statusEl.textContent='Kaydediliyor… Maç bitince video iner.';
+};
+function stopRec(silent){const r=rec;rec=null;if(r&&r.state!=='inactive'){if(silent){r.onstop=null;$('recBtn').textContent='● Kaydet (tam maç)';}r.stop();}}
+
+readCfg();applyPair();
+// ---------- headless rendering hook (used by the auto-posting pipeline) ----------
+window.AUTO={
+  setup(o){
+    stopMusic();S.running=false;
+    $('fixture').value='custom';$('t0').value=o.home;$('t1').value=o.away;applyPair();
+    $('modeData').checked=true;$('dur').value=o.dur||60;$('music').value=o.music||'hype';$('handle').value=o.handle||'';
+    if(o.goals)$('goalsSel').value=String(o.goals);
+    readCfg();OFF={t:0,sec:(cfg.dur*1.7+30)};AC=null;initAudio();
+    drawScenario();revealed=true;showScen();start();
+    return{home:teams[0].name,away:teams[1].name,short:[teams[0].short,teams[1].short],p:[P.pH,P.pD,P.pA],xg:[P.lh,P.la],likely:P.ml.slice(0,2),
+      score:scenario.slice(),pens:scenEv.pens.length,yellows:scenEv.y.slice(),reds:scenEv.r.slice(),elo:[DATA.teams[teams[0].name].elo,DATA.teams[teams[1].name].elo]};
+  },
+  frame(dt){tick(dt);OFF.t+=dt;if(musicGain&&cfg.music!=='none')schedule();draw();return{done:S.phase==='end'&&S.endHold<=0,t:OFF.t,score:S.score.slice()};},
+  async audio(){const sec=OFF.t;const buf=await AC.startRendering();const n=Math.min(buf.length,Math.ceil(sec*buf.sampleRate));
+    const ch=[buf.getChannelData(0),buf.getChannelData(1)];const out=new DataView(new ArrayBuffer(44+n*4));
+    const W=(o,str)=>{for(let i=0;i<str.length;i++)out.setUint8(o+i,str.charCodeAt(i));};
+    W(0,'RIFF');out.setUint32(4,36+n*4,true);W(8,'WAVE');W(12,'fmt ');out.setUint32(16,16,true);out.setUint16(20,1,true);out.setUint16(22,2,true);
+    out.setUint32(24,buf.sampleRate,true);out.setUint32(28,buf.sampleRate*4,true);out.setUint16(32,4,true);out.setUint16(34,16,true);W(36,'data');out.setUint32(40,n*4,true);
+    let o=44;for(let i=0;i<n;i++)for(let c=0;c<2;c++){const v=Math.max(-1,Math.min(1,ch[c][i]));out.setInt16(o,v*32767,true);o+=2;}
+    const bytes=new Uint8Array(out.buffer);let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(bin);}
+};
+(document.fonts?document.fonts.load(`800 60px "Barlow Condensed"`):Promise.resolve()).finally(()=>{draw();requestAnimationFrame(t=>{last=t;requestAnimationFrame(frame)});});
+})();
+</script>

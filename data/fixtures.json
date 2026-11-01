@@ -1,0 +1,632 @@
+[
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "18:45",
+  "home": "Shakhtar Donetsk",
+  "away": "Sporting CP"
+ },
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "18:45",
+  "home": "Galatasaray",
+  "away": "Stuttgart"
+ },
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Atlético de Madrid",
+  "away": "Bayern München"
+ },
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Barcelona",
+  "away": "Aston Villa"
+ },
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Feyenoord",
+  "away": "Inter"
+ },
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Bodø/Glimt",
+  "away": "Lille"
+ },
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "LASK",
+  "away": "Slovan Bratislava"
+ },
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Manchester United",
+  "away": "Roma"
+ },
+ {
+  "date": "2026-11-03",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Villarreal",
+  "away": "Paris Saint-Germain"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "18:45",
+  "home": "AEK Athens",
+  "away": "Real Madrid"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "18:45",
+  "home": "Fenerbahçe",
+  "away": "Liverpool"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Borussia Dortmund",
+  "away": "Real Betis"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Porto",
+  "away": "Napoli"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "PSV Eindhoven",
+  "away": "Club Brugge"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Leipzig",
+  "away": "Manchester City"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Lens",
+  "away": "Como"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Slavia Praha",
+  "away": "Arsenal"
+ },
+ {
+  "date": "2026-11-04",
+  "matchday": 4,
+  "kickoff_cet": "21:00",
+  "home": "Viking",
+  "away": "Sabah"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "18:45",
+  "home": "Bodø/Glimt",
+  "away": "LASK"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "18:45",
+  "home": "Galatasaray",
+  "away": "Aston Villa"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Arsenal",
+  "away": "Borussia Dortmund"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Como",
+  "away": "AEK Athens"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Feyenoord",
+  "away": "Porto"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Manchester City",
+  "away": "Napoli"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Leipzig",
+  "away": "Lens"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Real Madrid",
+  "away": "PSV Eindhoven"
+ },
+ {
+  "date": "2026-11-24",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Slovan Bratislava",
+  "away": "Real Betis"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "18:45",
+  "home": "Sabah",
+  "away": "Barcelona"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "18:45",
+  "home": "Slavia Praha",
+  "away": "Villarreal"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Atlético de Madrid",
+  "away": "Viking"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Club Brugge",
+  "away": "Liverpool"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Inter",
+  "away": "Stuttgart"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Shakhtar Donetsk",
+  "away": "Fenerbahçe"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Lille",
+  "away": "Bayern München"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Paris Saint-Germain",
+  "away": "Roma"
+ },
+ {
+  "date": "2026-11-25",
+  "matchday": 5,
+  "kickoff_cet": "21:00",
+  "home": "Sporting CP",
+  "away": "Manchester United"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "18:45",
+  "home": "Viking",
+  "away": "Feyenoord"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "18:45",
+  "home": "Villarreal",
+  "away": "Sabah"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "AEK Athens",
+  "away": "Galatasaray"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Roma",
+  "away": "Sporting CP"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Aston Villa",
+  "away": "Paris Saint-Germain"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Barcelona",
+  "away": "Manchester City"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Bayern München",
+  "away": "Slavia Praha"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Manchester United",
+  "away": "Leipzig"
+ },
+ {
+  "date": "2026-12-08",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Napoli",
+  "away": "Club Brugge"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "18:45",
+  "home": "Real Betis",
+  "away": "Como"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "18:45",
+  "home": "Slovan Bratislava",
+  "away": "Shakhtar Donetsk"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Arsenal",
+  "away": "Real Madrid"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Borussia Dortmund",
+  "away": "Inter"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "LASK",
+  "away": "Fenerbahçe"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Liverpool",
+  "away": "Porto"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Lens",
+  "away": "Bodø/Glimt"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "PSV Eindhoven",
+  "away": "Atlético de Madrid"
+ },
+ {
+  "date": "2026-12-09",
+  "matchday": 6,
+  "kickoff_cet": "21:00",
+  "home": "Stuttgart",
+  "away": "Lille"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "18:45",
+  "home": "Bodø/Glimt",
+  "away": "Atlético de Madrid"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "18:45",
+  "home": "Galatasaray",
+  "away": "Feyenoord"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "AEK Athens",
+  "away": "Roma"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Aston Villa",
+  "away": "Borussia Dortmund"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Inter",
+  "away": "Liverpool"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Porto",
+  "away": "Slavia Praha"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Lille",
+  "away": "Slovan Bratislava"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Real Madrid",
+  "away": "LASK"
+ },
+ {
+  "date": "2027-01-19",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Stuttgart",
+  "away": "Club Brugge"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "18:45",
+  "home": "Fenerbahçe",
+  "away": "Villarreal"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "18:45",
+  "home": "Sabah",
+  "away": "Napoli"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Como",
+  "away": "Paris Saint-Germain"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Manchester United",
+  "away": "Bayern München"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Leipzig",
+  "away": "Shakhtar Donetsk"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Lens",
+  "away": "Manchester City"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Real Betis",
+  "away": "Arsenal"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Sporting CP",
+  "away": "Barcelona"
+ },
+ {
+  "date": "2027-01-20",
+  "matchday": 7,
+  "kickoff_cet": "21:00",
+  "home": "Viking",
+  "away": "PSV Eindhoven"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Arsenal",
+  "away": "Sabah"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Roma",
+  "away": "Lille"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Atlético de Madrid",
+  "away": "Fenerbahçe"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Borussia Dortmund",
+  "away": "AEK Athens"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Club Brugge",
+  "away": "Bodø/Glimt"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Bayern München",
+  "away": "Real Betis"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Barcelona",
+  "away": "Como"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Shakhtar Donetsk",
+  "away": "Real Madrid"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Feyenoord",
+  "away": "Leipzig"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "LASK",
+  "away": "Porto"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Liverpool",
+  "away": "Lens"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Manchester City",
+  "away": "Sporting CP"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Paris Saint-Germain",
+  "away": "Galatasaray"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "PSV Eindhoven",
+  "away": "Stuttgart"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Slavia Praha",
+  "away": "Aston Villa"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Napoli",
+  "away": "Viking"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Villarreal",
+  "away": "Manchester United"
+ },
+ {
+  "date": "2027-01-27",
+  "matchday": 8,
+  "kickoff_cet": "21:00",
+  "home": "Slovan Bratislava",
+  "away": "Inter"
+ }
+]
