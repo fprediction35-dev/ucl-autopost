@@ -20,7 +20,7 @@ fs.mkdirSync(path.dirname(out), { recursive: true });
 
   const tmpVideo = out.replace(/\.mp4$/, '.video.mp4'), tmpWav = out.replace(/\.mp4$/, '.wav');
   const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
-    '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-r', String(fps), tmpVideo], { stdio: ['pipe', 'inherit', 'inherit'] });
+    '-vf', 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-profile:v', 'high', '-level', '4.0', '-g', '60', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv', '-r', String(fps), tmpVideo], { stdio: ['pipe', 'inherit', 'inherit'] });
   let frames = 0, res;
   const maxFrames = Math.ceil((dur * 1.7 + 25) * fps);
   do {
@@ -36,7 +36,7 @@ fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(tmpWav, Buffer.from(wav, 'base64'));
   await browser.close();
 
-  await new Promise((ok, bad) => spawn('ffmpeg', ['-y', '-loglevel', 'error', '-i', tmpVideo, '-i', tmpWav, '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-ar', '48000', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', out], { stdio: 'inherit' })
+  await new Promise((ok, bad) => spawn('ffmpeg', ['-y', '-loglevel', 'error', '-i', tmpVideo, '-i', tmpWav, '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-ar', '48000', '-c:a', 'aac', '-b:a', '128k', '-shortest', '-movflags', '+faststart', out], { stdio: 'inherit' })
     .on('close', c => (c === 0 ? ok() : bad(new Error('ffmpeg mux failed ' + c)))));
   fs.unlinkSync(tmpVideo); fs.unlinkSync(tmpWav);
   info.final = res.score; info.seconds = frames / fps; info.file = out;
