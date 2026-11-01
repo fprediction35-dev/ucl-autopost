@@ -29,11 +29,21 @@ def post(video, caption):
         raise RuntimeError(f"Instagram container failed: {c.status_code} {c.text[:400]}")
     cid = c.json()["id"]
     size = os.path.getsize(video)
+    rup = f"https://rupload.facebook.com/ig-api-upload/{VER}/{cid}"
     with open(video, "rb") as f:
-        up = requests.post(f"https://rupload.facebook.com/ig-api-upload/{VER}/{cid}", data=f, timeout=900, headers={
-            "Authorization": f"OAuth {tok}", "offset": "0", "file_size": str(size)})
+        body = f.read()
+    up = requests.post(rup, data=body, timeout=900, headers={
+        "Authorization": f"OAuth {tok}", "offset": "0", "file_size": str(size),
+        "Content-Type": "application/octet-stream"})
     if not up.ok:
-        raise RuntimeError(f"Instagram upload failed: {up.status_code} {up.text[:400]}")
+        # Fallback: let Meta fetch the video from a public URL (GitHub release of this repo)
+        print(f"  instagram: direct upload refused ({up.status_code} {up.text[:200]}), trying public URL")
+        from .. import hosting
+        import datetime as dt
+        url = hosting.publish(video, dt.date.today().isoformat())
+        up = requests.post(rup, timeout=300, headers={"Authorization": f"OAuth {tok}", "file_url": url})
+        if not up.ok:
+            raise RuntimeError(f"Instagram upload failed: {up.status_code} {up.text[:400]}")
     for _ in range(40):  # up to ~10 minutes of processing
         time.sleep(15)
         st = requests.get(f"{GRAPH}/{cid}", params={"fields": "status_code,status", "access_token": tok}, timeout=30).json()
