@@ -293,8 +293,10 @@ function samplePois(l){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=Math.random();
 function drawScenario(){
   if(!P)return;
   const likely=$('scen').value==='likely';
-  if(likely){scenario=[P.ml[0],P.ml[1]];}
-  else{let r=Math.random(),acc=0;scenario=[P.ml[0],P.ml[1]];for(const g of P.grid){acc+=g[2];if(r<=acc){scenario=[g[0],g[1]];break;}}}
+  // goalless draws are excluded: every video has at least one goal
+  const pool=P.grid.filter(g=>g[0]+g[1]>0);
+  if(likely){const b=pool.reduce((x,y)=>y[2]>x[2]?y:x);scenario=[b[0],b[1]];}
+  else{const tot=pool.reduce((t,g)=>t+g[2],0);let r=Math.random()*tot,acc=0;scenario=[pool[0][0],pool[0][1]];for(const g of pool){acc+=g[2];if(r<=acc){scenario=[g[0],g[1]];break;}}}
   const E=P.ev,ev={pens:[],y:[0,0],r:[0,0]};
   for(const tm of[0,1]){
     if(likely){ev.y[tm]=Math.round(E.y[tm]);continue;}
