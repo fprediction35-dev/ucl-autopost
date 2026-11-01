@@ -2,7 +2,7 @@ name: Daily UCL simulations
 
 on:
   schedule:
-    - cron: "30 6 * * *"   # every day 06:30 UTC = 09:30 Istanbul; does nothing on days without fixtures
+   - cron: "0 12 * * *"   # 12:00 UTC = 15:00 Istanbul
   workflow_dispatch:
     inputs:
       date:
