@@ -36,14 +36,20 @@ def post(video, caption):
         "Authorization": f"OAuth {tok}", "offset": "0", "file_size": str(size),
         "Content-Type": "application/octet-stream"})
     if not up.ok:
-        # Fallback: let Meta fetch the video from a public URL (GitHub release of this repo)
+        # Fallback: classic Reels upload where Meta downloads the file from a public URL.
+        # GitHub release links redirect to a signed storage URL; Meta needs the final URL.
         print(f"  instagram: direct upload refused ({up.status_code} {up.text[:200]}), trying public URL")
         from .. import hosting
         import datetime as dt
         url = hosting.publish(video, dt.date.today().isoformat())
-        up = requests.post(rup, timeout=300, headers={"Authorization": f"OAuth {tok}", "file_url": url})
-        if not up.ok:
-            raise RuntimeError(f"Instagram upload failed: {up.status_code} {up.text[:400]}")
+        r = requests.head(url, allow_redirects=False, timeout=30)
+        final = r.headers.get("Location", url)
+        c = requests.post(f"{GRAPH}/{ig}/media", timeout=60, data={
+            "media_type": "REELS", "video_url": final, "caption": caption,
+            "share_to_feed": "true", "access_token": tok})
+        if not c.ok:
+            raise RuntimeError(f"Instagram container (URL) failed: {c.status_code} {c.text[:400]}")
+        cid = c.json()["id"]
     for _ in range(40):  # up to ~10 minutes of processing
         time.sleep(15)
         st = requests.get(f"{GRAPH}/{cid}", params={"fields": "status_code,status", "access_token": tok}, timeout=30).json()
