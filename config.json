@@ -1,11 +1,11 @@
 {
-  "handle": "@FootballPredictionGame"
+  "handle": "@FootballPredictionGame",
   "timezone": "Europe/Istanbul",
   "max_videos_per_day": 9,
   "priority_teams": ["Galatasaray", "Fenerbahçe"],
   "duration_seconds": 60,
   "music": "hype",
- "post_gap_minutes": 10,
+  "post_gap_minutes": 10,
   "platforms": { "youtube": true, "instagram": true, "tiktok": true, "x": true },
   "extra_hashtags": ["ChampionsLeague", "UCL", "football", "soccer", "simulation"],
   "video_host": "github_release"
