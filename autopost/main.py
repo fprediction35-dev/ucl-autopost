@@ -76,11 +76,7 @@ def main():
                     row["posts"][p] = "skipped (daily limit)"
                     continue
                 try:
-                    if p == "instagram":
-                        public_url = public_url or hosting.publish(str(video), day)
-                        res = POSTERS[p](public_url, cap[p])
-                    else:
-                        res = POSTERS[p](str(video), cap[p])
+                    res = POSTERS[p](str(video), cap[p])
                     row["posts"][p] = res
                     sent[p] += 1
                     print(f"  {p}: {res}")
