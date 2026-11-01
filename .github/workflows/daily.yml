@@ -34,7 +34,7 @@ jobs:
       - name: Any fixtures today?
         id: check
         run: |
-          D="${{ inputs.date }}"; [ -z "$D" ] && D=$(TZ=Europe/Istanbul date +%F)
+          D="${{ inputs.date }}"; [ -z "$D" ] && D=$(TZ=Europe/Istanbul date -d tomorrow +%F)
           echo "date=$D" >> "$GITHUB_OUTPUT"
           if grep -q "\"date\": \"$D\"" data/fixtures.json; then echo "has=true" >> "$GITHUB_OUTPUT"; else echo "has=false" >> "$GITHUB_OUTPUT"; echo "No fixtures on $D"; fi
 
