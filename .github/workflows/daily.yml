@@ -1,0 +1,85 @@
+name: Daily UCL simulations
+
+on:
+  schedule:
+    - cron: "30 6 * * *"   # every day 06:30 UTC = 09:30 Istanbul; does nothing on days without fixtures
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Date (YYYY-MM-DD). Empty = today"
+        required: false
+      dry_run:
+        description: "Render only, do not post"
+        type: boolean
+        default: true
+      only:
+        description: "Platforms for this run, e.g. youtube,x (empty = all enabled)"
+        required: false
+      limit:
+        description: "Max videos for this run (empty = config)"
+        required: false
+
+permissions:
+  contents: write   # needed to attach videos to a release for Instagram
+
+concurrency: daily-sim
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Any fixtures today?
+        id: check
+        run: |
+          D="${{ inputs.date }}"; [ -z "$D" ] && D=$(TZ=Europe/Istanbul date +%F)
+          echo "date=$D" >> "$GITHUB_OUTPUT"
+          if grep -q "\"date\": \"$D\"" data/fixtures.json; then echo "has=true" >> "$GITHUB_OUTPUT"; else echo "has=false" >> "$GITHUB_OUTPUT"; echo "No fixtures on $D"; fi
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.has == 'true'
+        with: { node-version: "20" }
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.has == 'true'
+        with: { python-version: "3.12" }
+
+      - name: Install
+        if: steps.check.outputs.has == 'true'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          pip install -r requirements.txt
+
+      - name: Render and post
+        if: steps.check.outputs.has == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+        run: |
+          ARGS="--date ${{ steps.check.outputs.date }}"
+          [ "${{ inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
+          [ -n "${{ inputs.only }}" ] && ARGS="$ARGS --only ${{ inputs.only }}"
+          [ -n "${{ inputs.limit }}" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
+          python -m autopost.main $ARGS
+
+      - name: Keep videos for 7 days
+        if: always() && steps.check.outputs.has == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: videos-${{ steps.check.outputs.date }}
+          path: out/
+          retention-days: 7
