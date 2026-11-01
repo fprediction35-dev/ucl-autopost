@@ -6,7 +6,7 @@
   "duration_seconds": 60,
   "music": "hype",
   "post_gap_minutes": 10,
-       "platforms": { "youtube": true, "instagram": false, "tiktok": false, "x": false },
+  "platforms": { "youtube": true, "instagram": false, "tiktok": false, "x": false },
   "extra_hashtags": ["ChampionsLeague", "UCL", "football", "soccer", "simulation"],
   "video_host": "github_release"
 }
