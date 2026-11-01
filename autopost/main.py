@@ -54,6 +54,8 @@ def main():
     out = ROOT / "out" / day
     out.mkdir(parents=True, exist_ok=True)
     report, failures = [], 0
+    limits = cfg.get("platform_limits", {})
+    sent = {p: 0 for p in platforms}
     for n, f in enumerate(todo):
         name = f"{slug(f['home'])}-vs-{slug(f['away'])}"
         video = out / f"{name}.mp4"
@@ -70,6 +72,9 @@ def main():
         else:
             public_url = None
             for p in platforms:
+                if p in limits and sent[p] >= limits[p]:
+                    row["posts"][p] = "skipped (daily limit)"
+                    continue
                 try:
                     if p == "instagram":
                         public_url = public_url or hosting.publish(str(video), day)
@@ -77,6 +82,7 @@ def main():
                     else:
                         res = POSTERS[p](str(video), cap[p])
                     row["posts"][p] = res
+                    sent[p] += 1
                     print(f"  {p}: {res}")
                 except Exception as e:
                     failures += 1
