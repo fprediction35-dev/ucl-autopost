@@ -1,14 +1,31 @@
 {
   "handle": "@FootballPredictionGame",
   "timezone": "Europe/Istanbul",
-  "max_videos_per_day": 9,
-  "priority_teams": ["Galatasaray", "Fenerbahçe"],
+  "max_videos_per_day": 20,
+  "priority_teams": [
+    "galatasaray|TUR",
+    "fenerbahce|TUR",
+    "besiktas|TUR",
+    "trabzonspor|TUR"
+  ],
   "duration_seconds": 60,
   "music": "hype",
-  "post_gap_minutes": 10,
-  "platforms": { "youtube": true, "instagram": true, "tiktok": false, "x": false },
-  "platform_limits": { "instagram": 4, "tiktok": 4, "x": 4 },
+  "post_gap_minutes": 6,
+  "platforms": {
+    "youtube": true,
+    "instagram": true,
+    "tiktok": false,
+    "x": false
+  },
+  "platform_limits": {
+    "youtube": 20,
+    "instagram": 10,
+    "tiktok": 15,
+    "x": 4
+  },
   "instagram_user_id": "17841456655424473",
-  "extra_hashtags": ["ChampionsLeague", "UCL", "football", "soccer", "simulation"],
-  "video_host": "github_release"
+  "video_host": "github_release",
+  "window_days": 3,
+  "render_workers": 3,
+  "tiktok_privacy": "SELF_ONLY"
 }

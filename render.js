@@ -1,5 +1,5 @@
 // Renders one simulated match to a 1080x1920 MP4 (H.264 + AAC), frame by frame, independent of machine speed.
-// Usage: node render.js --home "Galatasaray" --away "Stuttgart" --out out/gs-vfb.mp4 [--dur 60] [--fps 30] [--music hype] [--handle @channel]
+// Usage: node render.js --home "Galatasaray" --away "Stuttgart" --out out/gs-vfb.mp4 [--dur 60] [--fps 30] [--music hype] [--handle @channel] [--meta setup.json with {meta, lang}]
 const { chromium } = require('playwright');
 const { spawn } = require('child_process');
 const fs = require('fs'), path = require('path');
@@ -16,7 +16,7 @@ fs.mkdirSync(path.dirname(out), { recursive: true });
   await page.goto('file://' + path.resolve(__dirname, 'sim/index.html'));
   await page.waitForFunction(() => window.AUTO, null, { timeout: 15000 });
   await page.evaluate(() => document.fonts && document.fonts.ready);
-  const info = await page.evaluate(o => window.AUTO.setup(o), { home: args.home, away: args.away, dur, music: args.music || 'hype', handle: args.handle || '', goals: +(args.goals || 2) });
+  const info = await page.evaluate(o => window.AUTO.setup(o), { home: args.home, away: args.away, dur, music: args.music || 'hype', handle: args.handle || '', goals: +(args.goals || 2), ...(args.meta ? JSON.parse(fs.readFileSync(args.meta, 'utf8')) : {}) });
 
   const tmpVideo = out.replace(/\.mp4$/, '.video.mp4'), tmpWav = out.replace(/\.mp4$/, '.wav');
   const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',

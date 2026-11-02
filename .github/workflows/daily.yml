@@ -1,4 +1,4 @@
-name: Daily UCL simulations
+name: Daily match simulations
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       date:
-        description: "Match date (YYYY-MM-DD). Empty = tomorrow"
+        description: "First match date of the window (YYYY-MM-DD). Empty = tomorrow"
         required: false
       dry_run:
         description: "Render only, do not post"
@@ -24,6 +24,9 @@ on:
       gap:
         description: "Minutes between matches (empty = config)"
         required: false
+      comps:
+        description: "Competitions, e.g. UEL,UECL,TR1 (empty = all)"
+        required: false
 
 permissions:
   contents: write   # needed to attach videos to a release for Instagram
@@ -33,16 +36,21 @@ concurrency: daily-sim
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
 
-      - name: Any fixtures today?
+      - name: Window start
         id: check
         run: |
           D="${{ inputs.date }}"; [ -z "$D" ] && D=$(TZ=Europe/Istanbul date -d tomorrow +%F)
           echo "date=$D" >> "$GITHUB_OUTPUT"
-          if grep -q "\"date\": \"$D\"" data/fixtures.json; then echo "has=true" >> "$GITHUB_OUTPUT"; else echo "has=false" >> "$GITHUB_OUTPUT"; echo "No fixtures on $D"; fi
+          echo "has=true" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch open football data
+        run: |
+          mkdir -p ext
+          for r in champions-league europe football.json; do git clone -q --depth 1 https://github.com/openfootball/$r.git ext/$r; done
 
       - uses: actions/setup-node@v4
         if: steps.check.outputs.has == 'true'
@@ -82,7 +90,18 @@ jobs:
           [ -n "${{ inputs.limit }}" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
           [ -n "${{ inputs.skip }}" ] && ARGS="$ARGS --skip ${{ inputs.skip }}"
           [ -n "${{ inputs.gap }}" ] && ARGS="$ARGS --gap ${{ inputs.gap }}"
+          [ -n "${{ inputs.comps }}" ] && ARGS="$ARGS --comps ${{ inputs.comps }}"
           python -m autopost.main $ARGS
+
+      - name: Remember posted matches
+        if: always() && steps.check.outputs.has == 'true'
+        run: |
+          [ -f data/posted.json ] || exit 0
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/posted.json
+          git diff --cached --quiet && exit 0
+          git commit -qm "Posted matches ${{ steps.check.outputs.date }}"
+          for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
 
       - name: Keep videos for 7 days
         if: always() && steps.check.outputs.has == 'true'

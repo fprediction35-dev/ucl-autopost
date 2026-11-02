@@ -1,16 +1,20 @@
-"""Daily run: pick today's Champions League fixtures, render a simulation video for each, post to every enabled platform.
+"""Daily run: pick upcoming fixtures (European cups, Süper Lig, big 5 leagues), render a simulation video for each,
+post to every enabled platform within its daily cap.
 
-python -m autopost.main                    # today's fixtures (in config timezone)
-python -m autopost.main --date 2026-11-03  # a specific day
+python -m autopost.main                    # fixtures from tomorrow (config timezone) over the next few days
+python -m autopost.main --date 2026-11-05  # window starts on this day
 python -m autopost.main --dry-run          # render videos and captions, post nothing
-python -m autopost.main --only youtube,x   # limit platforms for this run
+python -m autopost.main --only youtube,x   # limit platforms for this run (ignores daily caps)
+python -m autopost.main --comps UEL,UECL   # limit competitions
 """
-import argparse, datetime as dt, json, pathlib, re, subprocess, sys, time, traceback
+import argparse, concurrent.futures as cf, datetime as dt, json, pathlib, re, subprocess, sys, time, traceback
 from zoneinfo import ZoneInfo
-from . import captions, hosting
+from . import captions, leagues, teams
+from .i18n import OVERLAY
 from .platforms import youtube, instagram, tiktok, x
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+POSTED = ROOT / "data/posted.json"
 POSTERS = {"youtube": youtube.post, "instagram": instagram.post, "tiktok": tiktok.post, "x": x.post}
 
 
@@ -20,81 +24,140 @@ def slug(s):
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 
 
-def pick(fixtures, cfg, elo):
-    pri = cfg.get("priority_teams", [])
+def fid(f):
+    return f"{f['comp']}|{f['h']}|{f['a']}"
+
+
+def uefa_matchday(data, comp, date):
+    weeks = sorted({dt.date.fromisoformat(r["date"]).isocalendar()[:2] for r in data["uefa"] if r["comp"] == comp})
+    wk = dt.date.fromisoformat(date).isocalendar()[:2]
+    return weeks.index(wk) + 1 if wk in weeks else None
+
+
+def order(fixtures, data, cfg):
+    big = set(cfg.get("priority_teams", []))
+    elo = lambda k: data["teams"].get(k, {}).get("elo", 1450)
     def score(f):
-        p = 1 if (f["home"] in pri or f["away"] in pri) else 0
-        return (-p, -(elo.get(f["home"], 1500) + elo.get(f["away"], 1500)))
-    return sorted(fixtures, key=score)[: cfg.get("max_videos_per_day", 4)]
+        tier = 2 if (f["h"] in big or f["a"] in big) else 1 if (f["h"].endswith("|TUR") or f["a"].endswith("|TUR")) else 0
+        # soonest day first, so every match goes out before kick-off; within a day Turkish clubs, then the strongest pairings
+        return (f["date"], -tier, -(elo(f["h"]) + elo(f["a"])))
+    return sorted(fixtures, key=score)
 
 
-def elo_table():
-    html = (ROOT / "sim/index.html").read_text(encoding="utf8")
-    data = json.loads(html.split("const DATA=", 1)[1].split(";\n", 1)[0])
-    return {k: v["elo"] for k, v in data["teams"].items()}
+def prepare(f, data, out, cfg):
+    comp = f["comp"]
+    lang = leagues.COMPS[comp]["lang"]
+    m = data["model"]
+    ti = {k: teams.info(f[k[0]], f[k]) for k in ("home", "away")}
+    f["home"], f["away"] = ti["home"]["name"], ti["away"]["name"]
+    meta = {"model": {"a": m["intercept"].get(comp, m["a"]), "b": m["b"], "hfa": m["hfa"]}}
+    for k in ("home", "away"):
+        t = data["teams"].get(f[k[0]], {})
+        meta[k] = dict(ti[k], elo=t.get("elo", 1450), n=t.get("n", 0), last=[])
+    name = f"{comp.lower()}-{slug(f['home'])}-vs-{slug(f['away'])}"
+    setup = out / f"{name}.setup.json"
+    setup.write_text(json.dumps({"meta": meta, "lang": OVERLAY[lang]}, ensure_ascii=False), encoding="utf8")
+    return name, setup
+
+
+def render(f, name, setup, out, cfg):
+    video = out / f"{name}.mp4"
+    if not (video.exists() and video.with_suffix(".json").exists()):
+        r = subprocess.run(["node", str(ROOT / "render.js"), "--home", f["home"], "--away", f["away"], "--out", str(video),
+                            "--dur", str(cfg.get("duration_seconds", 60)), "--music", cfg.get("music", "hype"),
+                            "--handle", cfg.get("handle", ""), "--meta", str(setup)], capture_output=True, text=True)
+        if r.returncode:
+            raise RuntimeError(f"render failed: {r.stderr[-800:]}")
+    return video, json.loads(video.with_suffix(".json").read_text())
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date"); ap.add_argument("--dry-run", action="store_true"); ap.add_argument("--only")
-    ap.add_argument("--limit", type=int)
-    ap.add_argument("--skip", type=int, default=0, help="skip the first N matches of the day")
-    ap.add_argument("--gap", type=int, help="minutes between matches (overrides config)")
+    ap.add_argument("--limit", type=int, help="max videos for this run")
+    ap.add_argument("--skip", type=int, default=0, help="skip the first N matches")
+    ap.add_argument("--gap", type=float, help="minutes between matches (overrides config)")
+    ap.add_argument("--days", type=int, help="window length in days (overrides config)")
+    ap.add_argument("--comps", help="comma-separated competition codes, e.g. UEL,UECL,TR1")
+    ap.add_argument("--workers", type=int, help="parallel renders")
     a = ap.parse_args()
     cfg = json.loads((ROOT / "config.json").read_text(encoding="utf8"))
-    day = a.date or dt.datetime.now(ZoneInfo(cfg.get("timezone", "UTC"))).date().isoformat()
-    fixtures = [f for f in json.loads((ROOT / "data/fixtures.json").read_text(encoding="utf8")) if f["date"] == day]
-    if a.limit:
-        cfg["max_videos_per_day"] = a.limit
-    if a.gap is not None:
-        cfg["post_gap_minutes"] = a.gap
-    if a.skip:
-        cfg["max_videos_per_day"] = cfg.get("max_videos_per_day", 9) + a.skip
-    todo = pick(fixtures, cfg, elo_table())[a.skip:]
-    print(f"{day}: {len(fixtures)} fixtures, posting {len(todo)}")
-    if not todo:
-        return 0
+    tz = ZoneInfo(cfg.get("timezone", "UTC"))
+    start = dt.date.fromisoformat(a.date) if a.date else dt.datetime.now(tz).date() + dt.timedelta(days=1)
+    days = a.days or cfg.get("window_days", 3)
+    end = start + dt.timedelta(days=days - 1)
+
+    data = leagues.build()
+    posted = json.loads(POSTED.read_text()) if POSTED.exists() else {}
+    fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if fid(f) not in posted]
+    if a.comps:
+        fx = [f for f in fx if f["comp"] in a.comps.split(",")]
+    for f in fx:
+        if f["comp"] in ("UCL", "UEL", "UECL"):
+            f["matchday"] = uefa_matchday(data, f["comp"], f["date"])
+
     platforms = [p for p, on in cfg["platforms"].items() if on]
     if a.only:
-        platforms = [p for p in platforms if p in a.only.split(",")]
-    out = ROOT / "out" / day
+        platforms = [p for p in a.only.split(",") if p in POSTERS]
+    limits = {} if a.only else {p: cfg.get("platform_limits", {}).get(p, 999) for p in platforms}
+    n = a.limit or max([limits.get(p, cfg.get("max_videos_per_day", 20)) for p in platforms] or [cfg.get("max_videos_per_day", 20)])
+    todo = order(fx, data, cfg)[a.skip:a.skip + n]
+    print(f"{start}..{end}: {len(fx)} unposted fixtures, making {len(todo)} videos for {', '.join(platforms) or 'nothing'}")
+    for f in todo:
+        print(f"  {f['date']} {f['comp']:5} {f['home']} vs {f['away']}")
+    if not todo:
+        return 0
+
+    out = ROOT / "out" / start.isoformat()
     out.mkdir(parents=True, exist_ok=True)
+    jobs = [(f, *prepare(f, data, out, cfg)) for f in todo]
+    pool = cf.ThreadPoolExecutor(a.workers or cfg.get("render_workers", 3))
+    futures = [pool.submit(render, f, name, setup, out, cfg) for f, name, setup in jobs]
+
     report, failures = [], 0
-    # a manual run that names its platforms ignores the daily per-platform limits
-    limits = {} if a.only else cfg.get("platform_limits", {})
     sent = {p: 0 for p in platforms}
-    for n, f in enumerate(todo):
-        name = f"{slug(f['home'])}-vs-{slug(f['away'])}"
-        video = out / f"{name}.mp4"
-        print(f"\n=== {f['home']} vs {f['away']} ===")
-        subprocess.run(["node", str(ROOT / "render.js"), "--home", f["home"], "--away", f["away"], "--out", str(video),
-                        "--dur", str(cfg.get("duration_seconds", 60)), "--music", cfg.get("music", "hype"),
-                        "--handle", cfg.get("handle", "")], check=True)
-        info = json.loads(video.with_suffix(".json").read_text())
+    strikes = {p: 0 for p in platforms}
+    gap = 60 * (a.gap if a.gap is not None else cfg.get("post_gap_minutes", 6))
+    last_post = 0.0
+    for (f, name, setup), fut in zip(jobs, futures):
+        print(f"\n=== {f['comp']} {f['home']} vs {f['away']} ===", flush=True)
+        try:
+            video, info = fut.result()
+        except Exception as e:
+            failures += 1
+            print(f"  render FAILED: {e}")
+            report.append({"match": f"{f['home']} vs {f['away']}", "comp": f["comp"], "error": str(e)})
+            continue
         cap = captions.build(info, f, cfg)
         (out / f"{name}.captions.json").write_text(json.dumps(cap, ensure_ascii=False, indent=1), encoding="utf8")
-        row = {"match": f"{f['home']} vs {f['away']}", "simulated": "-".join(map(str, info["final"])), "posts": {}}
+        row = {"match": f"{f['home']} vs {f['away']}", "comp": f["comp"], "date": f["date"],
+               "simulated": "-".join(map(str, info["final"])), "posts": {}}
         if a.dry_run:
             row["posts"] = {p: "dry run" for p in platforms}
         else:
-            public_url = None
+            wait = gap - (time.time() - last_post)
+            if last_post and wait > 0:
+                time.sleep(wait)
+            last_post = time.time()
             for p in platforms:
-                if p in limits and sent[p] >= limits[p]:
-                    row["posts"][p] = "skipped (daily limit)"
-                    continue
+                if sent[p] >= limits.get(p, 999):
+                    row["posts"][p] = "skipped (daily limit)"; continue
+                if strikes[p] >= 2:
+                    row["posts"][p] = "skipped (platform failing)"; continue
                 try:
                     res = POSTERS[p](str(video), cap[p])
-                    row["posts"][p] = res
-                    sent[p] += 1
-                    print(f"  {p}: {res}")
+                    row["posts"][p] = res; sent[p] += 1; strikes[p] = 0
+                    print(f"  {p}: {res}", flush=True)
                 except Exception as e:
-                    failures += 1
+                    failures += 1; strikes[p] += 1
                     row["posts"][p] = f"FAILED: {e}"
-                    print(f"  {p}: FAILED {e}")
+                    print(f"  {p}: FAILED {e}", flush=True)
                     traceback.print_exc()
+            if any(not str(v).startswith(("FAILED", "skipped")) for v in row["posts"].values()):
+                posted[fid(f)] = {"date": f["date"], "at": dt.datetime.now(tz).isoformat(timespec="minutes"), **row["posts"]}
+                POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
         report.append(row)
-        if not a.dry_run and n < len(todo) - 1:
-            time.sleep(60 * cfg.get("post_gap_minutes", 20))
+    pool.shutdown()
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf8")
     print("\n" + json.dumps(report, ensure_ascii=False, indent=1))
     return 1 if failures else 0

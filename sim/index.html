@@ -232,6 +232,8 @@ const NAMES=Object.keys(TEAMS).sort((a,b)=>a.localeCompare(b,'tr'));
   $('t0').value='Galatasaray';$('t1').value='Stuttgart';
 })();
 
+const LX0={goal:'GOAL!',half:'HALF TIME',full:'FULL TIME',pen:'PENALTY!',saved:'SAVED!',save:'SAVE!',penMissed:'Penalty missed · ',penGoal:'Penalty · ',yellow:'YELLOW CARD · ',red:'RED CARD · ',live:'LIVE WIN PROBABILITY',pre:'WIN PROBABILITY · DATA MODEL',final:'FINAL RESULT',draw:'DRAW',yellows:'YELLOW CARDS',reds:'RED CARDS'};
+let LX=Object.assign({},LX0);
 const teams=[0,1].map(()=>({name:'',short:'',c1:'#fff',c2:'#000',logo:null}));
 function currentPair(){const v=$('fixture').value;if(v==='custom')return[$('t0').value,$('t1').value];const[g,m]=v.split(':').map(Number);return FIXTURES[g][1][m];}
 function applyPair(){
@@ -352,7 +354,7 @@ function startPen(e){
   const b=S.balls[e.team],o=S.balls[1-e.team];b.esc=false;b.hist=[];o.hist=[];
   b.x=pn.sx;b.y=pn.sy;o.x=C.x-Math.cos(a)*130;o.y=C.y-Math.sin(a)*130;
   S.keepers[gi].s=0;S.keepers[gi].vs=0;
-  S.msg={big:'PENALTY!',small:teams[e.team].name,team:e.team};
+  S.msg={big:LX.pen,small:teams[e.team].name,team:e.team};
 }
 function updatePen(dt){
   const p=S.pen;if(!p)return;p.t+=dt;const b=S.balls[p.team];
@@ -370,7 +372,7 @@ function updatePen(dt){
     const sv=0.8,tx=C.x+u.x*(R-KD-48)+v.x*kTarget,ty=C.y+u.y*(R-KD-48)+v.y*kTarget;
     if(k<sv&&!p.done){const q=k/sv;b.x=p.sx+(tx-p.sx)*q;b.y=p.sy+(ty-p.sy)*q;}
     else if(!p.done){p.done=true;p.hold=1.6;S.save={x:C.x+u.x*(R-270),y:C.y+u.y*(R-270),t:1.2};tone(160,0.2,'sawtooth',0.14);noise(0.3,0.25);
-      S.msg={big:'SAVED!',small:'Penalty missed · '+teams[p.team].name,team:1-p.team};}
+      S.msg={big:LX.saved,small:LX.penMissed+teams[p.team].name,team:1-p.team};}
     else{p.hold-=dt;b.x-=u.x*320*dt;b.y-=u.y*320*dt;if(p.hold<=0){S.pen=null;S.msg=null;kickoff();S.phase='play';whistle(0.25);}}
   }
 }
@@ -522,7 +524,7 @@ function step(dt){
 }
 function scoreGoal(b,pen){
   S.score[b.team]++;if(cfg.mode==='data'&&!pen)S.plan.shift();
-  S.phase='goal';S.hold=1.9;S.msg={big:'GOAL!',small:(pen?'Penalty · ':'')+teams[b.team].name,team:b.team};S.flash={team:b.team,t:1};
+  S.phase='goal';S.hold=1.9;S.msg={big:LX.goal,small:(pen?LX.penGoal:'')+teams[b.team].name,team:b.team};S.flash={team:b.team,t:1};
   for(let i=0;i<90;i++){const a=rand(0,Math.PI*2),s=rand(200,900);S.parts.push({x:b.x,y:b.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(0.8,1.6),c:i%2?teams[b.team].c1:teams[b.team].c2,r:rand(6,14)});}
   goalSound();duckMusic();
 }
@@ -540,8 +542,8 @@ function tick(dt){
       if(S.phase==='play'){S.t+=dt;S.saveCd-=dt;
         checkEvents();
         const pending=cfg.mode==='data'&&(S.plan.length>0||S.events.some(e=>e.type==='pen'));
-        if(S.phase!=='play'){}else         if(!S.halfDone&&S.t>=cfg.dur/2){S.halfDone=true;S.phase='half';S.hold=1.8;S.msg={big:'HALF TIME',small:S.score.join(' - ')};whistle(0.9);}
-        else if(S.t>=cfg.dur&&!pending){S.phase='end';S.msg={big:'FULL TIME',small:''};whistle(0.9);fadeMusic();S.endHold=2.8;}}
+        if(S.phase!=='play'){}else         if(!S.halfDone&&S.t>=cfg.dur/2){S.halfDone=true;S.phase='half';S.hold=1.8;S.msg={big:LX.half,small:S.score.join(' - ')};whistle(0.9);}
+        else if(S.t>=cfg.dur&&!pending){S.phase='end';S.msg={big:LX.full,small:''};whistle(0.9);fadeMusic();S.endHold=2.8;}}
     }else if(S.phase==='pen'){updatePen(dt);
     }else if(S.phase==='goal'||S.phase==='half'){
       S.theta+=cfg.rot*dt;S.hold-=dt;
@@ -613,7 +615,7 @@ function draw(){
     drawBadge(teams[b.team],b.x,b.y,BR);
   }
   for(const p of S.parts){ctx.globalAlpha=Math.min(1,p.life);ctx.fillStyle=p.c;ctx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r*0.6);}ctx.globalAlpha=1;
-  if(S.save){ctx.save();ctx.globalAlpha=Math.min(1,S.save.t*2);ctx.font=`800 64px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=8;ctx.strokeStyle='#000';ctx.fillStyle='#ffd34d';ctx.strokeText('SAVE!',S.save.x,S.save.y);ctx.fillText('SAVE!',S.save.x,S.save.y);ctx.restore();}
+  if(S.save){ctx.save();ctx.globalAlpha=Math.min(1,S.save.t*2);ctx.font=`800 64px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=8;ctx.strokeStyle='#000';ctx.fillStyle='#ffd34d';ctx.strokeText(LX.save,S.save.x,S.save.y);ctx.fillText(LX.save,S.save.x,S.save.y);ctx.restore();}
 
   // scoreboard
   ctx.fillStyle='rgba(8,14,40,.75)';rr(150,150,780,170,26);ctx.fill();
@@ -631,17 +633,17 @@ function draw(){
   if(cfg.mode==='data'&&cfg.showBar&&P){
     const x0=150,w=780,y=478,h=40;ctx.save();rr(x0,y,w,h,12);ctx.clip();
     const L=S.liveP||[P.pH,P.pD,P.pA];
-    const segs=[[L[0],t0.c1,t0.short],[L[1],'#8d97a8','DRAW'],[L[2],t1.c1,t1.short]];let x=x0;
+    const segs=[[L[0],t0.c1,t0.short],[L[1],'#8d97a8',LX.draw],[L[2],t1.c1,t1.short]];let x=x0;
     ctx.font=`800 30px ${F}`;ctx.textBaseline='middle';
     for(const [v,col,lab] of segs){const sw=v*w;ctx.fillStyle=col;ctx.fillRect(x,y,sw,h);
       if(sw>110){ctx.fillStyle=lum(col)>0.55?'#0b0f14':'#fff';ctx.textAlign='center';ctx.fillText(`${lab} %${Math.round(v*100)}`,x+sw/2,y+h/2+2);}x+=sw;}
-    ctx.restore();ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=`600 30px ${F}`;ctx.textAlign='center';ctx.fillText(S.t>0?(S.phase==='end'?'FINAL RESULT':'LIVE WIN PROBABILITY'):'WIN PROBABILITY · DATA MODEL',540,548);
+    ctx.restore();ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=`600 30px ${F}`;ctx.textAlign='center';ctx.fillText(S.t>0?(S.phase==='end'?LX.final:LX.live):LX.pre,540,548);
   }
 
   if(S.banner){const bn=S.banner,tm=teams[bn.team];ctx.save();ctx.globalAlpha=Math.min(1,bn.t*3);
     const y=612;ctx.fillStyle='rgba(8,14,40,.88)';rr(230,y-40,620,80,18);ctx.fill();
     ctx.fillStyle=bn.type==='red'?'#e5322d':'#ffd21f';ctx.save();ctx.translate(285,y);ctx.rotate(-0.18);rr(-21,-30,42,60,6);ctx.fill();ctx.restore();
-    ctx.fillStyle='#fff';ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=`800 42px ${F}`;ctx.fillText(fit((bn.type==='red'?'RED CARD · ':'YELLOW CARD · ')+tm.name,500,42),330,y+2);ctx.restore();ctx.textAlign='center';}
+    ctx.fillStyle='#fff';ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=`800 42px ${F}`;ctx.fillText(fit((bn.type==='red'?LX.red:LX.yellow)+tm.name,500,42),330,y+2);ctx.restore();ctx.textAlign='center';}
   if(S.msg){
     const big=S.msg.big;ctx.save();ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,C.y-170,W,340);
     ctx.font=`800 ${big.length>6?150:210}px ${F}`;ctx.fillStyle=S.msg.team!=null?teams[S.msg.team].c1:'#fff';ctx.strokeStyle='#000';ctx.lineWidth=10;ctx.textAlign='center';ctx.textBaseline='middle';
@@ -674,7 +676,7 @@ function drawCardStats(){
   const x0=90,w=900,y0=1646,rh=58;
   ctx.fillStyle='rgba(8,14,40,.78)';rr(x0,y0,w,rh*2+14,20);ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0+30,y0+7+rh);ctx.lineTo(x0+w-30,y0+7+rh);ctx.stroke();
-  [['YELLOW CARDS','#ffd21f',0],['RED CARDS','#e5322d',1]].forEach(([lab,col,kind],r)=>{
+  [[LX.yellows,'#ffd21f',0],[LX.reds,'#e5322d',1]].forEach(([lab,col,kind],r)=>{
     const y=y0+7+rh*r+rh/2;
     ctx.fillStyle=col;rr(x0+118-12,y-17,24,34,4);ctx.fill();rr(x0+w-118-12,y-17,24,34,4);ctx.fill();
     ctx.fillStyle='rgba(255,255,255,.85)';ctx.font=`600 34px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lab,540,y+2);
@@ -722,6 +724,13 @@ readCfg();applyPair();
 window.AUTO={
   setup(o){
     stopMusic();S.running=false;
+    LX=Object.assign({},LX0,o.lang||{});
+    if(o.meta){ // teams and model injected by the pipeline (any league)
+      if(o.meta.model)DATA.model=o.meta.model;
+      [['home',o.home],['away',o.away]].forEach(([k,n])=>{const t=o.meta[k];if(!t)return;
+        TEAMS[n]=[t.short,t.c1.toLowerCase(),t.c2.toLowerCase()];DATA.teams[n]={elo:t.elo,n:t.n||0,last:t.last||[]};
+        const sel=[$('t0'),$('t1')];sel.forEach(s=>{if(![...s.options].some(x=>x.value===n)){const op=document.createElement('option');op.value=n;op.textContent=n;s.appendChild(op);}});});
+    }
     $('fixture').value='custom';$('t0').value=o.home;$('t1').value=o.away;applyPair();
     $('modeData').checked=true;$('dur').value=o.dur||60;$('music').value=o.music||'hype';$('handle').value=o.handle||'';
     if(o.goals)$('goalsSel').value=String(o.goals);
