@@ -2,11 +2,11 @@ name: Daily UCL simulations
 
 on:
   schedule:
-   - cron: "0 12 * * *"   # 12:00 UTC = 15:00 Istanbul
+    - cron: "0 12 * * *"   # every day 12:00 UTC = 15:00 Istanbul (8:00 New York); does nothing on days without fixtures
   workflow_dispatch:
     inputs:
       date:
-        description: "Date (YYYY-MM-DD). Empty = today"
+        description: "Match date (YYYY-MM-DD). Empty = tomorrow"
         required: false
       dry_run:
         description: "Render only, do not post"
@@ -17,6 +17,12 @@ on:
         required: false
       limit:
         description: "Max videos for this run (empty = config)"
+        required: false
+      skip:
+        description: "Skip the first N matches (e.g. 4 = start from the 5th)"
+        required: false
+      gap:
+        description: "Minutes between matches (empty = config)"
         required: false
 
 permissions:
@@ -74,6 +80,8 @@ jobs:
           [ "${{ inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
           [ -n "${{ inputs.only }}" ] && ARGS="$ARGS --only ${{ inputs.only }}"
           [ -n "${{ inputs.limit }}" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
+          [ -n "${{ inputs.skip }}" ] && ARGS="$ARGS --skip ${{ inputs.skip }}"
+          [ -n "${{ inputs.gap }}" ] && ARGS="$ARGS --gap ${{ inputs.gap }}"
           python -m autopost.main $ARGS
 
       - name: Keep videos for 7 days
