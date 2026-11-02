@@ -30,7 +30,10 @@ def post(video, caption):
     h = {"Authorization": f"Bearer {tok}", "Content-Type": "application/json; charset=UTF-8"}
     info = _ok(requests.post(f"{API}/post/publish/creator_info/query/", headers=h, timeout=30))
     opts = info.get("privacy_level_options", [])
-    privacy = "PUBLIC_TO_EVERYONE" if "PUBLIC_TO_EVERYONE" in opts else (opts[0] if opts else "SELF_ONLY")
+    import json, pathlib
+    cfg = json.loads((pathlib.Path(__file__).resolve().parents[2] / "config.json").read_text(encoding="utf8"))
+    want = cfg.get("tiktok_privacy", "SELF_ONLY")  # unaudited apps may only post SELF_ONLY
+    privacy = want if want in opts else ("SELF_ONLY" if "SELF_ONLY" in opts else (opts[0] if opts else "SELF_ONLY"))
     size = os.path.getsize(video)
     chunk = size if size <= 64 * 1024 * 1024 else 10 * 1024 * 1024
     count = 1 if chunk == size else size // chunk
