@@ -232,7 +232,7 @@ const NAMES=Object.keys(TEAMS).sort((a,b)=>a.localeCompare(b,'tr'));
   $('t0').value='Galatasaray';$('t1').value='Stuttgart';
 })();
 
-const LX0={goal:'GOAL!',half:'HALF TIME',full:'FULL TIME',pen:'PENALTY!',saved:'SAVED!',save:'SAVE!',penMissed:'Penalty missed · ',penGoal:'Penalty · ',yellow:'YELLOW CARD · ',red:'RED CARD · ',live:'LIVE WIN PROBABILITY',pre:'WIN PROBABILITY · DATA MODEL',final:'FINAL RESULT',draw:'DRAW',yellows:'YELLOW CARDS',reds:'RED CARDS'};
+const LX0={goal:'GOAL!',half:'HALF TIME',full:'FULL TIME',pen:'PENALTY!',saved:'SAVED!',save:'SAVE!',penMissed:'Penalty missed · ',penGoal:'Penalty · ',yellow:'YELLOW CARD · ',red:'RED CARD · ',live:'LIVE WIN PROBABILITY',pre:'WIN PROBABILITY · DATA MODEL',final:'FINAL RESULT',draw:'DRAW',pctPre:false,yellows:'YELLOW CARDS',reds:'RED CARDS'};
 let LX=Object.assign({},LX0);
 const teams=[0,1].map(()=>({name:'',short:'',c1:'#fff',c2:'#000',logo:null}));
 function currentPair(){const v=$('fixture').value;if(v==='custom')return[$('t0').value,$('t1').value];const[g,m]=v.split(':').map(Number);return FIXTURES[g][1][m];}
@@ -636,7 +636,7 @@ function draw(){
     const segs=[[L[0],t0.c1,t0.short],[L[1],'#8d97a8',LX.draw],[L[2],t1.c1,t1.short]];let x=x0;
     ctx.font=`800 30px ${F}`;ctx.textBaseline='middle';
     for(const [v,col,lab] of segs){const sw=v*w;ctx.fillStyle=col;ctx.fillRect(x,y,sw,h);
-      if(sw>110){ctx.fillStyle=lum(col)>0.55?'#0b0f14':'#fff';ctx.textAlign='center';ctx.fillText(`${lab} %${Math.round(v*100)}`,x+sw/2,y+h/2+2);}x+=sw;}
+      if(sw>70){ctx.fillStyle=lum(col)>0.55?'#0b0f14':'#fff';ctx.textAlign='center';const pc=Math.round(v*100),pt=LX.pctPre?'%'+pc:pc+'%';let tx=`${lab} ${pt}`;if(ctx.measureText(tx).width>sw-16)tx=pt;ctx.fillText(tx,x+sw/2,y+h/2+2);}x+=sw;}
     ctx.restore();ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=`600 30px ${F}`;ctx.textAlign='center';ctx.fillText(S.t>0?(S.phase==='end'?LX.final:LX.live):LX.pre,540,548);
   }
 

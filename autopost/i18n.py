@@ -1,10 +1,10 @@
 """Video overlay strings and caption text per language. European cups are always English."""
 
 OVERLAY = {
-    "en": {},  # the simulator's built-in English strings
+    "en": {},  # the simulator's built-in English strings (and the default for keys missing below)
     "tr": {"goal": "GOL!", "half": "DEVRE ARASI", "full": "MAÇ SONU", "pen": "PENALTI!", "saved": "KURTARDI!", "save": "KURTARIŞ!",
            "penMissed": "Penaltı kaçtı · ", "penGoal": "Penaltı · ", "yellow": "SARI KART · ", "red": "KIRMIZI KART · ",
-           "live": "CANLI KAZANMA OLASILIĞI", "pre": "KAZANMA OLASILIĞI · VERİ MODELİ", "final": "MAÇ SONUCU", "draw": "BERABERLİK",
+           "live": "CANLI KAZANMA OLASILIĞI", "pre": "KAZANMA OLASILIĞI · VERİ MODELİ", "final": "MAÇ SONUCU", "draw": "BERABERLİK", "pctPre": True,
            "yellows": "SARI KARTLAR", "reds": "KIRMIZI KARTLAR"},
     "es": {"goal": "¡GOL!", "half": "DESCANSO", "full": "FINAL", "pen": "¡PENALTI!", "saved": "¡PARADO!", "save": "¡PARADA!",
            "penMissed": "Penalti fallado · ", "penGoal": "Penalti · ", "yellow": "TARJETA AMARILLA · ", "red": "TARJETA ROJA · ",
