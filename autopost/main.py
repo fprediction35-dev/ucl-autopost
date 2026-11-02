@@ -38,13 +38,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date"); ap.add_argument("--dry-run", action="store_true"); ap.add_argument("--only")
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--skip", type=int, default=0, help="skip the first N matches of the day")
+    ap.add_argument("--gap", type=int, help="minutes between matches (overrides config)")
     a = ap.parse_args()
     cfg = json.loads((ROOT / "config.json").read_text(encoding="utf8"))
     day = a.date or dt.datetime.now(ZoneInfo(cfg.get("timezone", "UTC"))).date().isoformat()
     fixtures = [f for f in json.loads((ROOT / "data/fixtures.json").read_text(encoding="utf8")) if f["date"] == day]
     if a.limit:
         cfg["max_videos_per_day"] = a.limit
-    todo = pick(fixtures, cfg, elo_table())
+    if a.gap is not None:
+        cfg["post_gap_minutes"] = a.gap
+    if a.skip:
+        cfg["max_videos_per_day"] = cfg.get("max_videos_per_day", 9) + a.skip
+    todo = pick(fixtures, cfg, elo_table())[a.skip:]
     print(f"{day}: {len(fixtures)} fixtures, posting {len(todo)}")
     if not todo:
         return 0
@@ -54,7 +60,8 @@ def main():
     out = ROOT / "out" / day
     out.mkdir(parents=True, exist_ok=True)
     report, failures = [], 0
-    limits = cfg.get("platform_limits", {})
+    # a manual run that names its platforms ignores the daily per-platform limits
+    limits = {} if a.only else cfg.get("platform_limits", {})
     sent = {p: 0 for p in platforms}
     for n, f in enumerate(todo):
         name = f"{slug(f['home'])}-vs-{slug(f['away'])}"
