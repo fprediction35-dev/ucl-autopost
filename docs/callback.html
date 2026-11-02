@@ -3,7 +3,7 @@
 <style>body{font:16px system-ui,sans-serif;background:#0d1016;color:#e9edf3;display:grid;place-items:center;min-height:100vh;margin:0;padding:16px}
 main{max-width:560px;width:100%}code{display:block;word-break:break-all;background:#151a23;border:1px solid #262d3a;border-radius:10px;padding:14px;margin:12px 0}
 button{font:600 15px system-ui;padding:10px 18px;border-radius:10px;border:0;background:#3fd0b2;color:#06261f;cursor:pointer}</style></head>
-<body><main><h1>Bağlantı kodu</h1><p id="msg">Bu kodu kopyalayıp terminaldeki betiğe yapıştır.</p><code id="c"></code><button id="b">Kopyala</button></main>
+<body><main><h1>Bağlantı kodu</h1><p id="msg">Bu kodu kopyala, GitHub'da <b>Actions → Connect TikTok → Run workflow</b> kutusuna yapıştır ve hemen çalıştır. Kod birkaç dakika içinde geçersiz olur.</p><code id="c"></code><button id="b">Kopyala</button></main>
 <script>const q=new URLSearchParams(location.search);const c=(q.get('code')||'').split('#')[0];
 document.getElementById('c').textContent=c||'Adreste kod yok: '+(q.get('error_description')||q.get('error')||'izin verilmedi');
 document.getElementById('b').onclick=()=>navigator.clipboard.writeText(c).then(()=>{document.getElementById('b').textContent='Kopyalandı'});</script></body></html>
