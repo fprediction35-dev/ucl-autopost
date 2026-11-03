@@ -153,7 +153,8 @@ def main():
                     row["posts"][p] = f"FAILED: {e}"
                     print(f"  {p}: FAILED {e}", flush=True)
                     traceback.print_exc()
-            if any(not str(v).startswith(("FAILED", "skipped")) for v in row["posts"].values()):
+            # manual single-platform tests (--only) do not mark a match as done for the daily run
+            if not a.only and any(not str(v).startswith(("FAILED", "skipped")) for v in row["posts"].values()):
                 posted[fid(f)] = {"date": f["date"], "at": dt.datetime.now(tz).isoformat(timespec="minutes"), **row["posts"]}
                 POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
         report.append(row)
