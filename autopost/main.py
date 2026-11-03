@@ -7,7 +7,7 @@ python -m autopost.main --dry-run          # render videos and captions, post no
 python -m autopost.main --only youtube,x   # limit platforms for this run (ignores daily caps)
 python -m autopost.main --comps UEL,UECL   # limit competitions
 """
-import argparse, concurrent.futures as cf, datetime as dt, json, pathlib, re, subprocess, sys, time, traceback
+import zlib, argparse, concurrent.futures as cf, datetime as dt, json, pathlib, re, subprocess, sys, time, traceback
 from zoneinfo import ZoneInfo
 from . import captions, leagues, teams
 from .i18n import OVERLAY
@@ -56,7 +56,7 @@ def prepare(f, data, out, cfg):
         meta[k] = dict(ti[k], elo=t.get("elo", 1450), n=t.get("n", 0), last=[])
     name = f"{comp.lower()}-{slug(f['home'])}-vs-{slug(f['away'])}"
     setup = out / f"{name}.setup.json"
-    setup.write_text(json.dumps({"meta": meta, "lang": OVERLAY[lang]}, ensure_ascii=False), encoding="utf8")
+    setup.write_text(json.dumps({"meta": meta, "lang": OVERLAY[lang], "seed": zlib.crc32(f"{fid(f)}|{f['date']}".encode())}, ensure_ascii=False), encoding="utf8")
     return name, setup
 
 
