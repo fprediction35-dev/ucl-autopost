@@ -31,13 +31,16 @@ def build(info, fx, cfg):
     cta = L["ctas"][zlib.crc32(f"{h}{a}{fx['date']}".encode()) % len(L["ctas"])]
     head = f"{h} vs {a} | {cname}" + (f" · {stage}" if stage else "")
 
-    yt_title = f"{h} vs {a} ⚽ {L['who']} {cname} {L['sim']}"
+    # "Prediction" first: ~40% of YouTube views come from search ("X vs Y prediction")
+    yt_title = f"{h} vs {a} {L['pred']} ⚽ {L['who']} {cname} {L['sim']}"
     if len(yt_title) > 90:
-        yt_title = f"{h} vs {a} ⚽ {L['who']}"
+        yt_title = f"{h} vs {a} {L['pred']} ⚽ {cname}"
+    if len(yt_title) > 90:
+        yt_title = f"{h} vs {a} {L['pred']} ⚽"
     yt_title += " #Shorts"
     lines = [head] + ([f"{L['real']}: {when}"] if when else []) + [f"{L['model']}: {odds}"]
     yt_desc = "\n".join(lines + ["", cta, "", L["disc"], "", " ".join(tags + ["#shorts"])])
-    long = "\n".join([f"{h} vs {a} ⚽ {L['who']}", f"{cname}" + (f" · {stage}" if stage else ""), f"{L['model']}: {odds}"]
+    long = "\n".join([f"{h} vs {a} {L['pred']} ⚽ {L['who']}", f"{cname}" + (f" · {stage}" if stage else ""), f"{L['model']}: {odds}"]
                      + ([f"{L['real']}: {when}"] if when else []) + [cta, "", L["disc"], "", " ".join(tags)])
     # X: no engagement asks (X's creator rewards penalise them)
     x = f"{h} vs {a} ⚽ {L['simulated']}\n{L['model']}: {odds}\n{tag(h)} {tag(a)} " + " ".join(ctags)

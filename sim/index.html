@@ -232,7 +232,7 @@ const NAMES=Object.keys(TEAMS).sort((a,b)=>a.localeCompare(b,'tr'));
   $('t0').value='Galatasaray';$('t1').value='Stuttgart';
 })();
 
-const LX0={goal:'GOAL!',half:'HALF TIME',full:'FULL TIME',pen:'PENALTY!',saved:'SAVED!',save:'SAVE!',penMissed:'Penalty missed · ',penGoal:'Penalty · ',yellow:'YELLOW CARD · ',red:'RED CARD · ',live:'LIVE WIN PROBABILITY',pre:'WIN PROBABILITY · DATA MODEL',final:'FINAL RESULT',draw:'DRAW',pctPre:false,yellows:'YELLOW CARDS',reds:'RED CARDS'};
+const LX0={who:'WHO WINS?',goal:'GOAL!',half:'HALF TIME',full:'FULL TIME',pen:'PENALTY!',saved:'SAVED!',save:'SAVE!',penMissed:'Penalty missed · ',penGoal:'Penalty · ',yellow:'YELLOW CARD · ',red:'RED CARD · ',live:'LIVE WIN PROBABILITY',pre:'WIN PROBABILITY · DATA MODEL',final:'FINAL RESULT',draw:'DRAW',pctPre:false,yellows:'YELLOW CARDS',reds:'RED CARDS'};
 let LX=Object.assign({},LX0);
 const teams=[0,1].map(()=>({name:'',short:'',c1:'#fff',c2:'#000',logo:null}));
 function currentPair(){const v=$('fixture').value;if(v==='custom')return[$('t0').value,$('t1').value];const[g,m]=v.split(':').map(Number);return FIXTURES[g][1][m];}
@@ -651,6 +651,15 @@ function draw(){
     let small=S.msg.small;if(S.phase==='end')small=`${t0.name} ${S.score[0]} - ${S.score[1]} ${t1.name}`;
     ctx.font=`600 64px ${F}`;ctx.fillStyle='#fff';ctx.fillText(fit(small,980,64),540,C.y+95);ctx.restore();
   }
+
+  // opening hook: big question over the first seconds while play already runs (also makes the first frame a readable cover)
+  const HOOK=2.4;if(S.running&&S.phase==='play'&&S.t<HOOK&&!S.halfDone&&S.score[0]+S.score[1]===0){
+    const a=Math.min(1,(HOOK-S.t)*2.5),pulse=1+0.04*Math.sin(S.t*9);ctx.save();ctx.globalAlpha=a;
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,C.y-190,W,380);
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.translate(540,C.y-40);ctx.scale(pulse,pulse);
+    ctx.font=`800 ${LX.who.length>11?128:150}px ${F}`;ctx.lineWidth=12;ctx.strokeStyle='#000';ctx.fillStyle='#ffd34d';
+    ctx.strokeText(LX.who,0,0);ctx.fillText(LX.who,0,0);ctx.setTransform(1,0,0,1,0,0);
+    ctx.font=`700 66px ${F}`;ctx.fillStyle='#fff';ctx.fillText(fit(`${t0.name} vs ${t1.name}`,980,66),540,C.y+100);ctx.restore();}
 
   drawCardStats();
   ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.font=`800 60px ${F}`;ctx.fillText(fit(`${t0.name} vs ${t1.name}`,960,60),540,1818);
