@@ -96,7 +96,8 @@ def main():
     posted = json.loads(POSTED.read_text()) if POSTED.exists() else {}
     if a.backfill and not a.only:
         sys.exit("--backfill needs --only, e.g. --only youtube")
-    has = lambda f, p: str(posted.get(fid(f), {}).get(p, "")).startswith("http")
+    done = lambda v: bool(v) and not str(v).startswith(("FAILED", "skipped", "dry run", "already"))
+    has = lambda f, p: done(posted.get(fid(f), {}).get(p))
     if a.backfill:
         fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat())
               if fid(f) in posted and not all(has(f, p) for p in a.only.split(","))]
@@ -179,7 +180,7 @@ def main():
                 posted[fid(f)] = {"date": f["date"], "at": dt.datetime.now(tz).isoformat(timespec="minutes"), **row["posts"]}
                 POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
             elif a.backfill:
-                new = {p: v for p, v in row["posts"].items() if str(v).startswith("http")}
+                new = {p: v for p, v in row["posts"].items() if done(v)}
                 if new:
                     posted[fid(f)].update(new)
                     POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
