@@ -289,6 +289,8 @@ function liveTarget(){
 }
 function updateLive(dt){const t=liveTarget();if(!t)return;if(!S.liveP||!S.running){S.liveP=t;return;}const k=Math.min(1,dt*3);S.liveP=S.liveP.map((v,i)=>v+(t[i]-v)*k);}
 function lum(hex){const n=parseInt(hex.slice(1),16);return(0.299*(n>>16)+0.587*(n>>8&255)+0.114*(n&255))/255;}
+// a team colour that stands out on the dark night background: dark/navy primaries (Beşiktaş, Freiburg, Chelsea...) fall back to the second colour, else white
+function vis(t){const ok=h=>{const n=parseInt(h.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return lum(h)>(b>r&&b>g?0.4:0.22);};return ok(t.c1)?t.c1:(ok(t.c2)?t.c2:'#ffffff');} // dark and navy shades vanish on the dark-blue night
 let scenario=null,revealed=false;
 let scenEv=null;
 function samplePois(l){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=Math.random();}while(p>L);return k-1;}
@@ -525,7 +527,7 @@ function step(dt){
 function scoreGoal(b,pen){
   S.score[b.team]++;if(cfg.mode==='data'&&!pen)S.plan.shift();
   S.phase='goal';S.hold=1.9;S.msg={big:LX.goal,small:(pen?LX.penGoal:'')+teams[b.team].name,team:b.team};S.flash={team:b.team,t:1};
-  for(let i=0;i<90;i++){const a=rand(0,Math.PI*2),s=rand(200,900);S.parts.push({x:b.x,y:b.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(0.8,1.6),c:i%2?teams[b.team].c1:teams[b.team].c2,r:rand(6,14)});}
+  for(let i=0;i<90;i++){const a=rand(0,Math.PI*2),s=rand(200,900);S.parts.push({x:b.x,y:b.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(0.8,1.6),c:i%2?vis(teams[b.team]):teams[b.team].c2,r:rand(6,14)});}
   goalSound();duckMusic();
 }
 
@@ -575,7 +577,7 @@ function draw(){
   const t0=teams[0],t1=teams[1];
   const glowTeam=S.flash?teams[S.flash.team]:null;
   const g=ctx.createRadialGradient(C.x,C.y,100,C.x,C.y,1150);
-  g.addColorStop(0,glowTeam?glowTeam.c1:'#1f3a8a');g.addColorStop(0.55,'#0e1a45');g.addColorStop(1,'#050816');
+  g.addColorStop(0,glowTeam?vis(glowTeam):'#1f3a8a');g.addColorStop(0.55,'#0e1a45');g.addColorStop(1,'#050816');
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   // star field (UCL night)
   ctx.fillStyle='rgba(255,255,255,.18)';for(let i=0;i<60;i++){const sx=(i*197)%W,sy=(i*421)%H;ctx.fillRect(sx,sy,3,3);}
@@ -590,7 +592,7 @@ function draw(){
   ctx.fillStyle='rgba(220,230,220,.6)';ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();
   ctx.restore();
 
-  const rimCol=S.flash?teams[S.flash.team].c1:'#7fb2ff';
+  const rimCol=S.flash?vis(teams[S.flash.team]):'#7fb2ff';
   ctx.save();ctx.shadowColor=rimCol;ctx.shadowBlur=40;ctx.strokeStyle=rimCol;ctx.lineWidth=24;ctx.lineCap='round';
   const gs=goals();const span=Math.PI*2/gs.length;ctx.beginPath();for(const g of gs){const a0=S.theta+g.off+cfg.gw;ctx.moveTo(C.x+Math.cos(a0)*(R+12),C.y+Math.sin(a0)*(R+12));ctx.arc(C.x,C.y,R+12,a0,S.theta+g.off+span-cfg.gw);}ctx.stroke();ctx.restore();
 
@@ -646,7 +648,7 @@ function draw(){
     ctx.fillStyle='#fff';ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=`800 42px ${F}`;ctx.fillText(fit((bn.type==='red'?LX.red:LX.yellow)+tm.name,500,42),330,y+2);ctx.restore();ctx.textAlign='center';}
   if(S.msg){
     const big=S.msg.big;ctx.save();ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,C.y-170,W,340);
-    ctx.font=`800 ${big.length>6?150:210}px ${F}`;ctx.fillStyle=S.msg.team!=null?teams[S.msg.team].c1:'#fff';ctx.strokeStyle='#000';ctx.lineWidth=10;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font=`800 ${big.length>6?150:210}px ${F}`;ctx.fillStyle=S.msg.team!=null?vis(teams[S.msg.team]):'#fff';ctx.strokeStyle='#000';ctx.lineWidth=10;ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.strokeText(big,540,C.y-30);ctx.fillText(big,540,C.y-30);
     let small=S.msg.small;if(S.phase==='end')small=`${t0.name} ${S.score[0]} - ${S.score[1]} ${t1.name}`;
     ctx.font=`600 64px ${F}`;ctx.fillStyle='#fff';ctx.fillText(fit(small,980,64),540,C.y+95);ctx.restore();
