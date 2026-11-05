@@ -1,7 +1,7 @@
 """Captions for each platform, in the competition's language. The final score is never written, so the video keeps its suspense."""
 import datetime as dt, re, unicodedata, zlib
 from .i18n import TXT, COMP_NAME, COMP_TAGS, GENERIC_TAGS
-from .leagues import COMPS
+from .leagues import COMPS, lang as fixture_lang
 
 
 def tag(name):
@@ -12,7 +12,7 @@ def tag(name):
 
 def build(info, fx, cfg):
     comp = fx["comp"]
-    lang = COMPS[comp]["lang"]
+    lang = fixture_lang(fx)
     L = TXT[lang]
     h, a = info["home"], info["away"]
     ph, pd, pa = (round(x * 100) for x in info["p"])
@@ -21,6 +21,10 @@ def build(info, fx, cfg):
     stage = (f"{L['lp']} · " if comp in ("UCL", "UEL", "UECL") else "") + (f"{L['md']} {fx['matchday']}" if fx.get("matchday") else "")
     # league dates in the open data are provisional, so only European cup fixtures get a kick-off time
     when = f"{L['days'][d.weekday()]} {d.day} {L['months'][d.month - 1]} {d.year}, {fx['time']} CET" if fx.get("time") else None
+    if when and lang == "tr":  # Turkish viewers get Istanbul time (TSİ)
+        from zoneinfo import ZoneInfo
+        k = dt.datetime.fromisoformat(f"{fx['date']}T{fx['time']}").replace(tzinfo=ZoneInfo("Europe/Paris")).astimezone(ZoneInfo("Europe/Istanbul"))
+        when = f"{L['days'][k.weekday()]} {k.day} {L['months'][k.month - 1]} {k.year}, {k:%H:%M} TSİ"
     ctags = ["#" + t for t in COMP_TAGS[comp]]
     tags = [tag(h), tag(a)] + ctags + ["#" + t for t in GENERIC_TAGS[lang]]
     odds = f"{h} {ph}% · {L['draw']} {pd}% · {a} {pa}%"

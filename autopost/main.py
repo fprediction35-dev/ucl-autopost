@@ -48,7 +48,7 @@ def order(fixtures, data, cfg):
 
 def prepare(f, data, out, cfg):
     comp = f["comp"]
-    lang = leagues.COMPS[comp]["lang"]
+    lang = leagues.lang(f)
     m = data["model"]
     ti = {k: teams.info(f[k[0]], f[k]) for k in ("home", "away")}
     f["home"], f["away"] = ti["home"]["name"], ti["away"]["name"]

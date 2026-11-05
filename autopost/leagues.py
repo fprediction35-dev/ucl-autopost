@@ -321,3 +321,11 @@ def fixtures(data, start, end):
             out.append(dict(comp=c, date=r["date"], time=None, h=r["h"], a=r["a"], home=r["hname"], away=r["aname"],
                             matchday=int(md.group(1)) if md else None))
     return out
+
+
+def lang(f):
+    """Caption/overlay language: the league's own language; European cup matches are English unless a Turkish club plays
+    (the audience is mostly Turkish)."""
+    if f["comp"] in ("UCL", "UEL", "UECL") and (f["h"].endswith("|TUR") or f["a"].endswith("|TUR")):
+        return "tr"
+    return COMPS[f["comp"]]["lang"]
