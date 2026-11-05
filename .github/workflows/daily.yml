@@ -29,6 +29,9 @@ on:
       comps:
         description: "Competitions, e.g. UEL,UECL,TR1 (empty = all)"
         required: false
+      exclude:
+        description: "Leave these platforms out, e.g. youtube (matches still count as posted)"
+        required: false
       backfill:
         description: "With 'only': post already-posted matches still missing a link on those platforms"
         type: boolean
@@ -100,6 +103,7 @@ jobs:
           [ -n "${{ inputs.gap }}" ] && ARGS="$ARGS --gap ${{ inputs.gap }}"
           [ -n "${{ inputs.comps }}" ] && ARGS="$ARGS --comps ${{ inputs.comps }}"
           [ "${{ inputs.backfill }}" = "true" ] && ARGS="$ARGS --backfill"
+          [ -n "${{ inputs.exclude }}" ] && ARGS="$ARGS --exclude ${{ inputs.exclude }}"
           python -m autopost.main $ARGS
 
       - name: Remember posted matches
