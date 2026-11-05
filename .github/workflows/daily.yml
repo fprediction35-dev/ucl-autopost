@@ -2,7 +2,7 @@ name: Daily match simulations
 
 on:
   schedule:
-    - cron: "0 12 * * *"   # every day 12:00 UTC = 15:00 Istanbul (8:00 New York); does nothing on days without fixtures
+    - cron: "7 8 * * *"   # 08:07 UTC = 11:07 Istanbul; GitHub starts scheduled runs ~50 min late, so posting begins around 12:00
   workflow_dispatch:
     inputs:
       date:
