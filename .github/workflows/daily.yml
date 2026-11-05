@@ -2,7 +2,9 @@ name: Daily match simulations
 
 on:
   schedule:
-    - cron: "7 8 * * *"   # 08:07 UTC = 11:07 Istanbul; GitHub starts scheduled runs ~50 min late, so posting begins around 12:00
+    - cron: "7 8 * * *"   # 08:07 UTC = 11:07 Istanbul; GitHub starts scheduled runs ~50 min late, so posting begins around 12:00 (all platforms except YouTube)
+    - cron: "7 16 * * *"  # 16:07 UTC = 19:07 Istanbul, starts ~20:00: YouTube for the matches posted at noon.
+                          # YouTube's ~10 uploads limit is a rolling 24h window, so YouTube gets one fixed slot a day.
   workflow_dispatch:
     inputs:
       date:
@@ -27,6 +29,10 @@ on:
       comps:
         description: "Competitions, e.g. UEL,UECL,TR1 (empty = all)"
         required: false
+      backfill:
+        description: "With 'only': post already-posted matches still missing a link on those platforms"
+        type: boolean
+        default: false
 
 permissions:
   contents: write   # needed to attach videos to a release for Instagram
@@ -85,12 +91,15 @@ jobs:
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
         run: |
           ARGS="--date ${{ steps.check.outputs.date }}"
+          [ "${{ github.event.schedule }}" = "7 8 * * *" ] && ARGS="$ARGS --exclude youtube"
+          [ "${{ github.event.schedule }}" = "7 16 * * *" ] && ARGS="$ARGS --only youtube --backfill"
           [ "${{ inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
           [ -n "${{ inputs.only }}" ] && ARGS="$ARGS --only ${{ inputs.only }}"
           [ -n "${{ inputs.limit }}" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
           [ -n "${{ inputs.skip }}" ] && ARGS="$ARGS --skip ${{ inputs.skip }}"
           [ -n "${{ inputs.gap }}" ] && ARGS="$ARGS --gap ${{ inputs.gap }}"
           [ -n "${{ inputs.comps }}" ] && ARGS="$ARGS --comps ${{ inputs.comps }}"
+          [ "${{ inputs.backfill }}" = "true" ] && ARGS="$ARGS --backfill"
           python -m autopost.main $ARGS
 
       - name: Remember posted matches
@@ -100,7 +109,7 @@ jobs:
           git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/posted.json
           git diff --cached --quiet && exit 0
-          git commit -qm "Posted matches ${{ steps.check.outputs.date }}"
+          git commit -qm "Posted matches ${{ steps.check.outputs.date }}${{ github.event.schedule == '7 16 * * *' && ' (youtube)' || '' }}"
           for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
 
       - name: Keep videos for 7 days

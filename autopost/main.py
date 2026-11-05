@@ -6,6 +6,8 @@ python -m autopost.main --date 2026-11-05  # window starts on this day
 python -m autopost.main --dry-run          # render videos and captions, post nothing
 python -m autopost.main --only youtube,x   # limit platforms for this run (ignores daily caps)
 python -m autopost.main --comps UEL,UECL   # limit competitions
+python -m autopost.main --exclude youtube  # daily run without youtube (youtube has its own evening slot)
+python -m autopost.main --only youtube --backfill  # post already-posted matches that are missing a youtube link
 """
 import zlib, argparse, concurrent.futures as cf, datetime as dt, json, pathlib, re, subprocess, sys, time, traceback
 from zoneinfo import ZoneInfo
@@ -80,6 +82,9 @@ def main():
     ap.add_argument("--days", type=int, help="window length in days (overrides config)")
     ap.add_argument("--comps", help="comma-separated competition codes, e.g. UEL,UECL,TR1")
     ap.add_argument("--workers", type=int, help="parallel renders")
+    ap.add_argument("--exclude", help="comma-separated platforms to leave out of this run (daily caps and posted.json still apply)")
+    ap.add_argument("--backfill", action="store_true",
+                    help="with --only: post matches already in posted.json that have no link yet for those platforms")
     a = ap.parse_args()
     cfg = json.loads((ROOT / "config.json").read_text(encoding="utf8"))
     tz = ZoneInfo(cfg.get("timezone", "UTC"))
@@ -89,7 +94,14 @@ def main():
 
     data = leagues.build()
     posted = json.loads(POSTED.read_text()) if POSTED.exists() else {}
-    fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if fid(f) not in posted]
+    if a.backfill and not a.only:
+        sys.exit("--backfill needs --only, e.g. --only youtube")
+    has = lambda f, p: str(posted.get(fid(f), {}).get(p, "")).startswith("http")
+    if a.backfill:
+        fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat())
+              if fid(f) in posted and not all(has(f, p) for p in a.only.split(","))]
+    else:
+        fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if fid(f) not in posted]
     if a.comps:
         fx = [f for f in fx if f["comp"] in a.comps.split(",")]
     for f in fx:
@@ -99,7 +111,9 @@ def main():
     platforms = [p for p, on in cfg["platforms"].items() if on]
     if a.only:
         platforms = [p for p in a.only.split(",") if p in POSTERS]
-    limits = {} if a.only else {p: cfg.get("platform_limits", {}).get(p, 999) for p in platforms}
+    if a.exclude:
+        platforms = [p for p in platforms if p not in a.exclude.split(",")]
+    limits = {} if a.only and not a.backfill else {p: cfg.get("platform_limits", {}).get(p, 999) for p in platforms}
     n = a.limit or max([limits.get(p, cfg.get("max_videos_per_day", 20)) for p in platforms] or [cfg.get("max_videos_per_day", 20)])
     todo = order(fx, data, cfg)[a.skip:a.skip + n]
     print(f"{start}..{end}: {len(fx)} unposted fixtures, making {len(todo)} videos for {', '.join(platforms) or 'nothing'}")
@@ -140,6 +154,8 @@ def main():
                 time.sleep(wait)
             last_post = time.time()
             for p in platforms:
+                if a.backfill and has(f, p):
+                    row["posts"][p] = "already posted"; continue
                 if sent[p] >= limits.get(p, 999):
                     row["posts"][p] = "skipped (daily limit)"; continue
                 if strikes[p] >= 2:
@@ -162,6 +178,11 @@ def main():
             if not a.only and any(not str(v).startswith(("FAILED", "skipped")) for v in row["posts"].values()):
                 posted[fid(f)] = {"date": f["date"], "at": dt.datetime.now(tz).isoformat(timespec="minutes"), **row["posts"]}
                 POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
+            elif a.backfill:
+                new = {p: v for p, v in row["posts"].items() if str(v).startswith("http")}
+                if new:
+                    posted[fid(f)].update(new)
+                    POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
         report.append(row)
     pool.shutdown()
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf8")
