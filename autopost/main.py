@@ -149,6 +149,11 @@ def main():
                     row["posts"][p] = res; sent[p] += 1; strikes[p] = 0
                     print(f"  {p}: {res}", flush=True)
                 except Exception as e:
+                    if any(k in str(e) for k in ("uploadLimitExceeded", "quotaExceeded")):
+                        # the platform's own daily limit: stop using it for this run, not an error
+                        row["posts"][p] = f"skipped (platform daily limit)"; strikes[p] = 99
+                        print(f"  {p}: daily limit reached, skipping it for the rest of this run", flush=True)
+                        continue
                     failures += 1; strikes[p] += 1
                     row["posts"][p] = f"FAILED: {e}"
                     print(f"  {p}: FAILED {e}", flush=True)
