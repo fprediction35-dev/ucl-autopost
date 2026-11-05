@@ -1,4 +1,64 @@
 {
+"DE1|1 fsv mainz 05|GER|bayern munchen|GER": {
+"at": "2026-11-05T12:23+03:00",
+"date": "2026-11-07",
+"instagram": "https://www.instagram.com/reel/DfWs0O7DLw4/",
+"youtube": "skipped (platform failing)"
+},
+"DE1|hamburger sv|GER|borussia monchengladbach|GER": {
+"at": "2026-11-05T12:17+03:00",
+"date": "2026-11-06",
+"instagram": "https://www.instagram.com/reel/DfWsJ83D-Jw/",
+"youtube": "skipped (platform failing)"
+},
+"EN1|arsenal|ENG|hull city|ENG": {
+"at": "2026-11-05T12:48+03:00",
+"date": "2026-11-07",
+"instagram": "https://www.instagram.com/reel/DfWvmw-AiWX/",
+"youtube": "skipped (platform failing)"
+},
+"EN1|brighton & hove albion|ENG|brentford|ENG": {
+"at": "2026-11-05T12:40+03:00",
+"date": "2026-11-07",
+"instagram": "https://www.instagram.com/reel/DfWuvryEiRI/",
+"youtube": "skipped (platform failing)"
+},
+"EN1|crystal palace|ENG|liverpool|ENG": {
+"at": "2026-11-05T12:53+03:00",
+"date": "2026-11-07",
+"instagram": "https://www.instagram.com/reel/DfWwMZAjFys/",
+"youtube": "skipped (platform failing)"
+},
+"EN1|manchester united|ENG|aston villa|ENG": {
+"at": "2026-11-05T12:35+03:00",
+"date": "2026-11-07",
+"instagram": "https://www.instagram.com/reel/DfWuIXSjCvl/",
+"youtube": "skipped (platform failing)"
+},
+"EN1|nottingham forest|ENG|manchester city|ENG": {
+"at": "2026-11-05T12:29+03:00",
+"date": "2026-11-07",
+"instagram": "https://www.instagram.com/reel/DfWtcg0DMkf/",
+"youtube": "skipped (platform failing)"
+},
+"FR1|toulouse|FRA|rc strasbourg|FRA": {
+"at": "2026-11-05T12:05+03:00",
+"date": "2026-11-06",
+"instagram": "https://www.instagram.com/reel/DfWquR_Eo3X/",
+"youtube": "skipped (platform daily limit)"
+},
+"IT1|as roma|ITA|us sassuolo calcio|ITA": {
+"at": "2026-11-05T12:59+03:00",
+"date": "2026-11-07",
+"instagram": "https://www.instagram.com/reel/DfWw4lJDXqM/",
+"youtube": "skipped (platform failing)"
+},
+"IT1|venezia|ITA|udinese calcio|ITA": {
+"at": "2026-11-05T12:11+03:00",
+"date": "2026-11-06",
+"instagram": "https://www.instagram.com/reel/DfWrZ8xkWBG/",
+"youtube": "skipped (platform failing)"
+},
 "UCL|aek athens|GRE|real madrid|ESP": {
 "at": "2026-11-03T16:20+03:00",
 "date": "2026-11-04",
