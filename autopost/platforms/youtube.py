@@ -1,5 +1,5 @@
 """YouTube Shorts upload (YouTube Data API v3, resumable upload)."""
-import os, requests
+import os, time, requests
 from .. import secrets_store as S
 
 
@@ -59,8 +59,13 @@ def _extras(tok, vid, cap):
     if cap.get("playlist"):
         try:
             pl = _playlist(tok, cap["playlist"])
-            _check(requests.post(f"{API}/playlistItems?part=snippet", headers=h, timeout=30, json={
-                "snippet": {"playlistId": pl, "resourceId": {"kind": "youtube#video", "videoId": vid}}}))
+            for i in range(3):  # a just-created playlist can answer 409 SERVICE_UNAVAILABLE for a few seconds
+                r = requests.post(f"{API}/playlistItems?part=snippet", headers=h, timeout=30, json={
+                    "snippet": {"playlistId": pl, "resourceId": {"kind": "youtube#video", "videoId": vid}}})
+                if r.ok or r.status_code not in (409, 500, 503) or i == 2:
+                    break
+                time.sleep(5)
+            _check(r)
         except Exception as e:
             print(f"  youtube: playlist skipped: {e}", flush=True)
     if cap.get("comment"):
