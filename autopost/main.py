@@ -8,6 +8,7 @@ python -m autopost.main --only youtube,x   # limit platforms for this run (ignor
 python -m autopost.main --comps UEL,UECL   # limit competitions
 python -m autopost.main --exclude youtube  # daily run without youtube (youtube has its own evening slot)
 python -m autopost.main --only youtube --backfill  # post already-posted matches that are missing a youtube link
+python -m autopost.main --only youtube --backfill --new  # daily slot: missing youtube links first, then new matches
 """
 import zlib, argparse, concurrent.futures as cf, datetime as dt, json, pathlib, re, subprocess, sys, time, traceback
 from zoneinfo import ZoneInfo
@@ -36,13 +37,14 @@ def uefa_matchday(data, comp, date):
     return weeks.index(wk) + 1 if wk in weeks else None
 
 
-def order(fixtures, data, cfg):
+def order(fixtures, data, cfg, first=()):
     big = set(cfg.get("priority_teams", []))
     elo = lambda k: data["teams"].get(k, {}).get("elo", 1450)
     def score(f):
         tier = 2 if (f["h"] in big or f["a"] in big) else 1 if (f["h"].endswith("|TUR") or f["a"].endswith("|TUR")) else 0
         # soonest day first, so every match goes out before kick-off; within a day Turkish clubs, then the strongest pairings
-        return (f["date"], -tier, -(elo(f["h"]) + elo(f["a"])))
+        # `first`: matches another platform already posted go before new ones on the same day, so platforms stay in step
+        return (f["date"], fid(f) not in first, -tier, -(elo(f["h"]) + elo(f["a"])))
     return sorted(fixtures, key=score)
 
 
@@ -84,6 +86,8 @@ def main():
     ap.add_argument("--workers", type=int, help="parallel renders")
     ap.add_argument("--exclude", help="comma-separated platforms to leave out of this run (daily caps and posted.json still apply)")
     ap.add_argument("--match", help="comma-separated text matched against fixture ids, e.g. osasuna,valencia (only these matches)")
+    ap.add_argument("--new", action="store_true",
+                    help="with --backfill: also take matches not posted anywhere yet (the daily platform slots)")
     ap.add_argument("--backfill", action="store_true",
                     help="with --only: post matches already in posted.json that have no link yet for those platforms")
     a = ap.parse_args()
@@ -101,9 +105,9 @@ def main():
     has = lambda f, p: done(posted.get(fid(f), {}).get(p))
     picked = lambda f: not a.match or any(m.strip().lower() in fid(f) for m in a.match.split(","))
     if a.backfill:
-        # with --match, matches not posted anywhere yet are included too
+        # with --new or --match, matches not posted anywhere yet are included too
         fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if picked(f)
-              and (fid(f) in posted or a.match) and not all(has(f, p) for p in a.only.split(","))]
+              and (fid(f) in posted or a.match or a.new) and not all(has(f, p) for p in a.only.split(","))]
     else:
         fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if fid(f) not in posted and picked(f)]
     if a.comps:
@@ -119,7 +123,7 @@ def main():
         platforms = [p for p in platforms if p not in a.exclude.split(",")]
     limits = {} if a.only and not a.backfill else {p: cfg.get("platform_limits", {}).get(p, 999) for p in platforms}
     n = a.limit or max([limits.get(p, cfg.get("max_videos_per_day", 20)) for p in platforms] or [cfg.get("max_videos_per_day", 20)])
-    todo = order(fx, data, cfg)[a.skip:a.skip + n]
+    todo = order(fx, data, cfg, set(posted) if a.backfill else ())[a.skip:a.skip + n]
     print(f"{start}..{end}: {len(fx)} unposted fixtures, making {len(todo)} videos for {', '.join(platforms) or 'nothing'}")
     for f in todo:
         print(f"  {f['date']} {f['comp']:5} {f['home']} vs {f['away']}")
