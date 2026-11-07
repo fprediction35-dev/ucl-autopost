@@ -47,7 +47,9 @@ def build(info, fx, cfg):
     if len(x) > 280:
         x = f"{h} vs {a} ⚽ {L['simulated']}\n{tag(h)} {tag(a)} {ctags[0]}"
     return {
-        "youtube": {"title": yt_title[:100], "description": yt_desc[:4900],
+        "youtube": {"title": yt_title[:100], "description": yt_desc[:4900], "comment": L["comment"],
+                    # one playlist per competition, in the competition's own language
+                    "playlist": TXT[COMPS[comp]["lang"]]["playlist"].format(c=cname),
                     "tags": [h, a, cname] + COMP_TAGS[comp] + GENERIC_TAGS[lang] + ["shorts"]},
         "instagram": long[:2200],
         "tiktok": long[:2200],

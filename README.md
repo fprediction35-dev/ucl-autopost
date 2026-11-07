@@ -46,6 +46,10 @@ Google, denetimden geçmemiş API projelerinden yüklenen videoları gizli (priv
 - "(uploaded as private …)" yazıyorsa Google'ın [API denetim formunu](https://support.google.com/youtube/contact/yt_api_form) doldurman gerekiyor.
 - Bu süreçte videoları YouTube Studio'dan elle herkese açık yapabilirsin.
 
+Lig oynatma listeleri ve kanal adına otomatik ilk yorum için bağlantının `youtube.force-ssl` iznini de içermesi gerekir
+(`tools/youtube_auth.py` bunu ister). Eski bağlantıyla videolar yine yüklenir; sadece rapora
+"playlist skipped / comment skipped" satırı düşer. Düzeltmek için 4. ve 5. adımı tekrarlayıp `YT_REFRESH_TOKEN` secret'ını güncelle.
+
 ### 3. Instagram
 
 1. Instagram hesabını **Profesyonel** hesaba çevir (İçerik üreticisi ya da İşletme).

@@ -7,7 +7,8 @@ cid, secret = sys.argv[1], sys.argv[2]
 redirect = "http://localhost:8765"
 url = "https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode({
     "client_id": cid, "redirect_uri": redirect, "response_type": "code", "access_type": "offline", "prompt": "consent",
-    "scope": "https://www.googleapis.com/auth/youtube.upload"})
+    # upload + playlists + channel comments
+    "scope": "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.force-ssl"})
 code = {}
 
 
