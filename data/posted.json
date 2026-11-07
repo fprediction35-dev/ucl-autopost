@@ -16,6 +16,11 @@
 "instagram": "https://www.instagram.com/reel/DfYF4zXCeFi/",
 "youtube": "https://youtube.com/shorts/Vk14JEJbISA"
 },
+"DE1|freiburg|GER|1 union berlin|GER": {
+"at": "2026-11-07T14:01+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/DfcBj9IDQeI/"
+},
 "DE1|hamburger sv|GER|borussia monchengladbach|GER": {
 "at": "2026-11-05T12:17+03:00",
 "date": "2026-11-06",
@@ -33,6 +38,11 @@
 "date": "2026-11-07",
 "instagram": "https://www.instagram.com/reel/DfYIBKvlOBK/",
 "youtube": "https://youtube.com/shorts/psJ5OB1iwRA"
+},
+"DE1|tsg 1899 hoffenheim|GER|schalke 04|GER": {
+"at": "2026-11-07T13:37+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/Dfb-22YioMq/"
 },
 "DE1|vfb stuttgart|GER|sv werder bremen|GER": {
 "at": "2026-11-06T01:28+03:00",
@@ -116,11 +126,36 @@
 "instagram": "https://www.instagram.com/reel/DfYKFRqkXab/",
 "youtube": "https://youtube.com/shorts/upgC_-8k0-Y"
 },
+"FR1|angers sco|FRA|ogc nice|FRA": {
+"at": "2026-11-07T14:18+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/DfcDlLuDWgr/"
+},
+"FR1|le havre ac|FRA|lorient|FRA": {
+"at": "2026-11-07T14:12+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/DfcC4YtEhNP/"
+},
+"FR1|le mans|FRA|monaco|FRA": {
+"at": "2026-11-07T13:48+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/DfcAJPAAufi/"
+},
+"FR1|lens|FRA|olympique marseille|FRA": {
+"at": "2026-11-07T13:54+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/DfcA0vWHEPW/"
+},
 "FR1|paris saint-germain|FRA|es troyes ac|FRA": {
 "at": "2026-11-06T01:04+03:00",
 "date": "2026-11-07",
 "instagram": "https://www.instagram.com/reel/DfYD1FkiRUh/",
 "youtube": "https://youtube.com/shorts/YljASt2Ht_g"
+},
+"FR1|stade brestois 29|FRA|olympique lyonnais|FRA": {
+"at": "2026-11-07T13:31+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/Dfb-LuzEtPd/"
 },
 "FR1|stade rennais|FRA|lille osc|FRA": {
 "at": "2026-11-07T12:42+03:00",
@@ -132,6 +167,11 @@
 "date": "2026-11-06",
 "instagram": "https://www.instagram.com/reel/DfWquR_Eo3X/",
 "youtube": "https://youtube.com/shorts/ysObmXFO61w"
+},
+"IT1|ac monza|ITA|atalanta|ITA": {
+"at": "2026-11-07T14:06+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/DfcCMU1AQ0M/"
 },
 "IT1|acf fiorentina|ITA|juventus|ITA": {
 "at": "2026-11-07T12:37+03:00",
@@ -149,6 +189,11 @@
 "date": "2026-11-07",
 "instagram": "https://www.instagram.com/reel/DfYJUkJCRqw/",
 "youtube": "https://youtube.com/shorts/pgNs81xBiNY"
+},
+"IT1|genoa cfc|ITA|ac milan|ITA": {
+"at": "2026-11-07T13:43+03:00",
+"date": "2026-11-08",
+"instagram": "https://www.instagram.com/reel/Dfb_fPCAMRy/"
 },
 "IT1|inter|ITA|como 1907|ITA": {
 "at": "2026-11-07T12:17+03:00",
