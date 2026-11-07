@@ -1,5 +1,5 @@
 """Captions for each platform, in the competition's language. The final score is never written, so the video keeps its suspense."""
-import datetime as dt, re, unicodedata, zlib
+import datetime as dt, json, pathlib, re, unicodedata, zlib
 from .i18n import TXT, COMP_NAME, COMP_TAGS, GENERIC_TAGS
 from .leagues import COMPS, lang as fixture_lang
 
@@ -8,6 +8,9 @@ def tag(name):
     t = unicodedata.normalize("NFKD", name)
     t = "".join(c for c in t if not unicodedata.combining(c))
     return "#" + re.sub(r"[^A-Za-z0-9]", "", t)
+
+
+HANDLES = json.loads((pathlib.Path(__file__).resolve().parent.parent / "data/instagram_handles.json").read_text(encoding="utf8"))
 
 
 def build(info, fx, cfg):
@@ -51,7 +54,8 @@ def build(info, fx, cfg):
                     # one playlist per competition, in the competition's own language
                     "playlist": TXT[COMPS[comp]["lang"]]["playlist"].format(c=cname),
                     "tags": [h, a, cname] + COMP_TAGS[comp] + GENERIC_TAGS[lang] + ["shorts"]},
-        "instagram": long[:2200],
+        # Reels: the clubs' official accounts are tagged on the video when we know them
+        "instagram": {"caption": long[:2200], "user_tags": [HANDLES[k] for k in (fx.get("h"), fx.get("a")) if k in HANDLES]},
         "tiktok": long[:2200],
         "x": x,
     }

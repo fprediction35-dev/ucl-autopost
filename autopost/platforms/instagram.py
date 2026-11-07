@@ -19,12 +19,24 @@ def _ig_id():
     return ig
 
 
+def _container(ig, tok, fields, tags):
+    """Create the Reels container, tagging the clubs' accounts; if Instagram refuses the tags, post without them."""
+    if tags:
+        c = requests.post(f"{GRAPH}/{ig}/media", timeout=60, data=dict(fields, access_token=tok,
+                          user_tags=json.dumps([{"username": u} for u in tags])))
+        if c.ok:
+            return c
+        print(f"  instagram: tags {tags} refused ({c.status_code} {c.text[:200]}), posting without them", flush=True)
+    return requests.post(f"{GRAPH}/{ig}/media", timeout=60, data=dict(fields, access_token=tok))
+
+
 def post(video, caption):
+    tags = []
+    if isinstance(caption, dict):
+        caption, tags = caption["caption"], caption.get("user_tags", [])
     tok = S.get("IG_ACCESS_TOKEN")
     ig = _ig_id()
-    c = requests.post(f"{GRAPH}/{ig}/media", timeout=60, data={
-        "media_type": "REELS", "upload_type": "resumable", "caption": caption,
-        "share_to_feed": "true", "access_token": tok})
+    c = _container(ig, tok, {"media_type": "REELS", "upload_type": "resumable", "caption": caption, "share_to_feed": "true"}, tags)
     if not c.ok:
         raise RuntimeError(f"Instagram container failed: {c.status_code} {c.text[:400]}")
     cid = c.json()["id"]
@@ -44,9 +56,7 @@ def post(video, caption):
         url = hosting.publish(video, dt.date.today().isoformat())
         r = requests.head(url, allow_redirects=False, timeout=30)
         final = r.headers.get("Location", url)
-        c = requests.post(f"{GRAPH}/{ig}/media", timeout=60, data={
-            "media_type": "REELS", "video_url": final, "caption": caption,
-            "share_to_feed": "true", "access_token": tok})
+        c = _container(ig, tok, {"media_type": "REELS", "video_url": final, "caption": caption, "share_to_feed": "true"}, tags)
         if not c.ok:
             raise RuntimeError(f"Instagram container (URL) failed: {c.status_code} {c.text[:400]}")
         cid = c.json()["id"]
