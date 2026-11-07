@@ -32,6 +32,9 @@ on:
       exclude:
         description: "Leave these platforms out, e.g. youtube (matches still count as posted)"
         required: false
+      match:
+        description: "Only these matches: comma-separated text from team names, e.g. osasuna,valencia"
+        required: false
       backfill:
         description: "With 'only': post already-posted matches still missing a link on those platforms"
         type: boolean
@@ -104,6 +107,7 @@ jobs:
           [ -n "${{ inputs.comps }}" ] && ARGS="$ARGS --comps ${{ inputs.comps }}"
           [ "${{ inputs.backfill }}" = "true" ] && ARGS="$ARGS --backfill"
           [ -n "${{ inputs.exclude }}" ] && ARGS="$ARGS --exclude ${{ inputs.exclude }}"
+          [ -n "${{ inputs.match }}" ] && ARGS="$ARGS --match ${{ inputs.match }}"
           python -m autopost.main $ARGS
 
       - name: Remember posted matches

@@ -83,6 +83,7 @@ def main():
     ap.add_argument("--comps", help="comma-separated competition codes, e.g. UEL,UECL,TR1")
     ap.add_argument("--workers", type=int, help="parallel renders")
     ap.add_argument("--exclude", help="comma-separated platforms to leave out of this run (daily caps and posted.json still apply)")
+    ap.add_argument("--match", help="comma-separated text matched against fixture ids, e.g. osasuna,valencia (only these matches)")
     ap.add_argument("--backfill", action="store_true",
                     help="with --only: post matches already in posted.json that have no link yet for those platforms")
     a = ap.parse_args()
@@ -98,11 +99,13 @@ def main():
         sys.exit("--backfill needs --only, e.g. --only youtube")
     done = lambda v: bool(v) and not str(v).startswith(("FAILED", "skipped", "dry run", "already"))
     has = lambda f, p: done(posted.get(fid(f), {}).get(p))
+    picked = lambda f: not a.match or any(m.strip().lower() in fid(f) for m in a.match.split(","))
     if a.backfill:
-        fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat())
-              if fid(f) in posted and not all(has(f, p) for p in a.only.split(","))]
+        # with --match, matches not posted anywhere yet are included too
+        fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if picked(f)
+              and (fid(f) in posted or a.match) and not all(has(f, p) for p in a.only.split(","))]
     else:
-        fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if fid(f) not in posted]
+        fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if fid(f) not in posted and picked(f)]
     if a.comps:
         fx = [f for f in fx if f["comp"] in a.comps.split(",")]
     for f in fx:
@@ -182,7 +185,7 @@ def main():
             elif a.backfill:
                 new = {p: v for p, v in row["posts"].items() if done(v)}
                 if new:
-                    posted[fid(f)].update(new)
+                    posted.setdefault(fid(f), {"date": f["date"], "at": dt.datetime.now(tz).isoformat(timespec="minutes")}).update(new)
                     POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
         report.append(row)
     pool.shutdown()
