@@ -1,0 +1,18 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YouTube bağlantısı</title>
+<style>body{font:16px system-ui,sans-serif;background:#0d1016;color:#e9edf3;display:grid;place-items:center;min-height:100vh;margin:0;padding:16px}
+main{max-width:600px;width:100%}input{width:100%;box-sizing:border-box;font:15px system-ui;padding:12px;border-radius:10px;border:1px solid #262d3a;background:#151a23;color:#e9edf3;margin:8px 0 14px}
+a.btn,button{display:inline-block;font:600 15px system-ui;padding:12px 18px;border-radius:10px;border:0;background:#3fd0b2;color:#06261f;cursor:pointer;text-decoration:none}
+ol li{margin:10px 0}small{color:#9aa4b2}</style></head>
+<body><main><h1>YouTube bağlantısını yenile</h1>
+<ol>
+<li>Google Cloud Console'da <b>Credentials</b> sayfasındaki OAuth istemcinin <b>Client ID</b> değerini kopyala ve buraya yapıştır:
+<input id="cid" placeholder="....apps.googleusercontent.com" autocomplete="off"></li>
+<li><a class="btn" id="go" href="#">Google ile giriş yap</a><br><small>Kanalının hesabını seç, "doğrulanmamış uygulama" uyarısında <i>Gelişmiş → Devam</i> de, izinleri onayla.</small></li>
+<li>Sonunda tarayıcı <b>"bu siteye ulaşılamıyor"</b> diyecek. Bu normal. Adres çubuğundaki adresin <b>tamamını</b> kopyala (localhost:8765/?code=... ile başlar).</li>
+<li>GitHub'da <b>Actions → Connect YouTube → Run workflow</b> kutusuna yapıştırıp çalıştır. Kod birkaç dakika içinde geçersiz olur, hemen yap.</li>
+</ol></main>
+<script>document.getElementById('go').onclick=e=>{e.preventDefault();const id=document.getElementById('cid').value.trim();
+if(!id.endsWith('.apps.googleusercontent.com')){alert('Client ID ".apps.googleusercontent.com" ile bitmeli');return;}
+location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:id,redirect_uri:'http://localhost:8765',response_type:'code',
+access_type:'offline',prompt:'consent',scope:'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.force-ssl'});};</script></body></html>

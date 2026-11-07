@@ -1,0 +1,42 @@
+name: Connect YouTube
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Full address from the browser after Google sign-in (http://localhost:8765/?code=...)"
+        required: true
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install requests pynacl
+      - name: Exchange code and save refresh token
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          URL: ${{ inputs.url }}
+        run: |
+          echo "::add-mask::$URL"
+          python - <<'PY'
+          import os, urllib.parse, requests
+          from autopost import secrets_store as S
+          u = os.environ["URL"].strip()
+          code = urllib.parse.parse_qs(urllib.parse.urlsplit(u).query).get("code", [u])[0] if "code=" in u else u
+          r = requests.post("https://oauth2.googleapis.com/token", timeout=30, data={
+              "code": code, "client_id": os.environ["YT_CLIENT_ID"], "client_secret": os.environ["YT_CLIENT_SECRET"],
+              "redirect_uri": "http://localhost:8765", "grant_type": "authorization_code"})
+          j = r.json()
+          if "refresh_token" not in j:
+              raise SystemExit(f"Google refused the code: {j.get('error')} {j.get('error_description')}")
+          print(f"::add-mask::{j['refresh_token']}"); print(f"::add-mask::{j['access_token']}")
+          if "youtube.force-ssl" not in j.get("scope", ""):
+              print("Warning: the comment/playlist permission was not granted; tick every box on Google's consent screen.")
+          S.save("YT_REFRESH_TOKEN", j["refresh_token"])
+          print("Connected. Scopes:", j.get("scope"))
+          PY
