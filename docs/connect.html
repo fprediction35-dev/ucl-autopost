@@ -11,6 +11,6 @@ const redirect=location.origin+location.pathname.replace(/connect\.html$/,'callb
 document.getElementById('r').textContent=redirect;
 document.getElementById('go').onclick=()=>{const k=document.getElementById('k').value.trim();if(!k)return;
  const u=new URL('https://www.tiktok.com/v2/auth/authorize/');
- u.search=new URLSearchParams({client_key:k,scope:'user.info.basic,video.publish,video.upload',response_type:'code',redirect_uri:redirect,state:Math.random().toString(36).slice(2)});
+ u.search=new URLSearchParams({client_key:k,scope:'user.info.basic,video.publish',response_type:'code',redirect_uri:redirect,state:Math.random().toString(36).slice(2)});
  location.href=u.toString();};
 </script></main></body></html>
