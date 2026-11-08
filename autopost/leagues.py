@@ -9,6 +9,8 @@ Sources (cloned at run time into ext/, see .github/workflows/daily.yml):
   ext/football.json     openfootball league data (json)
   ext/europe            openfootball Turkish Süper Lig (txt)
   data/uefa_2026_27.txt UEFA 2026/27 league phase fixtures and results (UCL, UEL, UECL)
+  data/nations_2026_27.txt  UEFA Nations League 2026/27 fixtures and results (national teams, comp UNL)
+  data/nations.json     national team ratings (World Football Elo) and kit colours
 """
 import collections, datetime as dt, glob, json, math, os, pathlib, re, unicodedata
 
@@ -21,6 +23,7 @@ COMPS = {
     "UCL": {"name": "Champions League", "lang": "en", "tags": ["ChampionsLeague", "UCL"]},
     "UEL": {"name": "Europa League", "lang": "en", "tags": ["EuropaLeague", "UEL"]},
     "UECL": {"name": "Conference League", "lang": "en", "tags": ["ConferenceLeague", "UECL"]},
+    "UNL": {"name": "Nations League", "lang": "en", "tags": ["NationsLeague", "UNL"]},
     "TR1": {"name": "Süper Lig", "lang": "tr", "country": "TUR", "json": "tr.1", "tags": ["SüperLig", "TrendyolSüperLig"]},
     "EN1": {"name": "Premier League", "lang": "en", "country": "ENG", "json": "en.1", "tags": ["PremierLeague", "EPL"]},
     "ES1": {"name": "LaLiga", "lang": "es", "country": "ESP", "json": "es.1", "tags": ["LaLiga"]},
@@ -171,6 +174,56 @@ def uefa_file():
     return out
 
 
+# ---------------------------------------------------------------- national teams (Nations League)
+NATIONS = json.loads((ROOT / "data" / "nations.json").read_text(encoding="utf8"))["teams"]
+TURKEY = "turkey|NAT"
+
+
+def nat_key(name):
+    return norm(name) + "|NAT"
+
+
+def nations_file():
+    """Nations League rows. Every matchday spans three consecutive match dates, so matchday = date index // 3 + 1."""
+    lines = [[x.strip() for x in l.split("|")] for l in open(ROOT / "data" / "nations_2026_27.txt", encoding="utf8")
+             if l.strip() and not l.startswith("#")]
+    dates = sorted({x[1] for x in lines})
+    out = []
+    for grp, d, t, h, a, s in lines:
+        r = dict(comp="UNL", group=grp, date=d, time=t or None, hname=h, aname=a, h=nat_key(h), a=nat_key(a),
+                 neutral=False, matchday=dates.index(d) // 3 + 1)
+        if s:
+            r["gh"], r["ga"] = map(int, s.split("-"))
+        out.append(r)
+    return out
+
+
+def add_nations(teams, display, intercept, model):
+    """National teams sit on their own Elo scale (World Football Elo), which already includes the results played;
+    the goal level is fitted on this season's Nations League results."""
+    rows = nations_file()
+    last = collections.defaultdict(list)
+    for name, t in NATIONS.items():
+        teams[nat_key(name)] = {"elo": t["elo"], "n": 0, "last": []}
+        display[nat_key(name)] = t["name"]
+    hist = []
+    for r in rows:
+        if "gh" not in r:
+            continue
+        for k, opp, gf, ga in ((r["h"], r["aname"], r["gh"], r["ga"]), (r["a"], r["hname"], r["ga"], r["gh"])):
+            teams[k]["n"] += 1
+            last[k].append(["W" if gf > ga else "D" if gf == ga else "L", gf, ga, NATIONS[opp]["name"], r["date"][:4]])
+        hist.append((teams[r["h"]]["elo"] - teams[r["a"]]["elo"] + model["hfa"], r["gh"], r["ga"]))
+    for k in last:
+        teams[k]["last"] = last[k][-5:]
+    if hist:
+        a, b = model["a"], model["b"]
+        obs = sum(gh + ga for _, gh, ga in hist)
+        pred = sum(math.exp(a + b * dr / 400) + math.exp(a - b * dr / 400) for dr, _, _ in hist)
+        intercept["UNL"] = a + math.log(obs / pred)
+    return rows
+
+
 # UEFA short names -> keys (resolved against keys seen in openfootball data)
 UEFA_NAMES = {
     "Milan": "ac milan|ITA", "Inter": "inter|ITA", "Juventus": "juventus|ITA", "Atalanta": "atalanta|ITA", "Napoli": "napoli|ITA",
@@ -302,8 +355,9 @@ def build():
     for k in elo:
         teams[k] = {"elo": round(elo[k]), "n": games[k], "last": [[r, gf, ga, display.get(o, o.split("|")[0].title()), d[:4]]
                                                                 for r, gf, ga, o, d in last[k][-5:]]}
-    return {"teams": teams, "model": {"a": a, "b": b, "hfa": HFA, "intercept": intercept}, "display": display, "uefa": uefa,
-            "matches": matches}
+    model = {"a": a, "b": b, "hfa": HFA, "intercept": intercept}
+    nations = add_nations(teams, display, intercept, model)
+    return {"teams": teams, "model": model, "display": display, "uefa": uefa, "nations": nations, "matches": matches}
 
 
 def fixtures(data, start, end):
@@ -312,6 +366,10 @@ def fixtures(data, start, end):
     for r in data["uefa"]:
         if "gh" not in r and start <= r["date"] <= end:
             out.append(dict(comp=r["comp"], date=r["date"], time=r["time"], h=r["h"], a=r["a"], home=r["hname"], away=r["aname"], matchday=None))
+    for r in data.get("nations", []):
+        if "gh" not in r and start <= r["date"] <= end:
+            out.append(dict(comp="UNL", date=r["date"], time=r["time"], h=r["h"], a=r["a"], home=r["hname"], away=r["aname"],
+                            matchday=r["matchday"], group=r["group"]))
     for c in LEAGUES:
         rows = turkey_txt(SEASON) if c == "TR1" else league_json(COMPS[c]["json"], SEASON, COMPS[c]["country"])
         for r in rows:
@@ -327,5 +385,7 @@ def lang(f):
     """Caption/overlay language: the league's own language; European cup matches are English unless a Turkish club plays
     (the audience is mostly Turkish)."""
     if f["comp"] in ("UCL", "UEL", "UECL") and (f["h"].endswith("|TUR") or f["a"].endswith("|TUR")):
+        return "tr"
+    if f["comp"] == "UNL" and TURKEY in (f["h"], f["a"]):
         return "tr"
     return COMPS[f["comp"]]["lang"]

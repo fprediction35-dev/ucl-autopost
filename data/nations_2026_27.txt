@@ -1,0 +1,158 @@
+# UEFA Nations League 2026/27 league phase. Source: uefa.com fixture list (updated 2026-11-06).
+# league+group | date | kick-off CET | home | away | score (empty = not played)
+D1 | 2026-09-24 |  | Andorra | Malta | 1-2
+A2 | 2026-09-24 |  | Netherlands | Germany | 1-1
+A2 | 2026-09-24 |  | Serbia | Greece | 1-2
+A4 | 2026-09-24 |  | Norway | Denmark | 3-2
+A4 | 2026-09-24 |  | Portugal | Wales | 1-0
+B3 | 2026-09-24 |  | Austria | Israel | 3-1
+B3 | 2026-09-24 |  | Kosovo | Republic of Ireland | 1-0
+D2 | 2026-09-24 |  | Liechtenstein | Lithuania | 0-2
+A1 | 2026-09-25 |  | Italy | Belgium | 0-2
+A1 | 2026-09-25 |  | Turkey | France | 0-1
+B2 | 2026-09-25 |  | Georgia | Northern Ireland | 0-1
+B2 | 2026-09-25 |  | Hungary | Ukraine | 0-1
+B4 | 2026-09-25 |  | Poland | Bosnia and Herzegovina | 0-0
+B4 | 2026-09-25 |  | Sweden | Romania | 2-1
+C2 | 2026-09-25 |  | Armenia | Latvia | 2-0
+C2 | 2026-09-25 |  | Montenegro | Cyprus | 2-1
+A3 | 2026-09-26 |  | Czechia | Croatia | 1-2
+A3 | 2026-09-26 |  | England | Spain | 2-3
+B1 | 2026-09-26 |  | Slovenia | Scotland | 0-0
+B1 | 2026-09-26 |  | North Macedonia | Switzerland | 0-3
+C1 | 2026-09-26 |  | San Marino | Finland | 0-7
+C1 | 2026-09-26 |  | Albania | Belarus | 2-0
+C3 | 2026-09-26 |  | Faroe Islands | Kazakhstan | 1-1
+C3 | 2026-09-26 |  | Slovakia | Moldova | 2-0
+C4 | 2026-09-26 |  | Bulgaria | Luxembourg | 1-2
+C4 | 2026-09-26 |  | Iceland | Estonia | 1-1
+A2 | 2026-09-27 |  | Serbia | Netherlands | 1-2
+A2 | 2026-09-27 |  | Germany | Greece | 0-1
+A4 | 2026-09-27 |  | Denmark | Wales | 2-0
+A4 | 2026-09-27 |  | Norway | Portugal | 1-2
+B3 | 2026-09-27 |  | Austria | Kosovo | 3-1
+B3 | 2026-09-27 |  | Israel | Republic of Ireland | 0-3
+D1 | 2026-09-27 |  | Gibraltar | Andorra | 0-0
+D2 | 2026-09-27 |  | Lithuania | Azerbaijan | 1-1
+A1 | 2026-09-28 |  | Belgium | France | 0-1
+A1 | 2026-09-28 |  | Turkey | Italy | 1-4
+B2 | 2026-09-28 |  | Georgia | Ukraine | 0-0
+B2 | 2026-09-28 |  | Northern Ireland | Hungary | 0-0
+B4 | 2026-09-28 |  | Romania | Bosnia and Herzegovina | 2-4
+B4 | 2026-09-28 |  | Sweden | Poland | 3-1
+C2 | 2026-09-28 |  | Armenia | Montenegro | 2-3
+C2 | 2026-09-28 |  | Latvia | Cyprus | 0-0
+A3 | 2026-09-29 |  | Czechia | England | 0-2
+A3 | 2026-09-29 |  | Spain | Croatia | 4-1
+B1 | 2026-09-29 |  | Scotland | Switzerland | 0-3
+B1 | 2026-09-29 |  | Slovenia | North Macedonia | 2-0
+C1 | 2026-09-29 |  | Finland | Belarus | 0-0
+C1 | 2026-09-29 |  | San Marino | Albania | 0-3
+C3 | 2026-09-29 |  | Moldova | Faroe Islands | 1-1
+C3 | 2026-09-29 |  | Slovakia | Kazakhstan | 2-1
+C4 | 2026-09-29 |  | Bulgaria | Estonia | 0-0
+C4 | 2026-09-29 |  | Luxembourg | Iceland | 0-3
+A2 | 2026-10-01 |  | Germany | Serbia | 2-0
+A2 | 2026-10-01 |  | Greece | Netherlands | 2-2
+A4 | 2026-10-01 |  | Denmark | Portugal | 2-4
+A4 | 2026-10-01 |  | Wales | Norway | 2-1
+B3 | 2026-10-01 |  | Israel | Kosovo | 0-0
+B3 | 2026-10-01 |  | Republic of Ireland | Austria | 2-2
+D1 | 2026-10-01 |  | Malta | Gibraltar | 1-1
+D2 | 2026-10-01 |  | Azerbaijan | Liechtenstein | 0-0
+A1 | 2026-10-02 |  | Belgium | Turkey | 3-0
+A1 | 2026-10-02 |  | France | Italy | 1-1
+B2 | 2026-10-02 |  | Hungary | Georgia | 1-0
+B2 | 2026-10-02 |  | Ukraine | Northern Ireland | 0-3
+B4 | 2026-10-02 |  | Bosnia and Herzegovina | Sweden | 1-1
+B4 | 2026-10-02 |  | Poland | Romania | 6-0
+C2 | 2026-10-02 |  | Cyprus | Armenia | 2-0
+C2 | 2026-10-02 |  | Latvia | Montenegro | 1-2
+C3 | 2026-10-02 |  | Kazakhstan | Moldova | 1-2
+C3 | 2026-10-02 |  | Faroe Islands | Slovakia | 1-1
+A3 | 2026-10-03 |  | Croatia | England | 0-7
+A3 | 2026-10-03 |  | Spain | Czechia | 3-1
+B1 | 2026-10-03 |  | North Macedonia | Scotland | 0-2
+B1 | 2026-10-03 |  | Switzerland | Slovenia | 2-1
+C1 | 2026-10-03 |  | Finland | Albania | 2-1
+C1 | 2026-10-03 |  | Belarus | San Marino | 4-0
+C4 | 2026-10-03 |  | Estonia | Luxembourg | 1-0
+C4 | 2026-10-03 |  | Iceland | Bulgaria | 3-0
+A2 | 2026-10-04 |  | Greece | Germany | 0-0
+A2 | 2026-10-04 |  | Netherlands | Serbia | 2-1
+A4 | 2026-10-04 |  | Portugal | Norway | 2-1
+A4 | 2026-10-04 |  | Wales | Denmark | 0-1
+B3 | 2026-10-04 |  | Kosovo | Austria | 1-1
+B3 | 2026-10-04 |  | Republic of Ireland | Israel | 1-1
+D1 | 2026-10-04 |  | Malta | Andorra | 1-0
+D2 | 2026-10-04 |  | Azerbaijan | Lithuania | 1-0
+A1 | 2026-10-05 |  | France | Belgium | 4-1
+A1 | 2026-10-05 |  | Italy | Turkey | 3-1
+B2 | 2026-10-05 |  | Northern Ireland | Georgia | 0-0
+B2 | 2026-10-05 |  | Ukraine | Hungary | 1-2
+B4 | 2026-10-05 |  | Bosnia and Herzegovina | Poland | 1-0
+B4 | 2026-10-05 |  | Romania | Sweden | 0-1
+C2 | 2026-10-05 |  | Cyprus | Latvia | 2-1
+C2 | 2026-10-05 |  | Montenegro | Armenia | 0-0
+A3 | 2026-10-06 |  | Croatia | Spain | 1-2
+A3 | 2026-10-06 |  | England | Czechia | 3-0
+B1 | 2026-10-06 |  | Scotland | Slovenia | 1-2
+B1 | 2026-10-06 |  | Switzerland | North Macedonia | 3-0
+C1 | 2026-10-06 |  | Albania | San Marino | 2-1
+C1 | 2026-10-06 |  | Belarus | Finland | 1-0
+C3 | 2026-10-06 |  | Kazakhstan | Faroe Islands | 2-2
+C3 | 2026-10-06 |  | Moldova | Slovakia | 0-4
+C4 | 2026-10-06 |  | Estonia | Iceland | 0-0
+C4 | 2026-10-06 |  | Luxembourg | Bulgaria | 0-2
+A1 | 2026-11-12 | 18:00 | Turkey | Belgium |
+A1 | 2026-11-12 | 20:45 | Italy | France |
+A3 | 2026-11-12 | 20:45 | Czechia | Spain |
+A3 | 2026-11-12 | 20:45 | England | Croatia |
+C1 | 2026-11-12 | 20:45 | Albania | Finland |
+C1 | 2026-11-12 | 20:45 | San Marino | Belarus |
+C2 | 2026-11-12 | 18:00 | Armenia | Cyprus |
+C2 | 2026-11-12 | 20:45 | Montenegro | Latvia |
+A2 | 2026-11-13 | 20:45 | Netherlands | Greece |
+A2 | 2026-11-13 | 20:45 | Serbia | Germany |
+B1 | 2026-11-13 | 20:45 | Scotland | North Macedonia |
+B1 | 2026-11-13 | 20:45 | Slovenia | Switzerland |
+C3 | 2026-11-13 | 18:00 | Moldova | Kazakhstan |
+C3 | 2026-11-13 | 20:45 | Slovakia | Faroe Islands |
+C4 | 2026-11-13 | 20:45 | Bulgaria | Iceland |
+C4 | 2026-11-13 | 20:45 | Luxembourg | Estonia |
+D1 | 2026-11-13 | 20:45 | Andorra | Gibraltar |
+D2 | 2026-11-13 | 20:45 | Liechtenstein | Azerbaijan |
+A4 | 2026-11-14 | 18:00 | Norway | Wales |
+A4 | 2026-11-14 | 20:45 | Portugal | Denmark |
+B2 | 2026-11-14 | 18:00 | Georgia | Hungary |
+B2 | 2026-11-14 | 20:45 | Northern Ireland | Ukraine |
+B3 | 2026-11-14 | 15:00 | Kosovo | Israel |
+B3 | 2026-11-14 | 20:45 | Austria | Republic of Ireland |
+B4 | 2026-11-14 | 20:45 | Romania | Poland |
+B4 | 2026-11-14 | 20:45 | Sweden | Bosnia and Herzegovina |
+A1 | 2026-11-15 | 20:45 | Belgium | Italy |
+A1 | 2026-11-15 | 20:45 | France | Turkey |
+A3 | 2026-11-15 | 20:45 | Croatia | Czechia |
+A3 | 2026-11-15 | 20:45 | Spain | England |
+C1 | 2026-11-15 | 18:00 | Belarus | Albania |
+C1 | 2026-11-15 | 18:00 | Finland | San Marino |
+C2 | 2026-11-15 | 15:00 | Cyprus | Montenegro |
+C2 | 2026-11-15 | 15:00 | Latvia | Armenia |
+A2 | 2026-11-16 | 20:45 | Germany | Netherlands |
+A2 | 2026-11-16 | 20:45 | Greece | Serbia |
+B1 | 2026-11-16 | 20:45 | North Macedonia | Slovenia |
+B1 | 2026-11-16 | 20:45 | Switzerland | Scotland |
+C3 | 2026-11-16 | 16:00 | Faroe Islands | Moldova |
+C3 | 2026-11-16 | 16:00 | Kazakhstan | Slovakia |
+C4 | 2026-11-16 | 18:00 | Estonia | Bulgaria |
+C4 | 2026-11-16 | 18:00 | Iceland | Luxembourg |
+D1 | 2026-11-16 | 20:45 | Gibraltar | Malta |
+D2 | 2026-11-16 | 18:00 | Lithuania | Liechtenstein |
+A4 | 2026-11-17 | 20:45 | Denmark | Norway |
+A4 | 2026-11-17 | 20:45 | Wales | Portugal |
+B2 | 2026-11-17 | 20:45 | Hungary | Northern Ireland |
+B2 | 2026-11-17 | 20:45 | Ukraine | Georgia |
+B3 | 2026-11-17 | 20:45 | Israel | Austria |
+B3 | 2026-11-17 | 20:45 | Republic of Ireland | Kosovo |
+B4 | 2026-11-17 | 20:45 | Bosnia and Herzegovina | Romania |
+B4 | 2026-11-17 | 20:45 | Poland | Sweden |

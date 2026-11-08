@@ -20,15 +20,21 @@ def build(info, fx, cfg):
     h, a = info["home"], info["away"]
     ph, pd, pa = (round(x * 100) for x in info["p"])
     cname = COMP_NAME[comp]
+    if comp == "UNL" and lang == "tr":
+        cname = "UEFA Uluslar Ligi"
     d = dt.date.fromisoformat(fx["date"])
     stage = (f"{L['lp']} · " if comp in ("UCL", "UEL", "UECL") else "") + (f"{L['md']} {fx['matchday']}" if fx.get("matchday") else "")
+    if comp == "UNL" and fx.get("group"):  # e.g. "League A · Group 1 · Matchday 5"
+        g = fx["group"]
+        grp = f"{g[0]} Ligi · {g[1:]}. Grup" if lang == "tr" else f"League {g[0]} · Group {g[1:]}"
+        stage = grp + (f" · {stage}" if stage else "")
     # league dates in the open data are provisional, so only European cup fixtures get a kick-off time
     when = f"{L['days'][d.weekday()]} {d.day} {L['months'][d.month - 1]} {d.year}, {fx['time']} CET" if fx.get("time") else None
     if when and lang == "tr":  # Turkish viewers get Istanbul time (TSİ)
         from zoneinfo import ZoneInfo
         k = dt.datetime.fromisoformat(f"{fx['date']}T{fx['time']}").replace(tzinfo=ZoneInfo("Europe/Paris")).astimezone(ZoneInfo("Europe/Istanbul"))
         when = f"{L['days'][k.weekday()]} {k.day} {L['months'][k.month - 1]} {k.year}, {k:%H:%M} TSİ"
-    ctags = ["#" + t for t in COMP_TAGS[comp]]
+    ctags = ["#" + t for t in COMP_TAGS[comp]] + (["#UluslarLigi", "#BizimÇocuklar"] if comp == "UNL" and lang == "tr" else [])
     tags = [tag(h), tag(a)] + ctags + ["#" + t for t in GENERIC_TAGS[lang]]
     odds = f"{h} {ph}% · {L['draw']} {pd}% · {a} {pa}%"
     cta = L["ctas"][zlib.crc32(f"{h}{a}{fx['date']}".encode()) % len(L["ctas"])]
@@ -52,7 +58,7 @@ def build(info, fx, cfg):
     return {
         "youtube": {"title": yt_title[:100], "description": yt_desc[:4900], "comment": L["comment"],
                     # one playlist per competition, in the competition's own language
-                    "playlist": TXT[COMPS[comp]["lang"]]["playlist"].format(c=cname),
+                    "playlist": TXT[COMPS[comp]["lang"]]["playlist"].format(c=COMP_NAME[comp]),
                     "tags": [h, a, cname] + COMP_TAGS[comp] + GENERIC_TAGS[lang] + ["shorts"]},
         # Reels: the clubs' official accounts are tagged on the video when we know them
         "instagram": {"caption": long[:2200], "user_tags": [HANDLES[k] for k in (fx.get("h"), fx.get("a")) if k in HANDLES]},

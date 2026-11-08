@@ -48,12 +48,19 @@ def order(fixtures, data, cfg, first=()):
     return sorted(fixtures, key=score)
 
 
+def clash(c1, c2):
+    rgb = lambda h: [int(h.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+    return sum((x - y) ** 2 for x, y in zip(rgb(c1), rgb(c2))) ** 0.5 < 90
+
+
 def prepare(f, data, out, cfg):
     comp = f["comp"]
     lang = leagues.lang(f)
     m = data["model"]
-    ti = {k: teams.info(f[k[0]], f[k]) for k in ("home", "away")}
+    ti = {k: teams.info(f[k[0]], f[k], lang) for k in ("home", "away")}
     f["home"], f["away"] = ti["home"]["name"], ti["away"]["name"]
+    if clash(ti["home"]["c1"], ti["away"]["c1"]):  # same main colour (e.g. two red teams): the away side wears its second colour
+        ti["away"] = dict(ti["away"], c1=ti["away"]["c2"], c2=ti["away"]["c1"])
     meta = {"model": {"a": m["intercept"].get(comp, m["a"]), "b": m["b"], "hfa": m["hfa"]}}
     for k in ("home", "away"):
         t = data["teams"].get(f[k[0]], {})

@@ -24,10 +24,10 @@ OVERLAY = {
            "yellows": "CARTONS JAUNES", "reds": "CARTONS ROUGES"},
 }
 
-COMP_NAME = {"UCL": "Champions League", "UEL": "Europa League", "UECL": "Conference League", "TR1": "Trendyol Süper Lig",
+COMP_NAME = {"UCL": "Champions League", "UEL": "Europa League", "UECL": "Conference League", "UNL": "Nations League", "TR1": "Trendyol Süper Lig",
              "EN1": "Premier League", "ES1": "LaLiga", "IT1": "Serie A", "DE1": "Bundesliga", "FR1": "Ligue 1"}
 COMP_TAGS = {"UCL": ["UCL", "ChampionsLeague"], "UEL": ["UEL", "EuropaLeague"], "UECL": ["UECL", "ConferenceLeague"],
-             "TR1": ["SüperLig", "TrendyolSüperLig"], "EN1": ["PremierLeague", "EPL"], "ES1": ["LaLiga"],
+             "UNL": ["NationsLeague", "UNL"], "TR1": ["SüperLig", "TrendyolSüperLig"], "EN1": ["PremierLeague", "EPL"], "ES1": ["LaLiga"],
              "IT1": ["SerieA"], "DE1": ["Bundesliga"], "FR1": ["Ligue1"]}
 GENERIC_TAGS = {"en": ["football", "soccer", "simulation"], "tr": ["futbol", "simülasyon", "maçtahmini"],
                 "es": ["fútbol", "simulación", "pronóstico"], "it": ["calcio", "simulazione", "pronostico"],

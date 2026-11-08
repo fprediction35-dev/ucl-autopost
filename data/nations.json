@@ -1,0 +1,437 @@
+{
+ "_note": "National teams for the Nations League. elo: World Football Elo Ratings (eloratings.net/World.tsv, fetched 2026-11-08); name_tr: Turkish name used when Türkiye plays.",
+ "teams": {
+  "Belgium": {
+   "elo": 1956,
+   "short": "BEL",
+   "c1": "#E30613",
+   "c2": "#FDDA24",
+   "name": "Belgium",
+   "name_tr": "Belçika"
+  },
+  "France": {
+   "elo": 2104,
+   "short": "FRA",
+   "c1": "#002395",
+   "c2": "#FFFFFF",
+   "name": "France",
+   "name_tr": "Fransa"
+  },
+  "Italy": {
+   "elo": 1910,
+   "short": "ITA",
+   "c1": "#0066B3",
+   "c2": "#FFFFFF",
+   "name": "Italy",
+   "name_tr": "İtalya"
+  },
+  "Turkey": {
+   "elo": 1768,
+   "short": "TÜR",
+   "c1": "#E30A17",
+   "c2": "#FFFFFF",
+   "name": "Türkiye",
+   "name_tr": "Türkiye"
+  },
+  "Germany": {
+   "elo": 1895,
+   "short": "GER",
+   "c1": "#FFFFFF",
+   "c2": "#111111",
+   "name": "Germany",
+   "name_tr": "Almanya"
+  },
+  "Greece": {
+   "elo": 1804,
+   "short": "GRE",
+   "c1": "#0D5EAF",
+   "c2": "#FFFFFF",
+   "name": "Greece",
+   "name_tr": "Yunanistan"
+  },
+  "Netherlands": {
+   "elo": 1974,
+   "short": "NED",
+   "c1": "#F36C21",
+   "c2": "#FFFFFF",
+   "name": "Netherlands",
+   "name_tr": "Hollanda"
+  },
+  "Serbia": {
+   "elo": 1683,
+   "short": "SRB",
+   "c1": "#C6363C",
+   "c2": "#0C4076",
+   "name": "Serbia",
+   "name_tr": "Sırbistan"
+  },
+  "Croatia": {
+   "elo": 1856,
+   "short": "CRO",
+   "c1": "#FFFFFF",
+   "c2": "#E30613",
+   "name": "Croatia",
+   "name_tr": "Hırvatistan"
+  },
+  "Czechia": {
+   "elo": 1656,
+   "short": "CZE",
+   "c1": "#D7141A",
+   "c2": "#11457E",
+   "name": "Czechia",
+   "name_tr": "Çekya"
+  },
+  "England": {
+   "elo": 2146,
+   "short": "ENG",
+   "c1": "#FFFFFF",
+   "c2": "#00247D",
+   "name": "England",
+   "name_tr": "İngiltere"
+  },
+  "Spain": {
+   "elo": 2287,
+   "short": "ESP",
+   "c1": "#C60B1E",
+   "c2": "#FFC400",
+   "name": "Spain",
+   "name_tr": "İspanya"
+  },
+  "Denmark": {
+   "elo": 1861,
+   "short": "DEN",
+   "c1": "#C8102E",
+   "c2": "#FFFFFF",
+   "name": "Denmark",
+   "name_tr": "Danimarka"
+  },
+  "Norway": {
+   "elo": 1900,
+   "short": "NOR",
+   "c1": "#BA0C2F",
+   "c2": "#00205B",
+   "name": "Norway",
+   "name_tr": "Norveç"
+  },
+  "Portugal": {
+   "elo": 2055,
+   "short": "POR",
+   "c1": "#C8102E",
+   "c2": "#046A38",
+   "name": "Portugal",
+   "name_tr": "Portekiz"
+  },
+  "Wales": {
+   "elo": 1681,
+   "short": "WAL",
+   "c1": "#C8102E",
+   "c2": "#00B140",
+   "name": "Wales",
+   "name_tr": "Galler"
+  },
+  "Scotland": {
+   "elo": 1718,
+   "short": "SCO",
+   "c1": "#0B2265",
+   "c2": "#FFFFFF",
+   "name": "Scotland",
+   "name_tr": "İskoçya"
+  },
+  "Slovenia": {
+   "elo": 1718,
+   "short": "SVN",
+   "c1": "#FFFFFF",
+   "c2": "#00843D",
+   "name": "Slovenia",
+   "name_tr": "Slovenya"
+  },
+  "Switzerland": {
+   "elo": 1975,
+   "short": "SUI",
+   "c1": "#D52B1E",
+   "c2": "#FFFFFF",
+   "name": "Switzerland",
+   "name_tr": "İsviçre"
+  },
+  "North Macedonia": {
+   "elo": 1533,
+   "short": "MKD",
+   "c1": "#D20000",
+   "c2": "#FFE600",
+   "name": "North Macedonia",
+   "name_tr": "Kuzey Makedonya"
+  },
+  "Georgia": {
+   "elo": 1628,
+   "short": "GEO",
+   "c1": "#FFFFFF",
+   "c2": "#E30613",
+   "name": "Georgia",
+   "name_tr": "Gürcistan"
+  },
+  "Hungary": {
+   "elo": 1725,
+   "short": "HUN",
+   "c1": "#CD2A3E",
+   "c2": "#FFFFFF",
+   "name": "Hungary",
+   "name_tr": "Macaristan"
+  },
+  "Northern Ireland": {
+   "elo": 1672,
+   "short": "NIR",
+   "c1": "#00843D",
+   "c2": "#FFFFFF",
+   "name": "Northern Ireland",
+   "name_tr": "Kuzey İrlanda"
+  },
+  "Ukraine": {
+   "elo": 1724,
+   "short": "UKR",
+   "c1": "#FFD500",
+   "c2": "#005BBB",
+   "name": "Ukraine",
+   "name_tr": "Ukrayna"
+  },
+  "Austria": {
+   "elo": 1841,
+   "short": "AUT",
+   "c1": "#ED2939",
+   "c2": "#FFFFFF",
+   "name": "Austria",
+   "name_tr": "Avusturya"
+  },
+  "Israel": {
+   "elo": 1619,
+   "short": "ISR",
+   "c1": "#FFFFFF",
+   "c2": "#0038B8",
+   "name": "Israel",
+   "name_tr": "İsrail"
+  },
+  "Kosovo": {
+   "elo": 1710,
+   "short": "KOS",
+   "c1": "#244AA5",
+   "c2": "#D0A650",
+   "name": "Kosovo",
+   "name_tr": "Kosova"
+  },
+  "Republic of Ireland": {
+   "elo": 1711,
+   "short": "IRL",
+   "c1": "#169B62",
+   "c2": "#FFFFFF",
+   "name": "Republic of Ireland",
+   "name_tr": "İrlanda"
+  },
+  "Bosnia and Herzegovina": {
+   "elo": 1672,
+   "short": "BIH",
+   "c1": "#002395",
+   "c2": "#FECB00",
+   "name": "Bosnia and Herzegovina",
+   "name_tr": "Bosna-Hersek"
+  },
+  "Poland": {
+   "elo": 1685,
+   "short": "POL",
+   "c1": "#FFFFFF",
+   "c2": "#DC143C",
+   "name": "Poland",
+   "name_tr": "Polonya"
+  },
+  "Romania": {
+   "elo": 1554,
+   "short": "ROU",
+   "c1": "#FCD116",
+   "c2": "#002B7F",
+   "name": "Romania",
+   "name_tr": "Romanya"
+  },
+  "Sweden": {
+   "elo": 1774,
+   "short": "SWE",
+   "c1": "#FECC00",
+   "c2": "#006AA7",
+   "name": "Sweden",
+   "name_tr": "İsveç"
+  },
+  "Albania": {
+   "elo": 1612,
+   "short": "ALB",
+   "c1": "#E41E20",
+   "c2": "#111111",
+   "name": "Albania",
+   "name_tr": "Arnavutluk"
+  },
+  "Belarus": {
+   "elo": 1537,
+   "short": "BLR",
+   "c1": "#FFFFFF",
+   "c2": "#C8313E",
+   "name": "Belarus",
+   "name_tr": "Belarus"
+  },
+  "Finland": {
+   "elo": 1530,
+   "short": "FIN",
+   "c1": "#FFFFFF",
+   "c2": "#002F6C",
+   "name": "Finland",
+   "name_tr": "Finlandiya"
+  },
+  "San Marino": {
+   "elo": 820,
+   "short": "SMR",
+   "c1": "#5EB6E4",
+   "c2": "#FFFFFF",
+   "name": "San Marino",
+   "name_tr": "San Marino"
+  },
+  "Armenia": {
+   "elo": 1354,
+   "short": "ARM",
+   "c1": "#D90012",
+   "c2": "#0033A0",
+   "name": "Armenia",
+   "name_tr": "Ermenistan"
+  },
+  "Cyprus": {
+   "elo": 1346,
+   "short": "CYP",
+   "c1": "#0055A4",
+   "c2": "#FFFFFF",
+   "name": "Cyprus",
+   "name_tr": "Kıbrıs Rum Kesimi"
+  },
+  "Latvia": {
+   "elo": 1246,
+   "short": "LVA",
+   "c1": "#9E3039",
+   "c2": "#FFFFFF",
+   "name": "Latvia",
+   "name_tr": "Letonya"
+  },
+  "Montenegro": {
+   "elo": 1490,
+   "short": "MNE",
+   "c1": "#C40308",
+   "c2": "#D3AE3B",
+   "name": "Montenegro",
+   "name_tr": "Karadağ"
+  },
+  "Faroe Islands": {
+   "elo": 1397,
+   "short": "FRO",
+   "c1": "#FFFFFF",
+   "c2": "#0065BD",
+   "name": "Faroe Islands",
+   "name_tr": "Faroe Adaları"
+  },
+  "Kazakhstan": {
+   "elo": 1387,
+   "short": "KAZ",
+   "c1": "#00AFCA",
+   "c2": "#FEC50C",
+   "name": "Kazakhstan",
+   "name_tr": "Kazakistan"
+  },
+  "Moldova": {
+   "elo": 1288,
+   "short": "MDA",
+   "c1": "#0046AE",
+   "c2": "#FFD200",
+   "name": "Moldova",
+   "name_tr": "Moldova"
+  },
+  "Slovakia": {
+   "elo": 1678,
+   "short": "SVK",
+   "c1": "#FFFFFF",
+   "c2": "#0B4EA2",
+   "name": "Slovakia",
+   "name_tr": "Slovakya"
+  },
+  "Bulgaria": {
+   "elo": 1450,
+   "short": "BUL",
+   "c1": "#FFFFFF",
+   "c2": "#00966E",
+   "name": "Bulgaria",
+   "name_tr": "Bulgaristan"
+  },
+  "Estonia": {
+   "elo": 1406,
+   "short": "EST",
+   "c1": "#0072CE",
+   "c2": "#FFFFFF",
+   "name": "Estonia",
+   "name_tr": "Estonya"
+  },
+  "Iceland": {
+   "elo": 1597,
+   "short": "ISL",
+   "c1": "#02529C",
+   "c2": "#FFFFFF",
+   "name": "Iceland",
+   "name_tr": "İzlanda"
+  },
+  "Luxembourg": {
+   "elo": 1383,
+   "short": "LUX",
+   "c1": "#EF3340",
+   "c2": "#FFFFFF",
+   "name": "Luxembourg",
+   "name_tr": "Lüksemburg"
+  },
+  "Andorra": {
+   "elo": 1056,
+   "short": "AND",
+   "c1": "#10069F",
+   "c2": "#FEDF00",
+   "name": "Andorra",
+   "name_tr": "Andorra"
+  },
+  "Gibraltar": {
+   "elo": 1036,
+   "short": "GIB",
+   "c1": "#DA000C",
+   "c2": "#FFFFFF",
+   "name": "Gibraltar",
+   "name_tr": "Cebelitarık"
+  },
+  "Malta": {
+   "elo": 1263,
+   "short": "MLT",
+   "c1": "#CF142B",
+   "c2": "#FFFFFF",
+   "name": "Malta",
+   "name_tr": "Malta"
+  },
+  "Azerbaijan": {
+   "elo": 1326,
+   "short": "AZE",
+   "c1": "#00B5E2",
+   "c2": "#EF3340",
+   "name": "Azerbaijan",
+   "name_tr": "Azerbaycan"
+  },
+  "Liechtenstein": {
+   "elo": 887,
+   "short": "LIE",
+   "c1": "#002B7F",
+   "c2": "#CE1126",
+   "name": "Liechtenstein",
+   "name_tr": "Lihtenştayn"
+  },
+  "Lithuania": {
+   "elo": 1278,
+   "short": "LTU",
+   "c1": "#FDB913",
+   "c2": "#006A44",
+   "name": "Lithuania",
+   "name_tr": "Litvanya"
+  }
+ }
+}

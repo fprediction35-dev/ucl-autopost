@@ -3,6 +3,7 @@
   "timezone": "Europe/Istanbul",
   "max_videos_per_day": 20,
   "priority_teams": [
+    "turkey|NAT",
     "galatasaray|TUR",
     "fenerbahce|TUR",
     "besiktas|TUR",
