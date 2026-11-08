@@ -8,11 +8,11 @@ ol li{margin:10px 0}small{color:#9aa4b2}</style></head>
 <ol>
 <li>Google Cloud Console'da <b>Credentials</b> sayfasındaki OAuth istemcinin <b>Client ID</b> değerini kopyala ve buraya yapıştır:
 <input id="cid" placeholder="....apps.googleusercontent.com" autocomplete="off"></li>
-<li><a class="btn" id="go" href="#">Google ile giriş yap</a><br><small>Kanalının hesabını seç, "doğrulanmamış uygulama" uyarısında <i>Gelişmiş → Devam</i> de, izinleri onayla.</small></li>
+<li><a class="btn" id="go" href="#">Google ile giriş yap</a><br><small>Hesabını seç, kanal listesi çıkınca <b>The Best Guessing Game</b> kanalını seç (Daria's Travels değil), "doğrulanmamış uygulama" uyarısında <i>Gelişmiş → Devam</i> de, izinleri onayla.</small></li>
 <li>Sonunda tarayıcı <b>"bu siteye ulaşılamıyor"</b> diyecek. Bu normal. Adres çubuğundaki adresin <b>tamamını</b> kopyala (localhost:8765/?code=... ile başlar).</li>
 <li>GitHub'da <b>Actions → Connect YouTube → Run workflow</b> kutusuna yapıştırıp çalıştır. Kod birkaç dakika içinde geçersiz olur, hemen yap.</li>
 </ol></main>
 <script>document.getElementById('go').onclick=e=>{e.preventDefault();const id=document.getElementById('cid').value.trim();
 if(!id.endsWith('.apps.googleusercontent.com')){alert('Client ID ".apps.googleusercontent.com" ile bitmeli');return;}
 location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:id,redirect_uri:'http://localhost:8765',response_type:'code',
-access_type:'offline',prompt:'consent',scope:'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.force-ssl'});};</script></body></html>
+access_type:'offline',prompt:'select_account consent',scope:'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.force-ssl'});};</script></body></html>
