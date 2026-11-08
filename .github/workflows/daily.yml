@@ -5,7 +5,8 @@ on:
     # One slot a day per platform (YouTube's upload limit is a rolling 24h window, so a fixed time keeps it clear).
     # GitHub starts scheduled runs ~50 min late. Each slot posts the matches the other platform already has first,
     # then new ones, so both platforms carry the same matches even if one of them fails.
-    - cron: "7 22,23,0-7 * * *"  # YouTube: one match an hour, 22:07-07:07 UTC = 01:07-10:07 Istanbul, starts ~02:00-11:00
+    # PAUSED until YouTube is reconnected to the right channel:
+    # - cron: "7 22,23,0-7 * * *"  # YouTube: one match an hour, 22:07-07:07 UTC = 01:07-10:07 Istanbul, starts ~02:00-11:00
                                   # (10 runs = the channel's ~10 uploads a day)
     - cron: "7 8 * * *"   # 08:07 UTC = 11:07 Istanbul, starts ~12:00: Instagram (and other enabled platforms)
   workflow_dispatch:
