@@ -76,8 +76,29 @@ def _extras(tok, vid, cap):
             print(f"  youtube: comment skipped: {e}", flush=True)
 
 
+_channel_ok = []
+
+
+def _check_channel(tok):
+    """Refuse to upload unless the token belongs to the channel named in config.json (youtube_channel). A reconnect
+    that picks another channel of the same Google account would otherwise post there silently."""
+    if _channel_ok:
+        return
+    import json, pathlib
+    want = json.loads((pathlib.Path(__file__).resolve().parents[2] / "config.json").read_text(encoding="utf8")).get("youtube_channel")
+    r = requests.get(f"{API}/channels", headers={"Authorization": f"Bearer {tok}"}, timeout=30,
+                     params={"part": "snippet", "mine": "true"})
+    _check(r)
+    got = [it["snippet"]["title"] for it in r.json().get("items", [])]
+    if want and want not in got:
+        raise RuntimeError(f"wrong YouTube channel: connected to {got or 'none'}, expected '{want}'. "
+                           f"Run 'Connect YouTube' again and pick '{want}' on Google's channel chooser.")
+    _channel_ok.append(True)
+
+
 def post(video, cap):
     tok = _token()
+    _check_channel(tok)
     size = os.path.getsize(video)
     meta = {"snippet": {"title": cap["title"], "description": cap["description"], "tags": cap["tags"], "categoryId": "17"},
             "status": {"privacyStatus": "public", "selfDeclaredMadeForKids": False}}

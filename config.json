@@ -28,5 +28,6 @@
   "video_host": "github_release",
   "window_days": 3,
   "render_workers": 3,
-  "tiktok_privacy": "PUBLIC_TO_EVERYONE"
+  "tiktok_privacy": "PUBLIC_TO_EVERYONE",
+  "youtube_channel": "The Best Guessing Game"
 }
