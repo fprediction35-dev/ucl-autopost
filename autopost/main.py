@@ -185,6 +185,8 @@ def main():
                         row["posts"][p] = f"skipped (platform daily limit)"; strikes[p] = 99
                         print(f"  {p}: daily limit reached, skipping it for the rest of this run", flush=True)
                         continue
+                    if "wrong YouTube channel" in str(e):
+                        strikes[p] = 99  # never retry on another channel; the run fails so the check notices it
                     failures += 1; strikes[p] += 1
                     row["posts"][p] = f"FAILED: {e}"
                     print(f"  {p}: FAILED {e}", flush=True)

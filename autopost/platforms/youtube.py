@@ -85,14 +85,18 @@ def _check_channel(tok):
     if _channel_ok:
         return
     import json, pathlib
-    want = json.loads((pathlib.Path(__file__).resolve().parents[2] / "config.json").read_text(encoding="utf8")).get("youtube_channel")
+    cfg = json.loads((pathlib.Path(__file__).resolve().parents[2] / "config.json").read_text(encoding="utf8"))
+    want, want_id = cfg.get("youtube_channel"), cfg.get("youtube_channel_id")
     r = requests.get(f"{API}/channels", headers={"Authorization": f"Bearer {tok}"}, timeout=30,
                      params={"part": "snippet", "mine": "true"})
     _check(r)
-    got = [it["snippet"]["title"] for it in r.json().get("items", [])]
-    if want and want not in got:
-        raise RuntimeError(f"wrong YouTube channel: connected to {got or 'none'}, expected '{want}'. "
+    got = [(it["id"], it["snippet"]["title"]) for it in r.json().get("items", [])]
+    ok = [c for c in got if c[0] == want_id] if want_id else [c for c in got if c[1] == want]
+    if not ok:
+        # "wrong YouTube channel" is matched in main.py: the run stops using YouTube instead of retrying
+        raise RuntimeError(f"wrong YouTube channel: connected to {[t for _, t in got] or 'none'}, expected '{want}'. "
                            f"Run 'Connect YouTube' again and pick '{want}' on Google's channel chooser.")
+    print(f"  youtube: channel check ok: {ok[0][1]} ({ok[0][0]})", flush=True)
     _channel_ok.append(True)
 
 

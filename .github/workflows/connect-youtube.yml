@@ -37,6 +37,18 @@ jobs:
           print(f"::add-mask::{j['refresh_token']}"); print(f"::add-mask::{j['access_token']}")
           if "youtube.force-ssl" not in j.get("scope", ""):
               print("Warning: the comment/playlist permission was not granted; tick every box on Google's consent screen.")
+          # only keep the token if it belongs to the channel in config.json (a wrong pick on Google's channel chooser
+          # once sent a day of uploads to another channel of the same account)
+          import json
+          cfg = json.load(open("config.json", encoding="utf8"))
+          ch = requests.get("https://www.googleapis.com/youtube/v3/channels", timeout=30, params={"part": "snippet", "mine": "true"},
+                            headers={"Authorization": f"Bearer {j['access_token']}"}).json().get("items", [])
+          got = [(c["id"], c["snippet"]["title"]) for c in ch]
+          ok = [c for c in got if c[0] == cfg.get("youtube_channel_id")] if cfg.get("youtube_channel_id") else \
+               [c for c in got if c[1] == cfg.get("youtube_channel")]
+          if not ok:
+              raise SystemExit(f"WRONG CHANNEL: you picked {[t for _, t in got] or 'no channel'}, expected '{cfg.get('youtube_channel')}'. "
+                               "Nothing was saved. Sign in again and choose the right channel.")
           S.save("YT_REFRESH_TOKEN", j["refresh_token"])
-          print("Connected. Scopes:", j.get("scope"))
+          print("Connected to channel:", ok[0][1], ok[0][0], "| Scopes:", j.get("scope"))
           PY
