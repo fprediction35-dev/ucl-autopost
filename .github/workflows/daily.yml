@@ -5,7 +5,8 @@ on:
     # One slot a day per platform (YouTube's upload limit is a rolling 24h window, so a fixed time keeps it clear).
     # GitHub starts scheduled runs ~50 min late. Each slot posts the matches the other platform already has first,
     # then new ones, so both platforms carry the same matches even if one of them fails.
-    - cron: "7 22 * * *"  # 22:07 UTC = 01:07 Istanbul, starts ~02:00: YouTube
+    - cron: "7 22,23,0-7 * * *"  # YouTube: one match an hour, 22:07-07:07 UTC = 01:07-10:07 Istanbul, starts ~02:00-11:00
+                                  # (10 runs = the channel's ~10 uploads a day)
     - cron: "7 8 * * *"   # 08:07 UTC = 11:07 Istanbul, starts ~12:00: Instagram (and other enabled platforms)
   workflow_dispatch:
     inputs:
@@ -99,7 +100,7 @@ jobs:
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
         run: |
           ARGS="--date ${{ steps.check.outputs.date }}"
-          [ "${{ github.event.schedule }}" = "7 22 * * *" ] && ARGS="$ARGS --only youtube --backfill --new"
+          [ "${{ github.event.schedule }}" = "7 22,23,0-7 * * *" ] && ARGS="$ARGS --only youtube --backfill --new --limit 1 --days 4"
           [ "${{ github.event.schedule }}" = "7 8 * * *" ] && ARGS="$ARGS --only instagram --backfill --new"
           [ "${{ inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
           [ -n "${{ inputs.only }}" ] && ARGS="$ARGS --only ${{ inputs.only }}"
@@ -119,7 +120,7 @@ jobs:
           git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/posted.json
           git diff --cached --quiet && exit 0
-          git commit -qm "Posted matches ${{ steps.check.outputs.date }}${{ github.event.schedule == '7 22 * * *' && ' (youtube)' || github.event.schedule == '7 8 * * *' && ' (instagram)' || '' }}"
+          git commit -qm "Posted matches ${{ steps.check.outputs.date }}${{ github.event.schedule == '7 22,23,0-7 * * *' && ' (youtube)' || github.event.schedule == '7 8 * * *' && ' (instagram)' || '' }}"
           for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
 
       - name: Keep videos for 7 days

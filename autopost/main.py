@@ -110,7 +110,7 @@ def main():
         sys.exit("--backfill needs --only, e.g. --only youtube")
     done = lambda v: bool(v) and not str(v).startswith(("FAILED", "skipped", "dry run", "already"))
     has = lambda f, p: done(posted.get(fid(f), {}).get(p))
-    picked = lambda f: not a.match or any(m.strip().lower() in fid(f) for m in a.match.split(","))
+    picked = lambda f: not a.match or any(m.strip().lower() in fid(f).lower() for m in a.match.split(","))
     if a.backfill:
         # with --new or --match, matches not posted anywhere yet are included too
         fx = [f for f in leagues.fixtures(data, start.isoformat(), end.isoformat()) if picked(f)
