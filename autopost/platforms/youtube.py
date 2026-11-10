@@ -100,6 +100,56 @@ def _check_channel(tok):
     _channel_ok.append(True)
 
 
+def _sent_bytes(session, tok, size):
+    """Ask the resumable session how much it has. Returns the video resource when the upload is already complete,
+    otherwise the byte offset to resume from."""
+    r = requests.put(session, headers={"Authorization": f"Bearer {tok}", "Content-Length": "0",
+                                       "Content-Range": f"bytes */{size}"}, timeout=60)
+    if r.status_code in (200, 201):
+        return r.json()
+    if r.status_code != 308:
+        _check(r)
+        raise requests.HTTPError(f"{r.status_code} unexpected resumable status", response=r)
+    rng = r.headers.get("Range")  # "bytes=0-12345"; absent when nothing arrived yet
+    return int(rng.split("-")[1]) + 1 if rng else 0
+
+
+def _send(session, tok, video, size, tries=4):
+    """PUT the file to the resumable session. A dropped connection (SSL EOF, reset, timeout) resumes from the byte
+    YouTube last stored instead of failing, so the same video is never left half-uploaded or uploaded twice."""
+    start = 0
+    for attempt in range(tries):
+        try:
+            with open(video, "rb") as f:
+                f.seek(start)
+                h = {"Authorization": f"Bearer {tok}", "Content-Type": "video/mp4", "Content-Length": str(size - start)}
+                if start:
+                    h["Content-Range"] = f"bytes {start}-{size - 1}/{size}"
+                up = requests.put(session, data=f, headers=h, timeout=900)
+            if up.status_code in (500, 502, 503, 504) and attempt < tries - 1:
+                raise requests.ConnectionError(f"{up.status_code} from upload server")
+            _check(up)
+            return up.json()
+        except (requests.ConnectionError, requests.Timeout) as e:
+            if attempt == tries - 1:
+                raise
+            wait = 5 * 2 ** attempt
+            print(f"  youtube: upload interrupted ({str(e)[:120]}), resuming in {wait}s", flush=True)
+            time.sleep(wait)
+            for _ in range(3):
+                try:
+                    got = _sent_bytes(session, tok, size)
+                    break
+                except (requests.ConnectionError, requests.Timeout):
+                    time.sleep(wait)
+            else:
+                continue  # status query kept failing: retry the PUT from the last known offset
+            if isinstance(got, dict):
+                return got
+            start = got
+            print(f"  youtube: resuming at {start}/{size} bytes", flush=True)
+
+
 def post(video, cap):
     tok = _token()
     _check_channel(tok)
@@ -111,11 +161,7 @@ def post(video, cap):
                                "X-Upload-Content-Type": "video/mp4", "X-Upload-Content-Length": str(size)},
                       json=meta, timeout=60)
     _check(r)
-    with open(video, "rb") as f:
-        up = requests.put(r.headers["Location"], data=f, headers={"Authorization": f"Bearer {tok}", "Content-Type": "video/mp4",
-                                                                   "Content-Length": str(size)}, timeout=900)
-    _check(up)
-    v = up.json()
+    v = _send(r.headers["Location"], tok, video, size)
     _extras(tok, v["id"], cap)
     status = v.get("status", {}).get("privacyStatus")
     note = "" if status == "public" else f" (uploaded as {status}: the Google API project may need an audit before uploads can be public)"
