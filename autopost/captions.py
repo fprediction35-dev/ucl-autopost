@@ -18,12 +18,16 @@ def build(info, fx, cfg):
     lang = fixture_lang(fx)
     L = TXT[lang]
     h, a = info["home"], info["away"]
+    if comp == "UWCL":  # the video shows short club names; titles and captions say "Barcelona Women" (what people search)
+        from .leagues import WOMENS, w_key
+        full = {w_key(n): t["full"] for n, t in WOMENS.items()}
+        h, a = full.get(fx["h"], h), full.get(fx["a"], a)
     ph, pd, pa = (round(x * 100) for x in info["p"])
     cname = COMP_NAME[comp]
     if comp == "UNL" and lang == "tr":
         cname = "UEFA Uluslar Ligi"
     d = dt.date.fromisoformat(fx["date"])
-    stage = (f"{L['lp']} · " if comp in ("UCL", "UEL", "UECL") else "") + (f"{L['md']} {fx['matchday']}" if fx.get("matchday") else "")
+    stage = (f"{L['lp']} · " if comp in ("UCL", "UEL", "UECL", "UWCL") else "") + (f"{L['md']} {fx['matchday']}" if fx.get("matchday") else "")
     if comp == "UNL" and fx.get("group"):  # e.g. "League A · Group 1 · Matchday 5"
         g = fx["group"]
         grp = f"{g[0]} Ligi · {g[1:]}. Grup" if lang == "tr" else f"League {g[0]} · Group {g[1:]}"

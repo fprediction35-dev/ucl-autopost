@@ -1,0 +1,48 @@
+# UEFA Women's Champions League 2026/27 league phase (comp UWCL). Source: uefa.com fixture list (fetched 2026-11-10).
+# Barcelona vs Arsenal was moved to Thu 12 Nov because of a general strike in Spain.
+# matchday | date | kick-off CET | home | away | score (empty = not played)
+1 | 2026-09-22 |  | Arsenal | HB Køge | 1-0
+1 | 2026-09-22 |  | Juventus | Benfica | 1-2
+1 | 2026-09-22 |  | Bayern München | Manchester City | 2-2
+1 | 2026-09-22 |  | Real Madrid | Paris Saint-Germain | 1-1
+1 | 2026-09-22 |  | Inter | Häcken | 1-0
+1 | 2026-09-23 |  | Servette | OL Lyonnes | 0-8
+1 | 2026-09-23 |  | Barcelona | Paris FC | 5-2
+1 | 2026-09-23 |  | Chelsea | Austria Wien | 1-0
+1 | 2026-09-23 |  | OH Leuven | Roma | 0-0
+2 | 2026-09-30 |  | Paris FC | Arsenal | 2-2
+2 | 2026-09-30 |  | Benfica | Bayern München | 0-3
+2 | 2026-09-30 |  | Roma | Barcelona | 0-6
+2 | 2026-09-30 |  | OL Lyonnes | Chelsea | 0-0
+2 | 2026-09-30 |  | Häcken | Juventus | 0-3
+2 | 2026-10-01 |  | Austria Wien | Inter | 1-1
+2 | 2026-10-01 |  | HB Køge | Servette | 5-1
+2 | 2026-10-01 |  | Paris Saint-Germain | OH Leuven | 5-0
+2 | 2026-10-01 |  | Manchester City | Real Madrid | 1-1
+3 | 2026-10-28 |  | Arsenal | Benfica | 3-0
+3 | 2026-10-28 |  | Bayern München | Real Madrid | 2-2
+3 | 2026-10-28 |  | OL Lyonnes | Inter | 6-0
+3 | 2026-10-28 |  | Chelsea | Roma | 2-0
+3 | 2026-10-28 |  | Servette | OH Leuven | 5-1
+3 | 2026-10-29 |  | Austria Wien | Juventus | 1-4
+3 | 2026-10-29 |  | HB Køge | Barcelona | 0-8
+3 | 2026-10-29 |  | Manchester City | Paris Saint-Germain | 1-1
+3 | 2026-10-29 |  | Paris FC | Häcken | 1-1
+4 | 2026-11-10 | 21:00 | Paris Saint-Germain | Bayern München |
+4 | 2026-11-10 | 18:45 | Häcken | Chelsea |
+4 | 2026-11-10 | 21:00 | Inter | Manchester City |
+4 | 2026-11-10 | 18:45 | Real Madrid | Paris FC |
+4 | 2026-11-10 | 21:00 | Roma | Servette |
+4 | 2026-11-11 | 21:00 | Benfica | Austria Wien |
+4 | 2026-11-11 | 18:45 | OH Leuven | HB Køge |
+4 | 2026-11-11 | 21:00 | Juventus | OL Lyonnes |
+4 | 2026-11-12 | 18:45 | Barcelona | Arsenal |
+5 | 2026-11-18 | 21:00 | Chelsea | Paris Saint-Germain |
+5 | 2026-11-18 | 18:45 | Häcken | Manchester City |
+5 | 2026-11-18 | 21:00 | Juventus | OH Leuven |
+5 | 2026-11-18 | 18:45 | Real Madrid | Inter |
+5 | 2026-11-19 | 21:00 | Arsenal | OL Lyonnes |
+5 | 2026-11-19 | 18:45 | Austria Wien | Bayern München |
+5 | 2026-11-19 | 21:00 | Barcelona | Servette |
+5 | 2026-11-19 | 21:00 | Benfica | Roma |
+5 | 2026-11-19 | 18:45 | Paris FC | HB Køge |

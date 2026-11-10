@@ -1,0 +1,149 @@
+{
+ "_note": "Women's Champions League clubs (comp UWCL). elo: starting rating before the 2026/27 league phase, a hand estimate from recent UWCL and domestic form; this season's results are applied on top in autopost/leagues.py. name: shown in the video (short, fits the scoreboard); full: used in titles and captions.",
+ "teams": {
+  "Barcelona": {
+   "elo": 1900,
+   "short": "BAR",
+   "c1": "#A50044",
+   "c2": "#004D98",
+   "name": "Barcelona",
+   "full": "Barcelona Women"
+  },
+  "OL Lyonnes": {
+   "elo": 1880,
+   "short": "OL",
+   "c1": "#FFFFFF",
+   "c2": "#1A3E8C",
+   "name": "OL Lyonnes",
+   "full": "OL Lyonnes"
+  },
+  "Chelsea": {
+   "elo": 1850,
+   "short": "CHE",
+   "c1": "#034694",
+   "c2": "#FFFFFF",
+   "name": "Chelsea",
+   "full": "Chelsea Women"
+  },
+  "Arsenal": {
+   "elo": 1830,
+   "short": "ARS",
+   "c1": "#EF0107",
+   "c2": "#FFFFFF",
+   "name": "Arsenal",
+   "full": "Arsenal Women"
+  },
+  "Bayern München": {
+   "elo": 1810,
+   "short": "FCB",
+   "c1": "#DC052D",
+   "c2": "#FFFFFF",
+   "name": "Bayern",
+   "full": "Bayern Women"
+  },
+  "Manchester City": {
+   "elo": 1790,
+   "short": "MCI",
+   "c1": "#6CABDD",
+   "c2": "#1C2C5B",
+   "name": "Man City",
+   "full": "Man City Women"
+  },
+  "Paris Saint-Germain": {
+   "elo": 1770,
+   "short": "PSG",
+   "c1": "#004170",
+   "c2": "#DA291C",
+   "name": "PSG",
+   "full": "PSG Women"
+  },
+  "Real Madrid": {
+   "elo": 1760,
+   "short": "RMA",
+   "c1": "#FFFFFF",
+   "c2": "#FEBE10",
+   "name": "Real Madrid",
+   "full": "Real Madrid Women"
+  },
+  "Juventus": {
+   "elo": 1700,
+   "short": "JUV",
+   "c1": "#FFFFFF",
+   "c2": "#111111",
+   "name": "Juventus",
+   "full": "Juventus Women"
+  },
+  "Paris FC": {
+   "elo": 1690,
+   "short": "PFC",
+   "c1": "#1B2A4A",
+   "c2": "#FFFFFF",
+   "name": "Paris FC",
+   "full": "Paris FC Women"
+  },
+  "Benfica": {
+   "elo": 1660,
+   "short": "SLB",
+   "c1": "#E30613",
+   "c2": "#FFFFFF",
+   "name": "Benfica",
+   "full": "Benfica Women"
+  },
+  "Roma": {
+   "elo": 1650,
+   "short": "ROM",
+   "c1": "#8E1F2F",
+   "c2": "#F0BC42",
+   "name": "Roma",
+   "full": "Roma Women"
+  },
+  "Inter": {
+   "elo": 1640,
+   "short": "INT",
+   "c1": "#0068A8",
+   "c2": "#111111",
+   "name": "Inter",
+   "full": "Inter Women"
+  },
+  "Häcken": {
+   "elo": 1620,
+   "short": "HÄC",
+   "c1": "#F6D300",
+   "c2": "#111111",
+   "name": "Häcken",
+   "full": "Häcken Women"
+  },
+  "HB Køge": {
+   "elo": 1570,
+   "short": "HBK",
+   "c1": "#111111",
+   "c2": "#FFFFFF",
+   "name": "HB Køge",
+   "full": "HB Køge Women"
+  },
+  "Servette": {
+   "elo": 1560,
+   "short": "SFC",
+   "c1": "#8B1D41",
+   "c2": "#FFFFFF",
+   "name": "Servette",
+   "full": "Servette Women"
+  },
+  "OH Leuven": {
+   "elo": 1540,
+   "short": "OHL",
+   "c1": "#FFFFFF",
+   "c2": "#00843D",
+   "name": "OH Leuven",
+   "full": "OH Leuven Women"
+  },
+  "Austria Wien": {
+   "elo": 1530,
+   "short": "FAK",
+   "c1": "#5E2B8A",
+   "c2": "#FFFFFF",
+   "name": "Austria Wien",
+   "full": "Austria Wien Women"
+  }
+ }
+}
