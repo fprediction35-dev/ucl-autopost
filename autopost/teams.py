@@ -110,6 +110,11 @@ def info(k, fallback_name, lang="en"):
         t = NATIONS.get(fallback_name)
         if t:
             return {"name": t["name_tr"] if lang == "tr" else t["name"], "short": t["short"], "c1": t["c1"], "c2": t["c2"]}
+    if k.endswith("|W"):  # women's clubs (Women's Champions League): data/womens.json
+        from .leagues import WOMENS
+        t = WOMENS.get(fallback_name)
+        if t:
+            return {"name": t["name"], "short": t["short"], "c1": t["c1"], "c2": t["c2"]}
     if k in T:
         name, short, c1, c2 = T[k]
         return {"name": name, "short": short, "c1": c1, "c2": c2}
