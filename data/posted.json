@@ -462,6 +462,11 @@
 "youtube": "https://youtube.com/shorts/OVALTU8L2_w",
 "youtube_wrong_channel": "https://youtube.com/shorts/awRX90ZOoEg"
 },
+"UNL|austria|NAT|republic of ireland|NAT": {
+"at": "2026-11-11T12:11+03:00",
+"date": "2026-11-14",
+"instagram": "https://www.instagram.com/reel/DfmIJtCCrbN/"
+},
 "UNL|bulgaria|NAT|iceland|NAT": {
 "at": "2026-11-10T12:31+03:00",
 "date": "2026-11-13",
@@ -482,12 +487,22 @@
 "youtube": "https://youtube.com/shorts/UlQxxFrLHZE",
 "youtube_wrong_channel": "https://youtube.com/shorts/aplLszvxAQE"
 },
+"UNL|georgia|NAT|hungary|NAT": {
+"at": "2026-11-11T12:27+03:00",
+"date": "2026-11-14",
+"instagram": "https://www.instagram.com/reel/DfmKGKVDj2N/"
+},
 "UNL|italy|NAT|france|NAT": {
 "at": "2026-11-08T23:08+03:00",
 "date": "2026-11-12",
 "instagram": "https://www.instagram.com/reel/DfflAxLlShL/",
 "youtube": "https://youtube.com/shorts/_yMP6UsRwO4",
 "youtube_wrong_channel": "https://youtube.com/shorts/q6gTp5QDyzE"
+},
+"UNL|kosovo|NAT|israel|NAT": {
+"at": "2026-11-11T12:34+03:00",
+"date": "2026-11-14",
+"instagram": "https://www.instagram.com/reel/DfmK2uFjMUl/"
 },
 "UNL|liechtenstein|NAT|azerbaijan|NAT": {
 "at": "2026-11-10T12:49+03:00",
@@ -520,6 +535,26 @@
 "youtube": "https://youtube.com/shorts/7MvES1plN8M",
 "youtube_wrong_channel": "https://youtube.com/shorts/O3NI67UPiTI"
 },
+"UNL|northern ireland|NAT|ukraine|NAT": {
+"at": "2026-11-11T12:22+03:00",
+"date": "2026-11-14",
+"instagram": "https://www.instagram.com/reel/DfmJaWBEU-s/"
+},
+"UNL|norway|NAT|wales|NAT": {
+"at": "2026-11-11T12:04+03:00",
+"date": "2026-11-14",
+"instagram": "https://www.instagram.com/reel/DfmHWTZHG6X/"
+},
+"UNL|portugal|NAT|denmark|NAT": {
+"at": "2026-11-11T11:58+03:00",
+"date": "2026-11-14",
+"instagram": "https://www.instagram.com/reel/DfmGqjHjhTe/"
+},
+"UNL|romania|NAT|poland|NAT": {
+"at": "2026-11-11T12:40+03:00",
+"date": "2026-11-14",
+"instagram": "https://www.instagram.com/reel/DfmLhwgDtSY/"
+},
 "UNL|san marino|NAT|belarus|NAT": {
 "at": "2026-11-08T23:45+03:00",
 "date": "2026-11-12",
@@ -550,6 +585,11 @@
 "date": "2026-11-13",
 "instagram": "https://www.instagram.com/reel/Dfji5QVjaKw/",
 "youtube": "https://youtube.com/shorts/70954_HHJZY"
+},
+"UNL|sweden|NAT|bosnia and herzegovina|NAT": {
+"at": "2026-11-11T12:15+03:00",
+"date": "2026-11-14",
+"instagram": "https://www.instagram.com/reel/DfmIuN6HJPE/"
 },
 "UNL|turkey|NAT|belgium|NAT": {
 "at": "2026-11-08T23:02+03:00",
