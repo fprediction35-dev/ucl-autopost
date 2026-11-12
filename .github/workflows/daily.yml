@@ -80,7 +80,10 @@ jobs:
 
       - name: Install
         if: steps.check.outputs.has == 'true'
+        timeout-minutes: 20
         run: |
+          # apt retries/timeouts: a runner DNS outage once made this step hang ~1h and fail
+          printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' | sudo tee /etc/apt/apt.conf.d/80-retries >/dev/null
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
