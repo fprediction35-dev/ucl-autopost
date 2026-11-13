@@ -513,6 +513,16 @@
 "youtube": "https://youtube.com/shorts/UlQxxFrLHZE",
 "youtube_wrong_channel": "https://youtube.com/shorts/aplLszvxAQE"
 },
+"UNL|estonia|NAT|bulgaria|NAT": {
+"at": "2026-11-13T12:35+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrUiudCZzX/"
+},
+"UNL|faroe islands|NAT|moldova|NAT": {
+"at": "2026-11-13T12:41+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrVJ8WkdzX/"
+},
 "UNL|finland|NAT|san marino|NAT": {
 "at": "2026-11-12T12:47+03:00",
 "date": "2026-11-15",
@@ -530,12 +540,37 @@
 "instagram": "https://www.instagram.com/reel/DfmKGKVDj2N/",
 "youtube": "https://youtube.com/shorts/F6RfIYMUP6E"
 },
+"UNL|germany|NAT|netherlands|NAT": {
+"at": "2026-11-13T11:59+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrQbU6Geeg/"
+},
+"UNL|gibraltar|NAT|malta|NAT": {
+"at": "2026-11-13T12:48+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrWA5Skg3a/"
+},
+"UNL|greece|NAT|serbia|NAT": {
+"at": "2026-11-13T12:12+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrR4SIDLT5/"
+},
+"UNL|iceland|NAT|luxembourg|NAT": {
+"at": "2026-11-13T12:29+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrT2mGjYeY/"
+},
 "UNL|italy|NAT|france|NAT": {
 "at": "2026-11-08T23:08+03:00",
 "date": "2026-11-12",
 "instagram": "https://www.instagram.com/reel/DfflAxLlShL/",
 "youtube": "https://youtube.com/shorts/_yMP6UsRwO4",
 "youtube_wrong_channel": "https://youtube.com/shorts/q6gTp5QDyzE"
+},
+"UNL|kazakhstan|NAT|slovakia|NAT": {
+"at": "2026-11-13T12:23+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrTLuliv-n/"
 },
 "UNL|kosovo|NAT|israel|NAT": {
 "at": "2026-11-11T12:34+03:00",
@@ -553,6 +588,11 @@
 "date": "2026-11-13",
 "instagram": "https://www.instagram.com/reel/DfjntAIkfCC/",
 "youtube": "https://youtube.com/shorts/zJnMG7wghi0"
+},
+"UNL|lithuania|NAT|liechtenstein|NAT": {
+"at": "2026-11-13T12:53+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrWo-DgXuf/"
 },
 "UNL|luxembourg|NAT|estonia|NAT": {
 "at": "2026-11-10T12:36+03:00",
@@ -579,6 +619,11 @@
 "instagram": "https://www.instagram.com/reel/DfjiN7OHIAU/",
 "youtube": "https://youtube.com/shorts/7MvES1plN8M",
 "youtube_wrong_channel": "https://youtube.com/shorts/O3NI67UPiTI"
+},
+"UNL|north macedonia|NAT|slovenia|NAT": {
+"at": "2026-11-13T12:18+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrShruAme1/"
 },
 "UNL|northern ireland|NAT|ukraine|NAT": {
 "at": "2026-11-11T12:22+03:00",
@@ -646,6 +691,11 @@
 "date": "2026-11-14",
 "instagram": "https://www.instagram.com/reel/DfmIuN6HJPE/",
 "youtube": "https://youtube.com/shorts/Ca6eAa3owYY"
+},
+"UNL|switzerland|NAT|scotland|NAT": {
+"at": "2026-11-13T12:05+03:00",
+"date": "2026-11-16",
+"instagram": "https://www.instagram.com/reel/DfrRGxTDMVs/"
 },
 "UNL|turkey|NAT|belgium|NAT": {
 "at": "2026-11-08T23:02+03:00",
