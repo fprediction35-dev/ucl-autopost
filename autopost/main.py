@@ -9,10 +9,12 @@ python -m autopost.main --comps UEL,UECL   # limit competitions
 python -m autopost.main --exclude youtube  # daily run without youtube (youtube has its own evening slot)
 python -m autopost.main --only youtube --backfill  # post already-posted matches that are missing a youtube link
 python -m autopost.main --only youtube --backfill --new  # daily slot: missing youtube links first, then new matches
+python -m autopost.main --only youtube --backfill --new --select  # YouTube slot: only strong matches (autopost/interest.py),
+                                                                   # best first, at most youtube_selection.per_day a day
 """
 import zlib, argparse, concurrent.futures as cf, datetime as dt, json, pathlib, re, subprocess, sys, time, traceback
 from zoneinfo import ZoneInfo
-from . import captions, leagues, teams
+from . import captions, interest, leagues, teams
 from .i18n import OVERLAY
 from .platforms import youtube, instagram, tiktok, x
 
@@ -95,6 +97,8 @@ def main():
     ap.add_argument("--match", help="comma-separated text matched against fixture ids, e.g. osasuna,valencia (only these matches)")
     ap.add_argument("--new", action="store_true",
                     help="with --backfill: also take matches not posted anywhere yet (the daily platform slots)")
+    ap.add_argument("--select", action="store_true",
+                    help="pick only strong matches (big clubs, derbies, national teams), best first, capped per day (config youtube_selection)")
     ap.add_argument("--backfill", action="store_true",
                     help="with --only: post matches already in posted.json that have no link yet for those platforms")
     a = ap.parse_args()
@@ -130,10 +134,23 @@ def main():
         platforms = [p for p in platforms if p not in a.exclude.split(",")]
     limits = {} if a.only and not a.backfill else {p: cfg.get("platform_limits", {}).get(p, 999) for p in platforms}
     n = a.limit or max([limits.get(p, cfg.get("max_videos_per_day", 20)) for p in platforms] or [cfg.get("max_videos_per_day", 20)])
-    todo = order(fx, data, cfg, set(posted) if a.backfill else ())[a.skip:a.skip + n]
+    if a.select:
+        sel = cfg.get("youtube_selection", {})
+        today = dt.datetime.now(tz).date().isoformat()
+        for p in platforms:  # posts already made today by earlier slots count towards the daily number
+            made = sum(1 for v in posted.values() if str(v.get(f"{p}_at", "")).startswith(today))
+            n = min(n, max(0, sel.get("per_day", 5) - made))
+            print(f"{p}: {made} posted today, daily target {sel.get('per_day', 5)}")
+        fx = [f for f in fx if interest.score(f, cfg) >= sel.get("min_score", 4)]
+        elo = lambda k: data["teams"].get(k, {}).get("elo", 1450)
+        # strongest first; a match on the window's first day gets a small lift because it is its last chance
+        todo = sorted(fx, key=lambda f: (-(interest.score(f, cfg) + (0.5 if f["date"] == start.isoformat() else 0)),
+                                         f["date"], -(elo(f["h"]) + elo(f["a"]))))[a.skip:a.skip + n]
+    else:
+        todo = order(fx, data, cfg, set(posted) if a.backfill else ())[a.skip:a.skip + n]
     print(f"{start}..{end}: {len(fx)} unposted fixtures, making {len(todo)} videos for {', '.join(platforms) or 'nothing'}")
     for f in todo:
-        print(f"  {f['date']} {f['comp']:5} {f['home']} vs {f['away']}")
+        print(f"  {f['date']} {f['comp']:5} {f['home']} vs {f['away']}" + (f"  ({interest.why(f, cfg)})" if a.select else ""))
     if not todo:
         return 0
 
@@ -193,12 +210,15 @@ def main():
                     traceback.print_exc()
             # manual single-platform tests (--only) do not mark a match as done for the daily run
             if not a.only and any(not str(v).startswith(("FAILED", "skipped")) for v in row["posts"].values()):
-                posted[fid(f)] = {"date": f["date"], "at": dt.datetime.now(tz).isoformat(timespec="minutes"), **row["posts"]}
+                now = dt.datetime.now(tz).isoformat(timespec="minutes")
+                posted[fid(f)] = {"date": f["date"], "at": now, **row["posts"],
+                                  **{f"{p}_at": now for p, v in row["posts"].items() if done(v)}}
                 POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
             elif a.backfill:
                 new = {p: v for p, v in row["posts"].items() if done(v)}
                 if new:
-                    posted.setdefault(fid(f), {"date": f["date"], "at": dt.datetime.now(tz).isoformat(timespec="minutes")}).update(new)
+                    now = dt.datetime.now(tz).isoformat(timespec="minutes")
+                    posted.setdefault(fid(f), {"date": f["date"], "at": now}).update(new, **{f"{p}_at": now for p in new})
                     POSTED.write_text(json.dumps(posted, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
         report.append(row)
     pool.shutdown()

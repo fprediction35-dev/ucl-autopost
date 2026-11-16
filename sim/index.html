@@ -164,7 +164,7 @@ input[type=radio],input[type=checkbox]{accent-color:var(--accent)}
     <fieldset>
       <legend>Video ayarları</legend>
       <div class="row">
-        <label>Video süresi: <span class="val" id="durV">60 sn</span><input type="range" id="dur" min="30" max="150" step="5" value="60"></label>
+        <label>Video süresi: <span class="val" id="durV">60 sn</span><input type="range" id="dur" min="10" max="150" step="5" value="60"></label>
         <label>Top hızı: <span class="val" id="spdV">850</span><input type="range" id="spd" min="450" max="1500" step="25" value="850"></label>
         <label>Kale genişliği: <span class="val" id="gwV">orta</span><input type="range" id="gw" min="0.20" max="0.45" step="0.01" value="0.30"></label>
         <label>Saha dönüş hızı: <span class="val" id="rotV">0.60</span><input type="range" id="rot" min="0" max="1.6" step="0.05" value="0.6"></label>
@@ -232,8 +232,10 @@ const NAMES=Object.keys(TEAMS).sort((a,b)=>a.localeCompare(b,'tr'));
   $('t0').value='Galatasaray';$('t1').value='Stuttgart';
 })();
 
-const END_CARD=2.2; // seconds of subscribe call after the full-time screen
-const LX0={sub:'SUBSCRIBE',subSmall:'Every match predicted before kick-off',who:'WHO WINS?',goal:'GOAL!',half:'HALF TIME',full:'FULL TIME',pen:'PENALTY!',saved:'SAVED!',save:'SAVE!',penMissed:'Penalty missed · ',penGoal:'Penalty · ',yellow:'YELLOW CARD · ',red:'RED CARD · ',live:'LIVE WIN PROBABILITY',pre:'WIN PROBABILITY · DATA MODEL',final:'FINAL RESULT',draw:'DRAW',pctPre:false,yellows:'YELLOW CARDS',reds:'RED CARDS'};
+const END_CARD=2.2; // seconds of subscribe call after the full-time screen (interactive page only)
+const LOOP=0.6; // headless videos: the last seconds fade into the first frame, so the Short loops seamlessly
+const HOLD={goal:1.4,half:1.0,end:1.8}; // pauses after a goal, at half time and at full time (short videos keep these tight)
+const LX0={ask:'WHO WINS? DROP YOUR PREDICTION',sub:'SUBSCRIBE',subSmall:'Every match predicted before kick-off',who:'WHO WINS?',goal:'GOAL!',half:'HALF TIME',full:'FULL TIME',pen:'PENALTY!',saved:'SAVED!',save:'SAVE!',penMissed:'Penalty missed · ',penGoal:'Penalty · ',yellow:'YELLOW CARD · ',red:'RED CARD · ',live:'LIVE WIN PROBABILITY',pre:'WIN PROBABILITY · DATA MODEL',final:'FINAL RESULT',draw:'DRAW',pctPre:false,yellows:'YELLOW CARDS',reds:'RED CARDS'};
 let LX=Object.assign({},LX0);
 const teams=[0,1].map(()=>({name:'',short:'',c1:'#fff',c2:'#000',logo:null}));
 function currentPair(){const v=$('fixture').value;if(v==='custom')return[$('t0').value,$('t1').value];const[g,m]=v.split(':').map(Number);return FIXTURES[g][1][m];}
@@ -411,7 +413,7 @@ function keeperHit(b,due){
 }
 
 // ---------- audio ----------
-let AC=null,dest=null,master=null,OFF=null;
+let AC=null,dest=null,master=null,OFF=null,FIRST=null;
 const NOW=()=>OFF?OFF.t:AC.currentTime;
 function initAudio(){if(AC)return;AC=OFF?new OfflineAudioContext(2,Math.ceil(OFF.sec*48000),48000):new (window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=0.5;master.connect(AC.destination);if(!OFF){dest=AC.createMediaStreamDestination();master.connect(dest);}}
 function tone(f,d,type='square',v=0.15,at=0){if(!AC)return;const t0=NOW()+at,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);g.gain.setValueAtTime(v,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+d);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+d);}
@@ -527,7 +529,7 @@ function step(dt){
 }
 function scoreGoal(b,pen){
   S.score[b.team]++;if(cfg.mode==='data'&&!pen)S.plan.shift();
-  S.phase='goal';S.hold=1.9;S.msg={big:LX.goal,small:(pen?LX.penGoal:'')+teams[b.team].name,team:b.team};S.flash={team:b.team,t:1};
+  S.phase='goal';S.hold=HOLD.goal;S.msg={big:LX.goal,small:(pen?LX.penGoal:'')+teams[b.team].name,team:b.team};S.flash={team:b.team,t:1};
   for(let i=0;i<90;i++){const a=rand(0,Math.PI*2),s=rand(200,900);S.parts.push({x:b.x,y:b.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(0.8,1.6),c:i%2?vis(teams[b.team]):teams[b.team].c2,r:rand(6,14)});}
   goalSound();duckMusic();
 }
@@ -545,8 +547,8 @@ function tick(dt){
       if(S.phase==='play'){S.t+=dt;S.saveCd-=dt;
         checkEvents();
         const pending=cfg.mode==='data'&&(S.plan.length>0||S.events.some(e=>e.type==='pen'));
-        if(S.phase!=='play'){}else         if(!S.halfDone&&S.t>=cfg.dur/2){S.halfDone=true;S.phase='half';S.hold=1.8;S.msg={big:LX.half,small:S.score.join(' - ')};whistle(0.9);}
-        else if(S.t>=cfg.dur&&!pending){S.phase='end';S.msg={big:LX.full,small:''};whistle(0.9);fadeMusic();S.endHold=2.8+END_CARD;}}
+        if(S.phase!=='play'){}else         if(!S.halfDone&&S.t>=cfg.dur/2){S.halfDone=true;S.phase='half';S.hold=HOLD.half;S.msg={big:LX.half,small:S.score.join(' - ')};whistle(0.9);}
+        else if(S.t>=cfg.dur&&!pending){S.phase='end';S.msg={big:LX.full,small:''};whistle(0.9);fadeMusic();S.endHold=OFF?HOLD.end+LOOP:2.8+END_CARD;}}
     }else if(S.phase==='pen'){updatePen(dt);
     }else if(S.phase==='goal'||S.phase==='half'){
       S.theta+=cfg.rot*dt;S.hold-=dt;
@@ -656,7 +658,7 @@ function draw(){
   }
 
   // opening hook: big question over the first seconds while play already runs (also makes the first frame a readable cover)
-  const HOOK=2.4;if(S.running&&S.phase==='play'&&S.t<HOOK&&!S.halfDone&&S.score[0]+S.score[1]===0){
+  const HOOK=1.8;if(S.running&&S.phase==='play'&&S.t<HOOK&&!S.halfDone&&S.score[0]+S.score[1]===0){
     const a=Math.min(1,(HOOK-S.t)*2.5),pulse=1+0.04*Math.sin(S.t*9);ctx.save();ctx.globalAlpha=a;
     ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,C.y-190,W,380);
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.translate(540,C.y-40);ctx.scale(pulse,pulse);
@@ -665,7 +667,7 @@ function draw(){
     ctx.font=`700 66px ${F}`;ctx.fillStyle='#fff';ctx.fillText(fit(`${t0.name} vs ${t1.name}`,980,66),540,C.y+100);ctx.restore();}
 
   // closing card: subscribe call over the final score
-  if(S.phase==='end'&&S.endHold<END_CARD){const k=Math.min(1,(END_CARD-S.endHold)*4);ctx.save();ctx.globalAlpha=k;
+  if(!OFF&&S.phase==='end'&&S.endHold<END_CARD){const k=Math.min(1,(END_CARD-S.endHold)*4);ctx.save();ctx.globalAlpha=k;
     ctx.fillStyle='rgba(5,8,22,.94)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.font=`700 64px ${F}`;ctx.fillStyle='#fff';ctx.fillText(fit(`${t0.name} ${S.score[0]} - ${S.score[1]} ${t1.name}`,980,64),540,C.y-300);
     ctx.font=`800 ${LX.sub.length>10?112:136}px ${F}`;const tw=Math.min(980,ctx.measureText(LX.sub).width+120);
@@ -678,6 +680,9 @@ function draw(){
   drawCardStats();
   ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.font=`800 60px ${F}`;ctx.fillText(fit(`${t0.name} vs ${t1.name}`,960,60),540,1818);
   if(cfg.handle){ctx.font=`600 46px ${F}`;ctx.fillStyle='rgba(255,255,255,.8)';ctx.fillText(cfg.handle,540,1876);}
+  drawAsk();
+  // seamless loop: fade the ending into the very first frame, so the replay starts without a cut
+  if(OFF&&FIRST&&S.phase==='end'&&S.endHold<LOOP){ctx.save();ctx.globalAlpha=Math.min(1,1-S.endHold/LOOP);ctx.drawImage(FIRST,0,0);ctx.restore();}
 }
 function drawKeepers(){
   goals().forEach((g,i)=>{
@@ -709,6 +714,14 @@ function drawCardStats(){
       ctx.font=`800 ${Math.round(50*(1+fl*0.55))}px ${F}`;ctx.fillStyle=fl>0.15?col:'#ffffff';ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=5;ctx.strokeText(v,x,y+3);ctx.fillText(v,x,y+3);}
   });
 }
+// question banner over the whole video: the first second asks the viewer to guess, the comments collect the answers
+function drawAsk(){if(!LX.ask)return;ctx.save();const y=40,h=96,pulse=0.5+0.5*Math.sin((S.t||0)*5);
+  let fs=60;ctx.font=`800 ${fs}px ${F}`;while(fs>38&&ctx.measureText(LX.ask).width>830){fs-=2;ctx.font=`800 ${fs}px ${F}`;}const txt=fit(LX.ask,830,fs);const tw=Math.min(1000,ctx.measureText(txt).width+150);
+  ctx.shadowColor='rgba(0,0,0,.45)';ctx.shadowBlur=18;ctx.fillStyle='#ffd34d';rr(540-tw/2,y,tw,h,26);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#0b0f14';ctx.textAlign='center';ctx.textBaseline='middle';const tx=540-30;ctx.fillText(txt,tx,y+h/2+3);
+  const ax=540+tw/2-58,ay=y+h/2+4+pulse*6; // pointing-down arrow towards the comments
+  ctx.beginPath();ctx.moveTo(ax-9,ay-26);ctx.lineTo(ax+9,ay-26);ctx.lineTo(ax+9,ay);ctx.lineTo(ax+22,ay);ctx.lineTo(ax,ay+24);ctx.lineTo(ax-22,ay);ctx.lineTo(ax-9,ay);ctx.closePath();ctx.fill();
+  ctx.restore();}
 function fit(s,maxW,size){ctx.font=ctx.font.replace(/\d+px/,size+'px');if(ctx.measureText(s).width<=maxW)return s;while(s.length>3&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return s+'…';}
 
 // ---------- controls ----------
@@ -758,12 +771,14 @@ window.AUTO={
     $('fixture').value='custom';$('t0').value=o.home;$('t1').value=o.away;applyPair();
     $('modeData').checked=true;$('dur').value=o.dur||60;$('music').value=o.music||'hype';$('handle').value=o.handle||'';
     if(o.goals)$('goalsSel').value=String(o.goals);
-    readCfg();OFF={t:0,sec:(cfg.dur*1.7+30)};AC=null;initAudio();
+    readCfg();OFF={t:0,sec:(cfg.dur*1.7+30)};FIRST=null;AC=null;initAudio();
     drawScenario();revealed=true;showScen();start();
     return{home:teams[0].name,away:teams[1].name,short:[teams[0].short,teams[1].short],p:[P.pH,P.pD,P.pA],xg:[P.lh,P.la],likely:P.ml.slice(0,2),
       score:scenario.slice(),pens:scenEv.pens.length,yellows:scenEv.y.slice(),reds:scenEv.r.slice(),elo:[DATA.teams[teams[0].name].elo,DATA.teams[teams[1].name].elo]};
   },
-  frame(dt){tick(dt);OFF.t+=dt;if(musicGain&&cfg.music!=='none')schedule();draw();return{done:S.phase==='end'&&S.endHold<=0,t:OFF.t,score:S.score.slice()};},
+  frame(dt){tick(dt);OFF.t+=dt;if(musicGain&&cfg.music!=='none')schedule();draw();
+    if(!FIRST){FIRST=document.createElement('canvas');FIRST.width=W;FIRST.height=H;FIRST.getContext('2d').drawImage($('cv'),0,0);}
+    return{done:S.phase==='end'&&S.endHold<=0,t:OFF.t,score:S.score.slice()};},
   async audio(){const sec=OFF.t;const buf=await AC.startRendering();const n=Math.min(buf.length,Math.ceil(sec*buf.sampleRate));
     const ch=[buf.getChannelData(0),buf.getChannelData(1)];const out=new DataView(new ArrayBuffer(44+n*4));
     const W=(o,str)=>{for(let i=0;i<str.length;i++)out.setUint8(o+i,str.charCodeAt(i));};
