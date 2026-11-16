@@ -13,6 +13,20 @@ def tag(name):
 HANDLES = json.loads((pathlib.Path(__file__).resolve().parent.parent / "data/instagram_handles.json").read_text(encoding="utf8"))
 
 
+def playlists(fx, cfg, h, a, cname):
+    """Playlists move viewers on to the next video: the competition, the European matchday, and the channel's own
+    clubs (config priority_teams) each get one, in the competition's language."""
+    comp = fx["comp"]
+    P = TXT[COMPS[comp]["lang"]]
+    out = [P["playlist"].format(c=COMP_NAME[comp])]  # one per competition
+    if comp in ("UCL", "UEL", "UECL", "UWCL") and fx.get("matchday"):
+        out.append(P["md_playlist"].format(c=COMP_NAME[comp], n=fx["matchday"]))
+    for k, name in ((fx.get("h"), h), (fx.get("a"), a)):
+        if k in cfg.get("priority_teams", []):
+            out.append(TXT[fixture_lang(fx)]["team_playlist"].format(t=name))
+    return out
+
+
 def build(info, fx, cfg):
     comp = fx["comp"]
     lang = fixture_lang(fx)
@@ -61,8 +75,7 @@ def build(info, fx, cfg):
         x = f"{h} vs {a} ⚽ {L['simulated']}\n{tag(h)} {tag(a)} {ctags[0]}"
     return {
         "youtube": {"title": yt_title[:100], "description": yt_desc[:4900], "comment": L["comment"],
-                    # one playlist per competition, in the competition's own language
-                    "playlist": TXT[COMPS[comp]["lang"]]["playlist"].format(c=COMP_NAME[comp]),
+                    "playlists": playlists(fx, cfg, h, a, cname),
                     "tags": [h, a, cname] + COMP_TAGS[comp] + GENERIC_TAGS[lang] + ["shorts"]},
         # Reels: the clubs' official accounts are tagged on the video when we know them
         "instagram": {"caption": long[:2200], "user_tags": [HANDLES[k] for k in (fx.get("h"), fx.get("a")) if k in HANDLES]},

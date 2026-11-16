@@ -97,9 +97,17 @@ Bir platformu kapatmak için `config.json` içinde `"platforms"` altındaki değ
 | `handle` | Videonun altındaki kanal adı |
 | `max_videos_per_day` | Günde en fazla kaç maç (4.–8. haftalarda her gün 9 maç var) |
 | `priority_teams` | Her zaman paylaşılacak takımlar |
-| `duration_seconds` | Maç süresi (gol kutlamalarıyla video ~10–15 sn daha uzun olur) |
+| `duration_seconds` | Maç süresi (gol ve devre araları ile video ~5–10 sn daha uzun olur; 16 sn → 20–30 sn'lik video) |
+| `youtube_selection` | YouTube'da yalnızca güçlü maçlar: `min_score` eşiği (puanlama `autopost/interest.py`: büyük kulüp, derbi, milli maç), `per_day` günlük video sayısı |
 | `music` | `hype` (heyecanlı), `epic` (marş havası) veya `none` |
 | `post_gap_minutes` | İki maçın paylaşımı arasındaki bekleme |
+
+## YouTube Shorts düzeni
+
+- **Kanca ve döngü:** Videonun üstünde baştan sona "Sence kim kazanır? Tahminini yaz" bandı durur. Son saniyede görüntü ilk kareye geçer, video kendiliğinden kesintisiz tekrar başlar.
+- **Seçim ve saat:** YouTube'a günde en çok 5 video gider, maçtan 1–2 gün önce, İstanbul saatiyle ~15:00–23:00 arası beş slotta. Her slot o an açıktaki en güçlü maçı seçer.
+- **Oynatma listeleri:** Her video lig listesine, Avrupa kupalarında hafta listesine ("Champions League Matchday 5 Predictions"), Türk kulüplerinde kulüp listesine eklenir.
+- **Tahmin yorumu:** Bot her videoya "skorunu yaz, doğru bilenleri açıklayacağım" yorumunu yazar. **Sabitleme API ile yapılamıyor; YouTube Studio'dan elle sabitle.** Gerçek maçtan sonra `autopost/winners.py` skoru tam bilenleri bu yorumun altına yazar (`data/winners.json`).
 
 ## Sınırlar
 

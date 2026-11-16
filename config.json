@@ -9,7 +9,7 @@
     "besiktas|TUR",
     "trabzonspor|TUR"
   ],
-  "duration_seconds": 45,
+  "duration_seconds": 16,
   "music": "hype",
   "post_gap_minutes": 6,
   "platforms": {
@@ -19,10 +19,15 @@
     "x": false
   },
   "platform_limits": {
-    "youtube": 20,
+    "youtube": 5,
     "instagram": 20,
     "tiktok": 15,
     "x": 4
+  },
+  "youtube_selection": {
+    "min_score": 4,
+    "per_day": 5,
+    "_note": "autopost/interest.py scores each match (big clubs, derbies, national teams); the YouTube slots post only matches at or above min_score, best first"
   },
   "instagram_user_id": "17841456655424473",
   "video_host": "github_release",

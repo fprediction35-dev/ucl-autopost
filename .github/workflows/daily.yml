@@ -2,11 +2,11 @@ name: Daily match simulations
 
 on:
   schedule:
-    # One slot a day per platform (YouTube's upload limit is a rolling 24h window, so a fixed time keeps it clear).
-    # GitHub starts scheduled runs ~50 min late. Each slot posts the matches the other platform already has first,
-    # then new ones, so both platforms carry the same matches even if one of them fails.
-    - cron: "12 8-17 * * *"  # YouTube: one match an hour, 08:12-17:12 UTC = 11:12-20:12 Istanbul, starts ~12:00-21:00
-                                  # (10 runs = the channel's ~10 uploads a day)
+    # YouTube: a few strong matches a day in the evening slots; Instagram: one daily slot.
+    # GitHub starts scheduled runs ~50 min late.
+    - cron: "12 11-19/2 * * *"  # YouTube: 5 slots, 11:12-19:12 UTC, start ~12:00-20:00 UTC = ~15:00-23:00 Istanbul
+                                  # (viewers' busiest hours). Each slot posts the strongest match still open, 1-2 days
+                                  # before kick-off (autopost/interest.py, config youtube_selection)
     - cron: "7 8 * * *"   # 08:07 UTC = 11:07 Istanbul, starts ~12:00: Instagram (and other enabled platforms)
   workflow_dispatch:
     inputs:
@@ -107,9 +107,16 @@ jobs:
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
         run: |
           ARGS="--date ${{ steps.check.outputs.date }}"
-          [ "${{ github.event.schedule }}" = "12 8-17 * * *" ] && ARGS="$ARGS --only youtube --backfill --new --limit 1 --days 4"
+          if [ "${{ github.event.schedule }}" = "12 11-19/2 * * *" ]; then
+            # announce who guessed last days' real scores first (never blocks posting)
+            python -m autopost.winners || echo "::warning::winners announcement failed"
+            ARGS="$ARGS --only youtube --backfill --new --select --limit 1 --days 2"
+          fi
           [ "${{ github.event.schedule }}" = "7 8 * * *" ] && ARGS="$ARGS --only instagram --backfill --new"
-          [ "${{ inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+            python -m autopost.winners --dry-run --days 10 || true  # shows which real results are found, writes nothing
+          fi
           [ -n "${{ inputs.only }}" ] && ARGS="$ARGS --only ${{ inputs.only }}"
           [ -n "${{ inputs.limit }}" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
           [ -n "${{ inputs.skip }}" ] && ARGS="$ARGS --skip ${{ inputs.skip }}"
@@ -125,15 +132,18 @@ jobs:
         run: |
           [ -f data/posted.json ] || exit 0
           git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git diff --quiet -- data/posted.json && exit 0
-          MSG="Posted matches ${{ steps.check.outputs.date }}${{ github.event.schedule == '12 8-17 * * *' && ' (youtube)' || github.event.schedule == '7 8 * * *' && ' (instagram)' || '' }}"
+          git diff --quiet -- data/posted.json data/winners.json && [ -z "$(git ls-files --others -- data/winners.json)" ] && exit 0
+          MSG="Posted matches ${{ steps.check.outputs.date }}${{ github.event.schedule == '12 11-19/2 * * *' && ' (youtube)' || github.event.schedule == '7 8 * * *' && ' (instagram)' || '' }}"
           T=$(mktemp -d)
           git show HEAD:data/posted.json > $T/base.json 2>/dev/null || echo '{}' > $T/base.json
           cp data/posted.json $T/mine.json
+          [ -f data/winners.json ] && cp data/winners.json $T/winners.json
           # merge this run's changes onto the latest branch state, so a run that pushed in between never loses links
           for i in 1 2 3 4 5; do
             git fetch -q origin "${{ github.ref_name }}" && git reset -q --hard FETCH_HEAD
             python tools/merge_posted.py $T/base.json $T/mine.json data/posted.json
+            # winners.json only ever gains matches: keep both sides
+            [ -f $T/winners.json ] && python -c "import json,os,sys; a=json.load(open(sys.argv[1])); b=json.load(open(sys.argv[2])) if os.path.exists(sys.argv[2]) else {}; b.update(a); open(sys.argv[2],'w').write(json.dumps(b,ensure_ascii=False,indent=0,sort_keys=True))" $T/winners.json data/winners.json && git add data/winners.json
             git add data/posted.json
             git diff --cached --quiet && exit 0
             git commit -qm "$MSG" && git push -q origin HEAD:"${{ github.ref_name }}" && exit 0

@@ -53,12 +53,13 @@ def _playlist(tok, title):
 
 
 def _extras(tok, vid, cap):
-    """League playlist and a channel comment. Best effort: needs the youtube.force-ssl scope (tools/youtube_auth.py);
+    """Playlists (competition, matchday, club) and the channel's comment asking for score guesses. Best effort: needs the youtube.force-ssl scope (tools/youtube_auth.py);
     a failure here never fails the upload."""
     h = {"Authorization": f"Bearer {tok}", "Content-Type": "application/json; charset=UTF-8"}
-    if cap.get("playlist"):
+    titles = cap.get("playlists") or ([cap["playlist"]] if cap.get("playlist") else [])
+    for title in titles:
         try:
-            pl = _playlist(tok, cap["playlist"])
+            pl = _playlist(tok, title)
             for i in range(3):  # a just-created playlist can answer 409 SERVICE_UNAVAILABLE for a few seconds
                 r = requests.post(f"{API}/playlistItems?part=snippet", headers=h, timeout=30, json={
                     "snippet": {"playlistId": pl, "resourceId": {"kind": "youtube#video", "videoId": vid}}})
@@ -67,7 +68,7 @@ def _extras(tok, vid, cap):
                 time.sleep(5)
             _check(r)
         except Exception as e:
-            print(f"  youtube: playlist skipped: {e}", flush=True)
+            print(f"  youtube: playlist '{title}' skipped: {e}", flush=True)
     if cap.get("comment"):
         try:
             _check(requests.post(f"{API}/commentThreads?part=snippet", headers=h, timeout=30, json={
