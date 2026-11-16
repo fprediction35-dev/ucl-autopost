@@ -71,7 +71,7 @@ def from_espn(f, names):
 
 
 def comments(tok, vid):
-    """all top-level comments: [(thread id, author channel id, author name, text)]"""
+    """all top-level comments, newest first: [(thread id, author channel id, author name, text, published ISO time)]"""
     out, page = [], ""
     for _ in range(10):  # up to 1000 comments
         r = requests.get(f"{API}/commentThreads", headers={"Authorization": f"Bearer {tok}"}, timeout=30, params={
@@ -80,7 +80,8 @@ def comments(tok, vid):
         j = r.json()
         for it in j.get("items", []):
             s = it["snippet"]["topLevelComment"]["snippet"]
-            out.append((it["id"], s.get("authorChannelId", {}).get("value"), s.get("authorDisplayName", ""), s.get("textOriginal", "")))
+            out.append((it["id"], s.get("authorChannelId", {}).get("value"), s.get("authorDisplayName", ""), s.get("textOriginal", ""),
+                        s.get("publishedAt", "")))
         page = j.get("nextPageToken")
         if not page:
             break
@@ -91,6 +92,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--days", type=int, default=7, help="look back this many days")
+    ap.add_argument("--max", type=int, default=10, help="announcements per run (each reply costs 50 API quota units)")
     a = ap.parse_args()
     cfg = json.loads((ROOT / "config.json").read_text(encoding="utf8"))
     tz = ZoneInfo(cfg.get("timezone", "UTC"))
@@ -103,6 +105,8 @@ def main():
         d = v.get("date", "")
         if k in done or "/shorts/" not in link or not d or not (today - dt.timedelta(days=a.days) <= dt.date.fromisoformat(d) < today):
             continue
+        if not a.dry_run and "youtube_at" not in v:
+            continue  # posted before the guess-the-score comment existed: nothing was promised there
         todo.append((k, v, link))
     if not todo:
         print("winners: nothing to announce")
@@ -110,7 +114,11 @@ def main():
     data = leagues.build()
     tok = None if a.dry_run else youtube._token()
     me = cfg.get("youtube_channel_id")
+    sent = 0
     for k, v, link in todo:
+        if sent >= a.max:
+            print(f"winners: {a.max} announced, the rest waits for the next run (API quota)")
+            break
         # fixture ids are COMP|home key|away key and keys look like "name|COUNTRY"
         parts = k.split("|")
         f = {"comp": parts[0], "h": "|".join(parts[1:3]), "a": "|".join(parts[3:5]), "date": v["date"]}
@@ -137,10 +145,13 @@ def main():
         except Exception as e:
             print(f"  {k}: comments not readable: {str(e)[:150]}")
             continue
-        mine = [c for c in cs if c[1] == me]
+        mine = [c for c in cs if c[1] == me]  # newest first: mine[-1] is the channel's first comment
+        # only guesses written before kick-off count (time known for cups, otherwise noon UTC of match day);
+        # each viewer's first guess counts, so editing the score later in a new comment does not help
+        cutoff = f"{f['date']}T{v.get('time') or '12:00'}"
         guesses = {}
-        for tid, author, name, text in cs:
-            if author == me or author in guesses:
+        for tid, author, name, text, at in reversed(cs):
+            if author == me or author in guesses or not at or at[:16] >= cutoff:
                 continue
             m = SCORE.search(text)
             if m:
@@ -166,6 +177,7 @@ def main():
             print(f"  {k}: announcement failed: {str(e)[:150]}")
             continue
         done[k] = {"result": f"{res[0]}-{res[1]}", "guesses": len(guesses), "winners": len(right)}
+        sent += 1
         print(f"  {k}: {match}, {len(right)}/{len(guesses)} right, announced")
         DONE.write_text(json.dumps(done, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf8")
     if not a.dry_run:
