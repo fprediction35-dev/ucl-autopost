@@ -43,7 +43,10 @@ DERBIES = {frozenset(p) for p in [
 
 def team(k, priority):
     if k in priority:
-        return 4  # the channel's own audience (Turkish clubs, the national team)
+        # the channel's own audience (Turkish big clubs, the national team). A priority club that is not a big
+        # club (Trabzonspor) only gets a small lift: its matches against small sides drew almost no views
+        # (Trabzonspor vs Eyupspor: 4 views in 10 h, while Kocaelispor vs Fenerbahce passed 1.3K)
+        return 4 if k in BIG or k.endswith("|NAT") else 2
     return 3 if k in BIG else 1 if k in MID else 0
 
 

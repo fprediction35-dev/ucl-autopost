@@ -66,7 +66,7 @@ def build(info, fx, cfg):
         yt_title = f"{h} vs {a} {L['pred']} ⚽"
     yt_title += " #Shorts"
     lines = [head] + ([f"{L['real']}: {when}"] if when else []) + [f"{L['model']}: {odds}"]
-    yt_desc = "\n".join(lines + ["", cta, "", L["disc"], "", " ".join(tags + ["#shorts"])])
+    yt_desc = "\n".join(lines + ["", cta, L["subscribe"], "", L["disc"], "", " ".join(tags + ["#shorts"])])
     long = "\n".join([f"{h} vs {a} {L['pred']} ⚽ {L['who']}", f"{cname}" + (f" · {stage}" if stage else ""), f"{L['model']}: {odds}"]
                      + ([f"{L['real']}: {when}"] if when else []) + [cta, "", L["disc"], "", " ".join(tags)])
     # X: no engagement asks (X's creator rewards penalise them)
