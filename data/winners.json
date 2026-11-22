@@ -1,1 +1,17 @@
-{}
+{
+"EN1|chelsea|ENG|leeds united|ENG": {
+"guesses": 0,
+"result": "1-4",
+"winners": 0
+},
+"EN1|manchester city|ENG|fulham|ENG": {
+"guesses": 0,
+"result": "1-1",
+"winners": 0
+},
+"EN1|newcastle united|ENG|arsenal|ENG": {
+"guesses": 0,
+"result": "2-2",
+"winners": 0
+}
+}
