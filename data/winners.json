@@ -18,5 +18,35 @@
 "guesses": 0,
 "result": "2-2",
 "winners": 0
+},
+"ES1|barcelona|ESP|villarreal|ESP": {
+"guesses": 0,
+"result": "3-2",
+"winners": 0
+},
+"ES1|getafe|ESP|atletico madrid|ESP": {
+"guesses": 0,
+"result": "0-3",
+"winners": 0
+},
+"IT1|ac milan|ITA|frosinone calcio|ITA": {
+"guesses": 0,
+"result": "5-1",
+"winners": 0
+},
+"IT1|atalanta|ITA|inter|ITA": {
+"guesses": 0,
+"result": "4-4",
+"winners": 0
+},
+"TR1|konyaspor|TUR|besiktas|TUR": {
+"guesses": 0,
+"result": "2-4",
+"winners": 0
+},
+"TR1|trabzonspor|TUR|eyupspor|TUR": {
+"guesses": 0,
+"result": "1-0",
+"winners": 0
 }
 }
