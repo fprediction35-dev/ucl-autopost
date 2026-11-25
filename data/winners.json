@@ -48,5 +48,25 @@
 "guesses": 0,
 "result": "1-0",
 "winners": 0
+},
+"UCL|arsenal|ENG|borussia dortmund|GER": {
+"guesses": 0,
+"result": "1-1",
+"winners": 0
+},
+"UCL|galatasaray|TUR|aston villa|ENG": {
+"guesses": 0,
+"result": "1-0",
+"winners": 0
+},
+"UCL|manchester city|ENG|napoli|ITA": {
+"guesses": 0,
+"result": "2-2",
+"winners": 0
+},
+"UCL|real madrid|ESP|psv eindhoven|NED": {
+"guesses": 0,
+"result": "5-1",
+"winners": 0
 }
 }
