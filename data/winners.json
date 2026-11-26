@@ -54,9 +54,29 @@
 "result": "1-1",
 "winners": 0
 },
+"UCL|atletico madrid|ESP|viking|NOR": {
+"guesses": 0,
+"result": "2-0",
+"winners": 0
+},
+"UCL|brugge|BEL|liverpool|ENG": {
+"guesses": 0,
+"result": "0-3",
+"winners": 0
+},
 "UCL|galatasaray|TUR|aston villa|ENG": {
 "guesses": 0,
 "result": "1-0",
+"winners": 0
+},
+"UCL|inter|ITA|vfb stuttgart|GER": {
+"guesses": 0,
+"result": "2-0",
+"winners": 0
+},
+"UCL|lille osc|FRA|bayern munchen|GER": {
+"guesses": 0,
+"result": "2-1",
 "winners": 0
 },
 "UCL|manchester city|ENG|napoli|ITA": {
@@ -64,9 +84,29 @@
 "result": "2-2",
 "winners": 0
 },
+"UCL|paris saint-germain|FRA|as roma|ITA": {
+"guesses": 0,
+"result": "2-2",
+"winners": 0
+},
 "UCL|real madrid|ESP|psv eindhoven|NED": {
 "guesses": 0,
 "result": "5-1",
+"winners": 0
+},
+"UCL|sabah|AZE|barcelona|ESP": {
+"guesses": 1,
+"result": "1-4",
+"winners": 0
+},
+"UCL|shakhtar donetsk|UKR|fenerbahce|TUR": {
+"guesses": 1,
+"result": "0-1",
+"winners": 0
+},
+"UCL|sporting cp|POR|manchester united|ENG": {
+"guesses": 0,
+"result": "2-2",
 "winners": 0
 }
 }
