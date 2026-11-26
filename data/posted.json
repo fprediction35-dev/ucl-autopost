@@ -49,6 +49,12 @@
 "youtube": "https://youtube.com/shorts/ZF3ypsUDDqA",
 "youtube_at": "2026-11-17T01:31+03:00"
 },
+"DE1|borussia dortmund|GER|bayer leverkusen|GER": {
+"at": "2026-11-26T13:05+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM2U0YsYhF/",
+"instagram_at": "2026-11-26T13:05+03:00"
+},
 "DE1|borussia dortmund|GER|sv 07 elversberg|GER": {
 "at": "2026-11-06T01:21+03:00",
 "date": "2026-11-07",
@@ -72,6 +78,12 @@
 "date": "2026-11-08",
 "instagram": "https://www.instagram.com/reel/DfcBj9IDQeI/",
 "youtube": "https://youtube.com/shorts/ZqHaMC8eAvk"
+},
+"DE1|freiburg|GER|rb leipzig|GER": {
+"at": "2026-11-26T13:48+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM7NZKB2IX/",
+"instagram_at": "2026-11-26T13:48+03:00"
 },
 "DE1|hamburger sv|GER|bayern munchen|GER": {
 "at": "2026-11-25T12:25+03:00",
@@ -371,6 +383,12 @@
 "instagram": "https://www.instagram.com/reel/Df9VuBdiH90/",
 "instagram_at": "2026-11-20T12:32+03:00"
 },
+"ES1|elche|ESP|atletico madrid|ESP": {
+"at": "2026-11-26T13:53+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM70iis7bH/",
+"instagram_at": "2026-11-26T13:53+03:00"
+},
 "ES1|elche|ESP|real betis|ESP": {
 "at": "2026-11-08T01:03+03:00",
 "date": "2026-11-08",
@@ -402,6 +420,24 @@
 "date": "2026-11-08",
 "instagram": "https://www.instagram.com/reel/DfdOcqsGyCa/",
 "youtube": "https://youtube.com/shorts/oFhlJm8M8M4"
+},
+"ES1|rc deportivo la coruna|ESP|barcelona|ESP": {
+"at": "2026-11-26T13:29+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM5EoRyu13/",
+"instagram_at": "2026-11-26T13:29+03:00"
+},
+"ES1|real betis|ESP|rayo vallecano|ESP": {
+"at": "2026-11-26T13:35+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM5wkjMpM2/",
+"instagram_at": "2026-11-26T13:35+03:00"
+},
+"ES1|real madrid|ESP|deportivo alaves|ESP": {
+"at": "2026-11-26T13:17+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM3ssSpsJf/",
+"instagram_at": "2026-11-26T13:17+03:00"
 },
 "ES1|real madrid|ESP|rc celta vigo|ESP": {
 "at": "2026-11-19T13:14+03:00",
@@ -533,6 +569,12 @@
 "instagram": "https://www.instagram.com/reel/Df4MPVKiZE5/",
 "instagram_at": "2026-11-18T12:33+03:00"
 },
+"FR1|olympique lyonnais|FRA|monaco|FRA": {
+"at": "2026-11-26T13:23+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM4YsXBSqM/",
+"instagram_at": "2026-11-26T13:23+03:00"
+},
 "FR1|olympique marseille|FRA|le mans|FRA": {
 "at": "2026-11-20T12:50+03:00",
 "date": "2026-11-22",
@@ -633,6 +675,12 @@
 "instagram": "https://www.instagram.com/reel/Df652DQCYYB/",
 "instagram_at": "2026-11-19T13:50+03:00"
 },
+"IT1|cagliari calcio|ITA|ac milan|ITA": {
+"at": "2026-11-26T13:59+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM8gT1RRjP/",
+"instagram_at": "2026-11-26T13:59+03:00"
+},
 "IT1|cagliari calcio|ITA|frosinone calcio|ITA": {
 "at": "2026-11-06T01:51+03:00",
 "date": "2026-11-07",
@@ -645,6 +693,12 @@
 "instagram": "https://www.instagram.com/reel/Df4O_NdgN3w/",
 "instagram_at": "2026-11-18T12:57+03:00"
 },
+"IT1|como 1907|ITA|juventus|ITA": {
+"at": "2026-11-26T13:11+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM3At8MLat/",
+"instagram_at": "2026-11-26T13:11+03:00"
+},
 "IT1|genoa cfc|ITA|ac milan|ITA": {
 "at": "2026-11-07T13:43+03:00",
 "date": "2026-11-08",
@@ -656,6 +710,12 @@
 "date": "2026-11-08",
 "instagram": "https://www.instagram.com/reel/Dfb1vMWj1VQ/",
 "youtube": "https://youtube.com/shorts/iA5R-umjYI0"
+},
+"IT1|inter|ITA|genoa cfc|ITA": {
+"at": "2026-11-26T13:41+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM6ckGtK7t/",
+"instagram_at": "2026-11-26T13:41+03:00"
 },
 "IT1|juventus|ITA|venezia|ITA": {
 "at": "2026-11-20T12:56+03:00",
@@ -707,11 +767,23 @@
 "instagram": "https://www.instagram.com/reel/Df9TqSaiO0y/",
 "instagram_at": "2026-11-20T12:14+03:00"
 },
+"IT1|us sassuolo calcio|ITA|napoli|ITA": {
+"at": "2026-11-26T14:05+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM9MN1lMKn/",
+"instagram_at": "2026-11-26T14:05+03:00"
+},
 "IT1|venezia|ITA|udinese calcio|ITA": {
 "at": "2026-11-05T12:11+03:00",
 "date": "2026-11-06",
 "instagram": "https://www.instagram.com/reel/DfWrZ8xkWBG/",
 "youtube": "https://youtube.com/shorts/MNWx83q_VIY"
+},
+"TR1|alanyaspor|TUR|konyaspor|TUR": {
+"at": "2026-11-26T12:47+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM0Q7aN01O/",
+"instagram_at": "2026-11-26T12:47+03:00"
 },
 "TR1|alanyaspor|TUR|trabzonspor|TUR": {
 "at": "2026-11-06T12:25+03:00",
@@ -731,6 +803,12 @@
 "instagram": "https://www.instagram.com/reel/Df6zqlIifkU/",
 "instagram_at": "2026-11-19T12:56+03:00"
 },
+"TR1|besiktas|TUR|galatasaray|TUR": {
+"at": "2026-11-26T12:11+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgMwJW1S39J/",
+"instagram_at": "2026-11-26T12:11+03:00"
+},
 "TR1|besiktas|TUR|genclerbirligi|TUR": {
 "at": "2026-11-06T12:36+03:00",
 "date": "2026-11-08",
@@ -743,17 +821,41 @@
 "instagram": "https://www.instagram.com/reel/Dfb0gTUCHpo/",
 "youtube": "https://youtube.com/shorts/qgyPPjNQPAI"
 },
+"TR1|caykur rizespor|TUR|kasimpasa|TUR": {
+"at": "2026-11-26T12:29+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgMyNLSuTqJ/",
+"instagram_at": "2026-11-26T12:29+03:00"
+},
 "TR1|corum|TUR|fenerbahce|TUR": {
 "at": "2026-11-06T12:42+03:00",
 "date": "2026-11-08",
 "instagram": "https://www.instagram.com/reel/DfZTySPjSz_/",
 "youtube": "https://youtube.com/shorts/eALOcKN3X2g"
 },
+"TR1|corum|TUR|kocaelispor|TUR": {
+"at": "2026-11-26T12:59+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM1o5sBahe/",
+"instagram_at": "2026-11-26T12:59+03:00"
+},
+"TR1|eyupspor|TUR|istanbul basaksehir|TUR": {
+"at": "2026-11-26T12:41+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgMzlEVBvXa/",
+"instagram_at": "2026-11-26T12:41+03:00"
+},
 "TR1|eyupspor|TUR|kocaelispor|TUR": {
 "at": "2026-11-07T12:00+03:00",
 "date": "2026-11-08",
 "instagram": "https://www.instagram.com/reel/DfbzwWTlIHE/",
 "youtube": "https://youtube.com/shorts/fSsI4ym3Ma4"
+},
+"TR1|fenerbahce|TUR|bb erzurumspor|TUR": {
+"at": "2026-11-26T12:23+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgMxhNTzmhv/",
+"instagram_at": "2026-11-26T12:23+03:00"
 },
 "TR1|galatasaray|TUR|amed|TUR": {
 "at": "2026-11-06T12:31+03:00",
@@ -768,6 +870,12 @@
 "instagram_at": "2026-11-17T17:43+03:00",
 "youtube": "https://youtube.com/shorts/3iI_9TdnyGI",
 "youtube_at": "2026-11-20T19:01+03:00"
+},
+"TR1|gaziantep|TUR|amed|TUR": {
+"at": "2026-11-26T12:53+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgM09AAPirx/",
+"instagram_at": "2026-11-26T12:53+03:00"
 },
 "TR1|gaziantep|TUR|kasimpasa|TUR": {
 "at": "2026-11-06T12:55+03:00",
@@ -786,6 +894,12 @@
 "date": "2026-11-08",
 "instagram": "https://www.instagram.com/reel/DfZUjUvih7Q/",
 "youtube": "https://youtube.com/shorts/Pm1TF5bPfdk"
+},
+"TR1|goztepe|TUR|trabzonspor|TUR": {
+"at": "2026-11-26T12:17+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgMw1SmN-TG/",
+"instagram_at": "2026-11-26T12:17+03:00"
 },
 "TR1|istanbul basaksehir|TUR|corum|TUR": {
 "at": "2026-11-19T12:44+03:00",
@@ -814,6 +928,12 @@
 "instagram_at": "2026-11-17T18:01+03:00",
 "youtube": "https://youtube.com/shorts/vrKOxXH_Y0Y",
 "youtube_at": "2026-11-21T14:48+03:00"
+},
+"TR1|samsunspor|TUR|genclerbirligi|TUR": {
+"at": "2026-11-26T12:35+03:00",
+"date": "2026-11-29",
+"instagram": "https://www.instagram.com/reel/DgMy5HsBKW-/",
+"instagram_at": "2026-11-26T12:35+03:00"
 },
 "TR1|samsunspor|TUR|konyaspor|TUR": {
 "at": "2026-11-07T11:54+03:00",
